@@ -1,5 +1,5 @@
 all:
-	g++ --std=c++14 `sdl2-config --cflags` main.cpp log.cpp `sdl2-config --libs` -lSDL2
+	g++ --std=c++14 `sdl2-config --cflags` main.cpp log.cpp `sdl2-config --libs` -lSDL2 -lSDL2_net
 
 js:
 	. ~/Tmp/cpp/emsdk-portable/emsdk_set_env.sh

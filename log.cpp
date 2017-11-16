@@ -1,13 +1,27 @@
 #include "log.h"
 #include <iostream>
 
-Log::Log()
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
+
+const char *Log::endl = "\n";
+
+Log::Log(Action a):
+    mAction(a)
 {}
 
 Log::~Log()
 {
-    // write("\n");
-    std::cout << std::endl;
+    write(Log::endl);
+    if(mAction == DIE)
+    {
+        #ifdef __EMSCRIPTEN__
+        emscripten_cancel_main_loop();
+        #endif
+        std::exit(EXIT_FAILURE);
+    }
 }
 
 Log& Log::operator << (const std::string & str)
@@ -33,6 +47,9 @@ Log& Log::operator << (int val)
 
 void Log::write(const char* str)
 {
-    std::cout << str;
+    if(mAction == ERR)
+        std::cerr << str;
+    else
+        std::cout << str;
 }
 

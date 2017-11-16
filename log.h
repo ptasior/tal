@@ -4,14 +4,18 @@
 class Log
 {
 public:
-    Log();
+    enum Action {LOG, ERR, DIE};
+    Log(Action a=LOG);
     ~Log();
 
     Log& operator << (const std::string & str);
     Log& operator << (const char* str);
     Log& operator << (int val);
 
+    static const char *endl;
+
 private:
     void write(const char* str);
+    Action mAction;
 };
 
