@@ -12,31 +12,17 @@ connection.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 connection.bind(('0.0.0.0', 1234))
 connection.listen(10)
 while True:
+    print("accept")
     current_connection, address = connection.accept()
     while True:
         data = current_connection.recv(2048)
-
-        # print "recv:"
-        # print data
-        # current_connection.send(resp)
-
-        # data = current_connection.recv(2048)
-        # print "recv:"
-        # print data
-
-        if data == 'quit\r\n':
+        print("recv", data, len(data))
+        if len(data) == 0:
             current_connection.shutdown(1)
             current_connection.close()
+            print("data = 0, disconnect !!!!")
             break
 
-        elif data == 'stop\r\n':
-            current_connection.shutdown(1)
-            current_connection.close()
-            exit()
-
-        elif data:
-            current_connection.send(data)
-            print(data)
-
+        current_connection.send(data)
 
 
