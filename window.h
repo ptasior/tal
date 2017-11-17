@@ -19,6 +19,7 @@ public:
 private:
     SDL_Window* mWindow = nullptr;
     SDL_Renderer *mRenderer = nullptr;
+	SDL_GLContext mGLContext = nullptr;
 
     SDL_Texture *tex = nullptr;
     bool mQuit = false;

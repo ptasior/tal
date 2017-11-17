@@ -19,6 +19,8 @@ add_custom_target(js
 					-s USE_SDL_IMAGE=2
 					-s SDL2_IMAGE_FORMATS='["bmp"]'
 					-s USE_PTHREADS=1
+					-s FULL_ES2=1
+					#-s USE_GLFW=3
 					-I lib/selene
 					-I lib/lua
 					${SOURCE_FILES}
@@ -42,6 +44,11 @@ pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
 
+find_package(OpenGL)
+#find_package(GLUT)
+#find_package(GLEW)
+include_directories(${GLEW_INCLUDE_DIRS})
+
 include_directories(lib/selene)
 include_directories(lib/lua)
 
@@ -51,5 +58,8 @@ target_link_libraries(${PROJECT_NAME}
 						${SDL2IMAGE_LIBRARIES}
 						dl
 						${PROJECT_SOURCE_DIR}/lib/lua/liblua.a
+						${OPENGL_gl_LIBRARY}
+						#${GLUT_LIBRARIES}
+						#${GLEW_LIBRARIES}
 					)
 
