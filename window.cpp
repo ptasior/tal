@@ -93,7 +93,7 @@ void Window::loop()
 
 void Window::onLoop()
 {
-	static SDL_Event event; // That SHOULD be safe here...?
+	static SDL_Event event; // This SHOULD be safe
 
 	if(SDL_PollEvent(&event))
 		onEvent(event);

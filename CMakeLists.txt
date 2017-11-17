@@ -7,6 +7,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 set(SOURCE_FILES
 		main.cpp
 		log.cpp
+		window.cpp
 		net.cpp
 	)
 
@@ -17,9 +18,15 @@ add_custom_target(js
 					-s USE_SDL_NET=2
 					-s USE_SDL_IMAGE=2
 					-s SDL2_IMAGE_FORMATS='["bmp"]'
+					-s USE_PTHREADS=1
+					-I lib/selene
+					-I lib/lua
 					${SOURCE_FILES}
+					${PROJECT_SOURCE_DIR}/lib/lua/liblua_emscripten.a
 					-o "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.html"
-					--preload-file img
+					-s USE_PTHREADS=1
+					-ldl
+					--preload-file assets
 		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 	)
 
@@ -33,11 +40,16 @@ pkg_search_module(SDL2 REQUIRED sdl2)
 pkg_search_module(SDL2NET REQUIRED SDL2_net>=2.0.0)
 pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
 
-INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
+include_directories(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
+
+include_directories(lib/selene)
+include_directories(lib/lua)
 
 target_link_libraries(${PROJECT_NAME}
 						${SDL2_LIBRARIES}
 						${SDL2NET_LIBRARIES}
 						${SDL2IMAGE_LIBRARIES}
+						dl
+						${PROJECT_SOURCE_DIR}/lib/lua/liblua.a
 					)
 

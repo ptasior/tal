@@ -1,5 +1,6 @@
 #include "window.h"
 #include "log.h"
+#include "selene.h"
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -15,6 +16,12 @@ void main_loop()
 
 int main( int argc, char* args[] )
 {
+
+sel::State state;
+state.Load("assets/lua.lua");
+Log() << int(state["foo"]);
+state("x = 15");
+Log() << int(state["x"]);
 
     Window w;
 
