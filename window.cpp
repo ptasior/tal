@@ -7,27 +7,28 @@
 	#define GL_GLEXT_PROTOTYPES 1
 	#include <SDL_opengles2.h>
 #else
-	// #include <GL/gl.h>
 	#include <SDL2/SDL.h>
-
 	#define GL_GLEXT_PROTOTYPES 1
-	#include <SDL2/SDL_opengles2.h>
+	#include <SDL2/SDL_opengl.h>
 #endif
 
 
-// const GLchar* vertexSource =
-//     "attribute vec4 position;    \n"
-//     "void main()                  \n"
-//     "{                            \n"
-//     "   gl_Position = vec4(position.xyz, 1.0);  \n"
-//     "}                            \n";
-// const GLchar* fragmentSource =
-//     "precision mediump float;\n"
-//     "void main()                                  \n"
-//     "{                                            \n"
-//     "  gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0 );\n"
-//     "}                                            \n";
-// 
+const GLchar* vertexSource =
+    "attribute vec4 position;    \n"
+    "void main()                  \n"
+    "{                            \n"
+    "   gl_Position = vec4(position.xyz, 1.0);  \n"
+    "}                            \n";
+const GLchar* fragmentSource =
+    "precision mediump float;\n"
+    "void main()                                  \n"
+    "{                                            \n"
+    "  gl_FragColor = vec4 (1.0, 1.0, 0.0, 1.0 );\n"
+    "}                                            \n";
+
+	GLuint vao;
+	GLuint vbo;
+	GLfloat vertices[] = {0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
 
 Window::Window()
 {
@@ -54,65 +55,42 @@ Window::Window()
 	if(!mRenderer)
 		Log(Log::DIE) << "Renderer could not be created! SDL_Error: " << SDL_GetError();
 
-	// // Create Vertex Array Object
-	// GLuint vao;
-	// glGenVertexArraysOES(1, &vao);
-	// glBindVertexArrayOES(vao);
+#ifdef __EMSCRIPTEN__
+	glGenVertexArraysOES(1, &vao);
+	glBindVertexArrayOES(vao);
+#else
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+#endif
 
-	// GLuint vbo;
-	// glGenBuffers(1, &vbo);
+	// Create a Vertex Buffer Object and copy the vertex data to it
+	glGenBuffers(1, &vbo);
 
-	// GLfloat vertices[] = {0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	// glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	// glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    // Create and compile the vertex shader
+    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vertexSource, NULL);
+    glCompileShader(vertexShader);
 
-	// // Create and compile the vertex shader
-	// GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	// glShaderSource(vertexShader, 1, &vertexSource, NULL);
-	// glCompileShader(vertexShader);
+    // Create and compile the fragment shader
+    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+    glCompileShader(fragmentShader);
 
-	// // Create and compile the fragment shader
-	// GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-	// glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-	// glCompileShader(fragmentShader);
+    // Link the vertex and fragment shader into a shader program
+    GLuint shaderProgram = glCreateProgram();
+    glAttachShader(shaderProgram, vertexShader);
+    glAttachShader(shaderProgram, fragmentShader);
+    // glBindFragDataLocation(shaderProgram, 0, "outColor");
+    glLinkProgram(shaderProgram);
+    glUseProgram(shaderProgram);
 
-	// // Link the vertex and fragment shader into a shader program
-	// GLuint shaderProgram = glCreateProgram();
-	// glAttachShader(shaderProgram, vertexShader);
-	// glAttachShader(shaderProgram, fragmentShader);
-	// // glBindFragDataLocation(shaderProgram, 0, "outColor");
-	// glLinkProgram(shaderProgram);
-	// glUseProgram(shaderProgram);
-
-	// // Specify the layout of the vertex data
-	// GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-	// glEnableVertexAttribArray(posAttrib);
-	// glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
-
-
-
-
-	// // TODO Rubbish, remove later
-	// std::string imagePath = "assets/bmp.bmp";
-	// SDL_Surface *bmp = SDL_LoadBMP(imagePath.c_str());
-	// if (bmp == nullptr){
-	// 	SDL_DestroyRenderer(mRenderer);
-	// 	SDL_DestroyWindow(mWindow);
-	// 	Log() << "SDL_LoadBMP Error: " << SDL_GetError();
-	// 	SDL_Quit();
-	// 	return ;
-	// }
-
-	// tex = SDL_CreateTextureFromSurface(mRenderer, bmp);
-	// SDL_FreeSurface(bmp);
-	// if (tex == nullptr){
-	// 	SDL_DestroyRenderer(mRenderer);
-	// 	SDL_DestroyWindow(mWindow);
-	// 	Log()<< "SDL_CreateTextureFromSurface Error: " << SDL_GetError();
-	// 	SDL_Quit();
-	// 	return ;
-	// }
+    // Specify the layout of the vertex data
+    GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
+    glEnableVertexAttribArray(posAttrib);
+    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
 
 	Log() << "Initialisation succesed";
 }
@@ -173,25 +151,11 @@ void Window::onLoop()
 
 void Window::onPaint()
 {
-	glClearColor(1.0f, 1.0f, 0.0f, 1.0f);
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	// Draw a triangle from the 3 vertices
-	// glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	// glLoadIdentity();//load identity matrix
-	// 
-	// // glTranslatef(0.0f,0.0f,-4.0f);//move forward 4 units
-	// 
-	// glColor3f(0.0f,0.0f,1.0f); //blue color
-	// 
-	// glBegin(GL_LINE_LOOP);//start drawing a line loop
-	//   glVertex3f(-1.0f,0.0f,0.0f);//left of window
-	//   glVertex3f(0.0f,-1.0f,0.0f);//bottom of window
-	//   glVertex3f(1.0f,0.0f,0.0f);//right of window
-	//   glVertex3f(0.0f,1.0f,0.0f);//top of window
-	// glEnd();//end drawing of line loop
+	glDrawArrays(GL_TRIANGLES, 0, 3);
 
 	SDL_GL_SwapWindow(mWindow);
 }

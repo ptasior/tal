@@ -23,6 +23,7 @@ add_custom_target(js
 					#-s USE_GLFW=3
 					-I lib/selene
 					-I lib/lua
+					-s TOTAL_MEMORY=167772160
 					${SOURCE_FILES}
 					${PROJECT_SOURCE_DIR}/lib/lua/liblua_emscripten.a
 					-o "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.html"

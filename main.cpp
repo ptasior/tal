@@ -28,7 +28,7 @@ Log() << int(state["x"]);
     #ifdef __EMSCRIPTEN__
         ptr_w = &w;
         Log() << "Running Emscripten loop";
-        emscripten_set_main_loop(main_loop, 60, true);
+        emscripten_set_main_loop(main_loop, 0, true);
     #else
         w.loop();
     #endif
