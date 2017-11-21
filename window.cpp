@@ -3,17 +3,22 @@
 #include <SDL.h>
 #include <fstream>
 
+GLuint shaderProgram;
+GLint attribute_coord3d, attribute_v_color, uniform_fade;
 
-
-
-	GLuint vao;
-	GLuint vbo;
-	GLuint shaderProgram;
-	GLint posAttrib;
-	GLfloat vertices[] = {0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
-
+struct attributes
+{
+	GLfloat coord3d[3];
+	GLfloat v_color[3];
+};
 Window::Window()
 {
+struct attributes triangle_attributes[] = {
+		{{ 0.0,  0.8, 0.0}, {1.0, 1.0, 0.0}},
+		{{-0.8, -0.8, 0.0}, {0.0, 0.0, 1.0}},
+		{{ 0.8, -0.8, 0.0}, {1.0, 0.0, 0.0}}
+	};
+
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	SDL_GL_SetSwapInterval(0);
@@ -58,7 +63,7 @@ Window::Window()
 	glGenBuffers(1, &vbo);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_attributes), triangle_attributes, GL_STATIC_DRAW);
 
 	GLuint vertexShader = loadShader("shaders/triangle.v.glsl", GL_VERTEX_SHADER);
     GLuint fragmentShader = loadShader("shaders/triangle.f.glsl", GL_FRAGMENT_SHADER);
@@ -76,9 +81,17 @@ Window::Window()
 		Log(Log::DIE) << "Error in glLinkProgram";
 
     // Specify the layout of the vertex data
-    posAttrib = glGetAttribLocation(shaderProgram, "position");
-	if(posAttrib == -1)
-		Log(Log::DIE) << "Could not bind attribute";
+    attribute_coord3d = glGetAttribLocation(shaderProgram, "coord3d");
+	if(attribute_coord3d == -1)
+		Log(Log::DIE) << "Could not bind attribute coord3d";
+
+	attribute_v_color = glGetAttribLocation(shaderProgram, "v_color");
+	if(attribute_v_color == -1)
+		Log(Log::DIE) << "Could not bind attribute v_color";
+
+	uniform_fade = glGetUniformLocation(shaderProgram, "fade");
+	if(uniform_fade == -1)
+		Log(Log::DIE) << "Could not bind uniform attribute fade";
 
 	Log() << "Initialisation succesed";
 }
@@ -98,7 +111,21 @@ GLuint Window::loadShader(const char * file, GLenum type)
 	std::string lines = readFile(file);
 	auto ptr = lines.c_str();
 
-	glShaderSource(shader, 1, &ptr, NULL);
+	const char* precision =
+		"#ifdef GL_ES                        \n"
+		"#  ifdef GL_FRAGMENT_PRECISION_HIGH \n"
+		"     precision highp float;         \n"
+		"#  else                             \n"
+		"     precision mediump float;       \n"
+		"#  endif                            \n"
+		"#endif                              \n";
+
+	const GLchar* sources[] = {
+		precision,
+		ptr
+	}; // When adding update sizeof below
+
+	glShaderSource(shader, 2, sources, NULL);
 	glCompileShader(shader);
 
 	GLint compile_ok = GL_FALSE;
@@ -189,6 +216,8 @@ void Window::onLoop()
 
 void Window::onPaint()
 {
+	float cur_fade = sinf(SDL_GetTicks() / 1000.0 * (2*3.14) / 5) / 2 + 0.5;
+
 	// Enable alpha
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -196,15 +225,36 @@ void Window::onPaint()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-    glUseProgram(shaderProgram);
+	glUseProgram(shaderProgram);
+	glUniform1f(uniform_fade, cur_fade);
 
-    glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+	glEnableVertexAttribArray(attribute_coord3d);
+	glEnableVertexAttribArray(attribute_v_color);
+
+	glVertexAttribPointer(
+		attribute_coord3d,   // attribute
+		3,                   // number of elements per vertex, here (x,y,z)
+		GL_FLOAT,            // the type of each element
+		GL_FALSE,            // take our values as-is
+		sizeof(struct attributes),  // next coord3d appears every 5 floats
+		0                    // offset of first element
+	);
+	glVertexAttribPointer(
+		attribute_v_color,      // attribute
+		3,                      // number of elements per vertex, here (r,g,b)
+		GL_FLOAT,               // the type of each element
+		GL_FALSE,               // take our values as-is
+		sizeof(struct attributes),  // stride
+		//(void*) (2 * sizeof(GLfloat))     // offset of first element
+		(void*) offsetof(struct attributes, v_color)  // offset
+	);
+	
 
 	// Draw a triangle from the 3 vertices
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	glDisableVertexAttribArray(posAttrib);
+	glDisableVertexAttribArray(attribute_coord3d);
+	glDisableVertexAttribArray(attribute_v_color);
 
 	SDL_GL_SwapWindow(mWindow);
 }
