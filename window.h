@@ -21,12 +21,10 @@ public:
 	void onEvent(SDL_Event &event);
 	void onLoop();
 	void onPaint();
+	void onResize(int width, int height);
 
 	void loop();
 
-	//Screen dimension constants
-	const int SCREEN_WIDTH = 640;
-	const int SCREEN_HEIGHT = 480;
 
 private:
 	GLuint loadShader(const char * file, GLenum type);
@@ -43,6 +41,10 @@ private:
 	Net mNet;
 
 	GLuint vao;
-	GLuint vbo;
+	GLuint shaderProgram;
+
+	//Screen dimension constants
+	int SCREEN_WIDTH = 640;
+	int SCREEN_HEIGHT = 480;
 };
 

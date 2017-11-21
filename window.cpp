@@ -3,8 +3,15 @@
 #include <SDL.h>
 #include <fstream>
 
-GLuint shaderProgram;
-GLint attribute_coord3d, attribute_v_color, uniform_fade;
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+GLuint vbo_cube_vertices, vbo_cube_colors;
+GLuint ibo_cube_elements;
+GLuint attribute_coord3d, attribute_v_color;
+GLint uniform_mvp;
+// GLint m_transform;
 
 struct attributes
 {
@@ -13,10 +20,50 @@ struct attributes
 };
 Window::Window()
 {
-struct attributes triangle_attributes[] = {
-		{{ 0.0,  0.8, 0.0}, {1.0, 1.0, 0.0}},
-		{{-0.8, -0.8, 0.0}, {0.0, 0.0, 1.0}},
-		{{ 0.8, -0.8, 0.0}, {1.0, 0.0, 0.0}}
+	GLfloat cube_vertices[] = {
+	// front
+		-1.0, -1.0,  1.0,
+		 1.0, -1.0,  1.0,
+		 1.0,  1.0,  1.0,
+		-1.0,  1.0,  1.0,
+		// back
+		-1.0, -1.0, -1.0,
+		 1.0, -1.0, -1.0,
+		 1.0,  1.0, -1.0,
+		-1.0,  1.0, -1.0,
+	};
+	GLfloat cube_colors[] = {
+		// front colors
+		1.0, 0.0, 0.0,
+		0.0, 1.0, 0.0,
+		0.0, 0.0, 1.0,
+		1.0, 1.0, 1.0,
+		// back colors
+		1.0, 0.0, 0.0,
+		0.0, 1.0, 0.0,
+		0.0, 0.0, 1.0,
+		1.0, 1.0, 1.0,
+	};
+
+	GLushort cube_elements[] = {
+		// front
+		0, 1, 2,
+		2, 3, 0,
+		// top
+		1, 5, 6,
+		6, 2, 1,
+		// back
+		7, 6, 5,
+		5, 4, 7,
+		// bottom
+		4, 0, 3,
+		3, 7, 4,
+		// left
+		4, 5, 1,
+		1, 0, 4,
+		// right
+		3, 2, 6,
+		6, 7, 3,
 	};
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -35,7 +82,8 @@ struct attributes triangle_attributes[] = {
 
 	//Create window
 	mWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
-							SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
+							SCREEN_WIDTH, SCREEN_HEIGHT,
+							SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if(!mWindow)
 		Log(Log::DIE) << "Window could not be created! SDL_Error: " << SDL_GetError();
 
@@ -59,11 +107,20 @@ struct attributes triangle_attributes[] = {
 	glBindVertexArray(vao);
 #endif
 
-	// Create a Vertex Buffer Object and copy the vertex data to it
-	glGenBuffers(1, &vbo);
+	glGenBuffers(1, &vbo_cube_vertices);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_vertices);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_attributes), triangle_attributes, GL_STATIC_DRAW);
+
+	glGenBuffers(1, &vbo_cube_colors);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_colors);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_colors), cube_colors, GL_STATIC_DRAW);
+
+
+	// Create a Vertex Buffer Object and copy the vertex data to it
+	glGenBuffers(1, &ibo_cube_elements);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_cube_elements);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_elements), cube_elements, GL_STATIC_DRAW);
 
 	GLuint vertexShader = loadShader("shaders/triangle.v.glsl", GL_VERTEX_SHADER);
     GLuint fragmentShader = loadShader("shaders/triangle.f.glsl", GL_FRAGMENT_SHADER);
@@ -89,9 +146,13 @@ struct attributes triangle_attributes[] = {
 	if(attribute_v_color == -1)
 		Log(Log::DIE) << "Could not bind attribute v_color";
 
-	uniform_fade = glGetUniformLocation(shaderProgram, "fade");
-	if(uniform_fade == -1)
-		Log(Log::DIE) << "Could not bind uniform attribute fade";
+	// m_transform = glGetUniformLocation(shaderProgram, "m_transform");
+	// if(m_transform == -1)
+	// 	Log(Log::DIE) << "Could not bind uniform attribute m_transform";
+
+	uniform_mvp = glGetUniformLocation(shaderProgram, "mvp");
+	if(uniform_mvp == -1)
+		Log(Log::DIE) << "Could not bind uniform attribute mvp";
 
 	Log() << "Initialisation succesed";
 }
@@ -194,6 +255,10 @@ void Window::onEvent(SDL_Event &event)
 					break;
 			}
 			break;
+		case SDL_WINDOWEVENT:
+					if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+						onResize(event.window.data1, event.window.data2);
+					break;
 	}
 }
 
@@ -216,46 +281,74 @@ void Window::onLoop()
 
 void Window::onPaint()
 {
-	float cur_fade = sinf(SDL_GetTicks() / 1000.0 * (2*3.14) / 5) / 2 + 0.5;
+	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -4.0));
+	glm::mat4 view = glm::lookAt(glm::vec3(0.0, 2.0, 0.0), glm::vec3(0.0, 0.0, -4.0), glm::vec3(0.0, 1.0, 0.0));
+	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f * SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 10.0f);
+	// glm::mat4 mvp = projection * view * model;
+
+	float angle = SDL_GetTicks() / 1000.0 * 45;  // 45° per second
+	glm::vec3 axis_y(0, 1, 0);
+	glm::mat4 anim = glm::rotate(glm::mat4(1.0f), glm::radians(angle), axis_y);
+	glm::mat4 mvp = projection * view * model * anim;
+
 
 	// Enable alpha
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+	glEnable(GL_DEPTH_TEST);
+
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 	glUseProgram(shaderProgram);
-	glUniform1f(uniform_fade, cur_fade);
+	// glUniformMatrix4fv(m_transform, 1, GL_FALSE, glm::value_ptr(mtransform));
+	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 
 	glEnableVertexAttribArray(attribute_coord3d);
-	glEnableVertexAttribArray(attribute_v_color);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_vertices);
 
 	glVertexAttribPointer(
 		attribute_coord3d,   // attribute
 		3,                   // number of elements per vertex, here (x,y,z)
 		GL_FLOAT,            // the type of each element
 		GL_FALSE,            // take our values as-is
-		sizeof(struct attributes),  // next coord3d appears every 5 floats
+		0,  // next coord3d appears every 5 floats
 		0                    // offset of first element
 	);
+
+	glEnableVertexAttribArray(attribute_v_color);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_colors);
+
 	glVertexAttribPointer(
 		attribute_v_color,      // attribute
 		3,                      // number of elements per vertex, here (r,g,b)
 		GL_FLOAT,               // the type of each element
 		GL_FALSE,               // take our values as-is
-		sizeof(struct attributes),  // stride
-		//(void*) (2 * sizeof(GLfloat))     // offset of first element
-		(void*) offsetof(struct attributes, v_color)  // offset
+		0,  // stride
+		0						// offset of first element
 	);
 	
 
 	// Draw a triangle from the 3 vertices
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	// glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_cube_elements);
+	int size;
+	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+	glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
 
 	glDisableVertexAttribArray(attribute_coord3d);
 	glDisableVertexAttribArray(attribute_v_color);
 
 	SDL_GL_SwapWindow(mWindow);
+}
+
+void Window::onResize(int width, int height)
+{
+  SCREEN_WIDTH = width;
+  SCREEN_HEIGHT = height;
+  glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
