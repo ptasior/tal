@@ -7,6 +7,8 @@
 	#define GL_GLEXT_PROTOTYPES 1
 	#include <SDL_opengles2.h>
 #else
+	#include <GL/glew.h>
+
 	#include <SDL2/SDL.h>
 	#define GL_GLEXT_PROTOTYPES 1
 	#include <SDL2/SDL_opengl.h>
@@ -20,7 +22,6 @@ const GLchar* vertexSource =
     "   gl_Position = vec4(position.xyz, 1.0);  \n"
     "}                            \n";
 const GLchar* fragmentSource =
-    "precision mediump float;\n"
     "void main()                                  \n"
     "{                                            \n"
     "  gl_FragColor = vec4 (1.0, 1.0, 0.0, 1.0 );\n"
@@ -28,6 +29,8 @@ const GLchar* fragmentSource =
 
 	GLuint vao;
 	GLuint vbo;
+	GLuint shaderProgram;
+	GLint posAttrib;
 	GLfloat vertices[] = {0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
 
 Window::Window()
@@ -59,6 +62,12 @@ Window::Window()
 	glGenVertexArraysOES(1, &vao);
 	glBindVertexArrayOES(vao);
 #else
+	glewExperimental=true; // Needed in core profile
+	GLenum glew = glewInit();
+
+	if(glew!= GLEW_OK)
+		Log(Log::DIE) << "Failed to initialize GLEW";
+
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 #endif
@@ -69,28 +78,43 @@ Window::Window()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
+
     // Create and compile the vertex shader
     GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertexShader, 1, &vertexSource, NULL);
     glCompileShader(vertexShader);
+
+	GLint compile_ok = GL_FALSE, link_ok = GL_FALSE;
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compile_ok);
+	if(!compile_ok)
+		Log(Log::DIE) << "Error in vertex shader";
+
 
     // Create and compile the fragment shader
     GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
     glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
     glCompileShader(fragmentShader);
 
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compile_ok);
+	if(!compile_ok)
+		Log(Log::DIE) << "Error in fragment shader";
+
+
     // Link the vertex and fragment shader into a shader program
-    GLuint shaderProgram = glCreateProgram();
+    shaderProgram = glCreateProgram();
     glAttachShader(shaderProgram, vertexShader);
     glAttachShader(shaderProgram, fragmentShader);
     // glBindFragDataLocation(shaderProgram, 0, "outColor");
     glLinkProgram(shaderProgram);
-    glUseProgram(shaderProgram);
+
+	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &link_ok);
+	if(!link_ok)
+		Log(Log::DIE) << "Error in glLinkProgram";
 
     // Specify the layout of the vertex data
-    GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
-    glEnableVertexAttribArray(posAttrib);
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+    posAttrib = glGetAttribLocation(shaderProgram, "position");
+	if(posAttrib == -1)
+		Log(Log::DIE) << "Could not bind attribute";
 
 	Log() << "Initialisation succesed";
 }
@@ -154,8 +178,15 @@ void Window::onPaint()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+    glUseProgram(shaderProgram);
+
+    glEnableVertexAttribArray(posAttrib);
+    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
 	// Draw a triangle from the 3 vertices
 	glDrawArrays(GL_TRIANGLES, 0, 3);
+
+	glDisableVertexAttribArray(posAttrib);
 
 	SDL_GL_SwapWindow(mWindow);
 }

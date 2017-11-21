@@ -47,7 +47,7 @@ include_directories(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
 
 find_package(OpenGL)
 #find_package(GLUT)
-#find_package(GLEW)
+find_package(GLEW)
 include_directories(${GLEW_INCLUDE_DIRS})
 
 include_directories(lib/selene)
@@ -61,6 +61,6 @@ target_link_libraries(${PROJECT_NAME}
 						${PROJECT_SOURCE_DIR}/lib/lua/liblua.a
 						${OPENGL_gl_LIBRARY}
 						#${GLUT_LIBRARIES}
-						#${GLEW_LIBRARIES}
+						${GLEW_LIBRARIES}
 					)
 
