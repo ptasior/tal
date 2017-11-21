@@ -1,31 +1,10 @@
 #include "window.h"
 #include "log.h"
 #include <SDL.h>
+#include <fstream>
 
 
-#ifdef __EMSCRIPTEN__
-	#define GL_GLEXT_PROTOTYPES 1
-	#include <SDL_opengles2.h>
-#else
-	#include <GL/glew.h>
 
-	#include <SDL2/SDL.h>
-	#define GL_GLEXT_PROTOTYPES 1
-	#include <SDL2/SDL_opengl.h>
-#endif
-
-
-const GLchar* vertexSource =
-    "attribute vec4 position;    \n"
-    "void main()                  \n"
-    "{                            \n"
-    "   gl_Position = vec4(position.xyz, 1.0);  \n"
-    "}                            \n";
-const GLchar* fragmentSource =
-    "void main()                                  \n"
-    "{                                            \n"
-    "  gl_FragColor = vec4 (1.0, 1.0, 0.0, 1.0 );\n"
-    "}                                            \n";
 
 	GLuint vao;
 	GLuint vbo;
@@ -40,6 +19,11 @@ Window::Window()
 	SDL_GL_SetSwapInterval(0);
 	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 1); // Transparency
+
+#ifndef __EMSCRIPTEN__
+	glewExperimental = true; // Needed in core profile
+#endif
 
 	if(SDL_Init( SDL_INIT_VIDEO ) < 0)
 		Log(Log::DIE) << "SDL could not initialize! SDL_Error: " << SDL_GetError();
@@ -62,9 +46,7 @@ Window::Window()
 	glGenVertexArraysOES(1, &vao);
 	glBindVertexArrayOES(vao);
 #else
-	glewExperimental=true; // Needed in core profile
 	GLenum glew = glewInit();
-
 	if(glew!= GLEW_OK)
 		Log(Log::DIE) << "Failed to initialize GLEW";
 
@@ -78,27 +60,8 @@ Window::Window()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-
-    // Create and compile the vertex shader
-    GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexSource, NULL);
-    glCompileShader(vertexShader);
-
-	GLint compile_ok = GL_FALSE, link_ok = GL_FALSE;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &compile_ok);
-	if(!compile_ok)
-		Log(Log::DIE) << "Error in vertex shader";
-
-
-    // Create and compile the fragment shader
-    GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
-    glCompileShader(fragmentShader);
-
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &compile_ok);
-	if(!compile_ok)
-		Log(Log::DIE) << "Error in fragment shader";
-
+	GLuint vertexShader = loadShader("shaders/triangle.v.glsl", GL_VERTEX_SHADER);
+    GLuint fragmentShader = loadShader("shaders/triangle.f.glsl", GL_FRAGMENT_SHADER);
 
     // Link the vertex and fragment shader into a shader program
     shaderProgram = glCreateProgram();
@@ -107,6 +70,7 @@ Window::Window()
     // glBindFragDataLocation(shaderProgram, 0, "outColor");
     glLinkProgram(shaderProgram);
 
+	GLint link_ok = GL_FALSE;
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &link_ok);
 	if(!link_ok)
 		Log(Log::DIE) << "Error in glLinkProgram";
@@ -125,6 +89,56 @@ Window::~Window()
 	SDL_DestroyWindow(mWindow);
 	SDL_Quit();
 	Log() << "Quit";
+}
+
+GLuint Window::loadShader(const char * file, GLenum type)
+{
+	GLuint shader = glCreateShader(type);
+
+	std::string lines = readFile(file);
+	auto ptr = lines.c_str();
+
+	glShaderSource(shader, 1, &ptr, NULL);
+	glCompileShader(shader);
+
+	GLint compile_ok = GL_FALSE;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_ok);
+
+	if(!compile_ok)
+		Log(Log::DIE) << "Error in vertex shader\n" << getGlLog(shader);
+
+	return shader;
+}
+
+std::string Window::readFile(const char* filename)
+{
+	std::ifstream t(filename);
+	if(t.fail())
+		Log(Log::DIE) << "Cannot open " << filename;
+
+	return std::string((std::istreambuf_iterator<char>(t)),
+					 std::istreambuf_iterator<char>());
+}
+
+std::string Window::getGlLog(GLuint object)
+{
+	GLint log_length = 0;
+	if (glIsShader(object))
+		glGetShaderiv(object, GL_INFO_LOG_LENGTH, &log_length);
+	else if (glIsProgram(object))
+		glGetProgramiv(object, GL_INFO_LOG_LENGTH, &log_length);
+	else
+		return "getGlLog: Not a shader or a program";
+
+	std::string ret;
+	ret.resize(log_length);
+	
+	if (glIsShader(object))
+		glGetShaderInfoLog(object, log_length, NULL, &ret[0]);
+	else if (glIsProgram(object))
+		glGetProgramInfoLog(object, log_length, NULL, &ret[0]);
+	
+	return ret;
 }
 
 void Window::onEvent(SDL_Event &event)
@@ -175,6 +189,10 @@ void Window::onLoop()
 
 void Window::onPaint()
 {
+	// Enable alpha
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 

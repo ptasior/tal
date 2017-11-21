@@ -30,6 +30,7 @@ add_custom_target(js
 					-s USE_PTHREADS=1
 					-ldl
 					--preload-file assets
+					--preload-file shaders
 		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 	)
 
