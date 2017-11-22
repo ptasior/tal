@@ -9,6 +9,7 @@ set(SOURCE_FILES
 		log.cpp
 		window.cpp
 		net.cpp
+		shader.cpp
 	)
 
 # Rough but works for now

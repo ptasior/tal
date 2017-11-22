@@ -1,11 +1,12 @@
 #include "window.h"
 #include "log.h"
+#include "shader.h"
 #include <SDL2/SDL_image.h>
-#include <SDL_ttf.h>
-/*
- * #include <SDL2/SDL_ttf.h>
- */
-#include <fstream>
+#ifndef __EMSCRIPTEN__
+	#include <SDL_ttf.h> // TODO if enscripten ...
+#else
+	#include <SDL2/SDL_ttf.h>
+#endif
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -19,6 +20,8 @@ GLint uniform_mvp;
 
 GLuint texture_id;
 GLint uniform_mytexture;
+
+Shader mShader;
 
 Window::Window()
 {
@@ -98,7 +101,7 @@ Window::Window()
 	glewExperimental = true; // Needed in core profile
 #endif
 
-	if(SDL_Init( SDL_INIT_VIDEO ) < 0)
+	if(SDL_Init(SDL_INIT_VIDEO) < 0)
 		Log(Log::DIE) << "SDL could not initialize! SDL_Error: " << SDL_GetError();
 
 	//Create window
@@ -132,6 +135,8 @@ Window::Window()
 	glBindVertexArray(vao);
 #endif
 
+	mShader.init("triangle");
+
 	glGenBuffers(1, &vbo_cube_vertices);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_vertices);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
@@ -145,69 +150,43 @@ Window::Window()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_elements), cube_elements, GL_STATIC_DRAW);
 
 
-	GLuint vertexShader = loadShader("shaders/triangle.v.glsl", GL_VERTEX_SHADER);
-	GLuint fragmentShader = loadShader("shaders/triangle.f.glsl", GL_FRAGMENT_SHADER);
-
-	// Link the vertex and fragment shader into a shader program
-	shaderProgram = glCreateProgram();
-	glAttachShader(shaderProgram, vertexShader);
-	glAttachShader(shaderProgram, fragmentShader);
-	// glBindFragDataLocation(shaderProgram, 0, "outColor");
-	glLinkProgram(shaderProgram);
-
-	GLint link_ok = GL_FALSE;
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &link_ok);
-	if(!link_ok)
-		Log(Log::DIE) << "Error in glLinkProgram";
-
     // Specify the layout of the vertex data
-    attribute_coord3d = glGetAttribLocation(shaderProgram, "coord3d");
-	if(attribute_coord3d == -1)
-		Log(Log::DIE) << "Could not bind attribute coord3d";
-
-	attribute_texcoord = glGetAttribLocation(shaderProgram, "texcoord");
-	if(attribute_texcoord == -1)
-		Log(Log::DIE) << "Could not bind attribute v_color";
-
-	uniform_mvp = glGetUniformLocation(shaderProgram, "mvp");
-	if(uniform_mvp == -1)
-		Log(Log::DIE) << "Could not bind uniform attribute mvp";
+    attribute_coord3d = mShader.mkAttrib("coord3d");
+	attribute_texcoord = mShader.mkAttrib("texcoord");
+	uniform_mvp = mShader.mkUniform("mvp");
 
 
+	SDL_Surface* res_texture = IMG_Load("assets/tex.png");
+	if(!res_texture)
+		Log(Log::DIE) << "IMG_Load: " << SDL_GetError();
 
 	//SDL_Surface* res_texture = IMG_Load("assets/tex.png");
-	TTF_Font* font = TTF_OpenFont("assets/Hack.ttf", 90 );
-	if(!font)
-		Log(Log::DIE) << "Cannot initaialise specific font " << TTF_GetError();
-	SDL_Color textColor = { 255, 255, 255, 255 }; // white
+	// TTF_Font* font = TTF_OpenFont("assets/Hack.ttf", 90 );
+	// if(!font)
+	// 	Log(Log::DIE) << "Cannot initaialise specific font " << TTF_GetError();
+	// SDL_Color textColor = { 255, 255, 255, 255 }; // white
 
 	// SDL_Surface *res_texture  = TTF_RenderText_Blended(font, "Qqrq", textColor);
 	// if(!res_texture)
 	// 	Log(Log::DIE) << "IMG_Load: " << SDL_GetError();
 
-	SDL_Surface *rt  = TTF_RenderText_Blended(font, "Qqrq", textColor);
-	SDL_Surface *res_texture = SDL_CreateRGBSurface(SDL_SWSURFACE, 512, 512,
-		32,
-		0xff000000,
-		0x00ff0000,
-		0x0000ff00,
-		0x000000ff
-    ); 
-
-	SDL_Rect rect;
-	rect.x = 0;
-	rect.y = 0;
-	rect.w = 512;
-	rect.h = 512;
-
-	SDL_BlitSurface(rt, NULL, res_texture, &rect);
-	SDL_FreeSurface(rt);
-	int bmp = SDL_SaveBMP(res_texture, "/tmp/text.bmp");
-	if(bmp != 0)
-		Log(Log::DIE) << "Cannot save BMP " << SDL_GetError();
-	else
-		Log() << "BMP saved" << SDL_GetError();
-
+	// SDL_Surface *rt  = TTF_RenderText_Blended(font, "Qqrq", textColor);
+	// SDL_Surface *res_texture = SDL_CreateRGBSurface(SDL_SWSURFACE, 512, 512,
+	// 	32,
+	// 	0xff000000,
+	// 	0x00ff0000,
+	// 	0x0000ff00,
+	// 	0x000000ff
+	// );
+    //
+	// SDL_Rect rect;
+	// rect.x = 0;
+	// rect.y = 0;
+	// rect.w = 512;
+	// rect.h = 512;
+    //
+	// SDL_BlitSurface(rt, NULL, res_texture, &rect);
+	// SDL_FreeSurface(rt);
 
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
@@ -232,70 +211,6 @@ Window::~Window()
 	SDL_DestroyWindow(mWindow);
 	SDL_Quit();
 	Log() << "Quit";
-}
-
-GLuint Window::loadShader(const char * file, GLenum type)
-{
-	GLuint shader = glCreateShader(type);
-
-	std::string lines = readFile(file);
-	auto ptr = lines.c_str();
-
-	const char* precision =
-		"#ifdef GL_ES                        \n"
-		"#  ifdef GL_FRAGMENT_PRECISION_HIGH \n"
-		"     precision highp float;         \n"
-		"#  else                             \n"
-		"     precision mediump float;       \n"
-		"#  endif                            \n"
-		"#endif                              \n";
-
-	const GLchar* sources[] = {
-		precision,
-		ptr
-	}; // When adding update sizeof below
-
-	glShaderSource(shader, 2, sources, NULL);
-	glCompileShader(shader);
-
-	GLint compile_ok = GL_FALSE;
-	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_ok);
-
-	if(!compile_ok)
-		Log(Log::DIE) << "Error in vertex shader\n" << getGlLog(shader);
-
-	return shader;
-}
-
-std::string Window::readFile(const char* filename)
-{
-	std::ifstream t(filename);
-	if(t.fail())
-		Log(Log::DIE) << "Cannot open " << filename;
-
-	return std::string((std::istreambuf_iterator<char>(t)),
-					 std::istreambuf_iterator<char>());
-}
-
-std::string Window::getGlLog(GLuint object)
-{
-	GLint log_length = 0;
-	if (glIsShader(object))
-		glGetShaderiv(object, GL_INFO_LOG_LENGTH, &log_length);
-	else if (glIsProgram(object))
-		glGetProgramiv(object, GL_INFO_LOG_LENGTH, &log_length);
-	else
-		return "getGlLog: Not a shader or a program";
-
-	std::string ret;
-	ret.resize(log_length);
-	
-	if (glIsShader(object))
-		glGetShaderInfoLog(object, log_length, NULL, &ret[0]);
-	else if (glIsProgram(object))
-		glGetProgramInfoLog(object, log_length, NULL, &ret[0]);
-	
-	return ret;
 }
 
 void Window::onEvent(SDL_Event &event)
@@ -370,8 +285,7 @@ void Window::onPaint()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-	glUseProgram(shaderProgram);
+	mShader.use();
 	// glUniformMatrix4fv(m_transform, 1, GL_FALSE, glm::value_ptr(mtransform));
 	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 
@@ -411,6 +325,7 @@ void Window::onPaint()
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 	glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
 
+	glDisableVertexAttribArray(attribute_texcoord);
 	glDisableVertexAttribArray(attribute_coord3d);
 
 	SDL_GL_SwapWindow(mWindow);

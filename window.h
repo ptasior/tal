@@ -1,16 +1,7 @@
 #pragma once
 // SDL and  string included in net.h
 #include "net.h"
-#ifdef __EMSCRIPTEN__
-	#define GL_GLEXT_PROTOTYPES 1
-	#include <SDL_opengles2.h>
-#else
-	#include <GL/glew.h>
-
-	#include <SDL2/SDL.h>
-	#define GL_GLEXT_PROTOTYPES 1
-	#include <SDL2/SDL_opengl.h>
-#endif
+#include "gl_header.h"
 
 class Window
 {
@@ -27,8 +18,6 @@ public:
 
 
 private:
-	GLuint loadShader(const char * file, GLenum type);
-	std::string readFile(const char* filename);
 	std::string getGlLog(GLuint object);
 
 	SDL_Window* mWindow = nullptr;
@@ -41,7 +30,6 @@ private:
 	Net mNet;
 
 	GLuint vao;
-	GLuint shaderProgram;
 
 	//Screen dimension constants
 	int SCREEN_WIDTH = 640;
