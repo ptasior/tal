@@ -3,12 +3,12 @@
 #include "shader.h"
 #include "model.h"
 #include "sprite.h"
+
 #ifdef __EMSCRIPTEN__
 	#include <SDL_ttf.h>
 #else
 	#include <SDL2/SDL_ttf.h>
 #endif
-
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -19,7 +19,6 @@
 Model mModel;
 Sprite mSprite;
 Sprite mSprite2;
-std::shared_ptr<Shader> mShader;
 
 Window::Window()
 {
@@ -70,7 +69,8 @@ Window::Window()
 
 	mModel.init();
 	mSprite.init("assets/tex.png");
-	mSprite2.init("assets/penguin.png");
+	// mSprite2.init("assets/penguin.png");
+	mSprite2.init("letter-a");
 
 	Log() << "Initialisation succesed";
 }
@@ -79,6 +79,7 @@ Window::~Window()
 {
 	SDL_DestroyRenderer(mRenderer);
 	SDL_DestroyWindow(mWindow);
+	TTF_Quit();
 	SDL_Quit();
 	// TODO check if TTF needs to be destroyerd too
 	Log() << "Quit";

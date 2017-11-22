@@ -10,6 +10,8 @@ set(SOURCE_FILES
 		window.cpp
 		net.cpp
 		shader.cpp
+		sprite.cpp
+		texture.cpp
 	)
 
 # Rough but works for now

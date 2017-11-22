@@ -3,6 +3,7 @@
 #include "gl_header.h"
 #include <memory>
 #include <mutex>
+#include <string>
 
 class Shader
 {
