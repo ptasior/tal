@@ -17,6 +17,7 @@ add_custom_target(js
 					-s USE_SDL=2
 					-s USE_SDL_NET=2
 					-s USE_SDL_IMAGE=2
+					-s USE_SDL_TTF=2
 					-s SDL2_IMAGE_FORMATS='["png"]'
 					-s USE_PTHREADS=1
 					-s FULL_ES2=1
@@ -44,6 +45,7 @@ include(FindPkgConfig)
 pkg_search_module(SDL2 REQUIRED sdl2)
 pkg_search_module(SDL2NET REQUIRED SDL2_net>=2.0.0)
 pkg_search_module(SDL2IMAGE REQUIRED SDL2_image>=2.0.0)
+pkg_search_module(SDL2TTF REQUIRED SDL2_ttf>=2.0.0)
 
 include_directories(${SDL2_INCLUDE_DIRS} ${SDL2IMAGE_INCLUDE_DIRS})
 
@@ -59,6 +61,7 @@ target_link_libraries(${PROJECT_NAME}
 						${SDL2_LIBRARIES}
 						${SDL2NET_LIBRARIES}
 						${SDL2IMAGE_LIBRARIES}
+						${SDL2TTF_LIBRARIES}
 						dl
 						${PROJECT_SOURCE_DIR}/lib/lua/liblua.a
 						${OPENGL_gl_LIBRARY}

@@ -1,6 +1,10 @@
 #include "window.h"
 #include "log.h"
 #include <SDL2/SDL_image.h>
+#include <SDL_ttf.h>
+/*
+ * #include <SDL2/SDL_ttf.h>
+ */
 #include <fstream>
 
 #define GLM_FORCE_RADIANS
@@ -112,6 +116,10 @@ Window::Window()
 	if(!mRenderer)
 		Log(Log::DIE) << "Renderer could not be created! SDL_Error: " << SDL_GetError();
 
+	int fontsOK = TTF_Init();
+	if(fontsOK == -1)
+		Log(Log::DIE) << "Cannot initaialise fonts " << TTF_GetError() << SDL_GetError();
+
 #ifdef __EMSCRIPTEN__
 	glGenVertexArraysOES(1, &vao);
 	glBindVertexArrayOES(vao);
@@ -167,9 +175,39 @@ Window::Window()
 
 
 
-	SDL_Surface* res_texture = IMG_Load("assets/tex.png");
-	if(!res_texture)
-		Log(Log::DIE) << "IMG_Load: " << SDL_GetError();
+	//SDL_Surface* res_texture = IMG_Load("assets/tex.png");
+	TTF_Font* font = TTF_OpenFont("assets/Hack.ttf", 90 );
+	if(!font)
+		Log(Log::DIE) << "Cannot initaialise specific font " << TTF_GetError();
+	SDL_Color textColor = { 255, 255, 255, 255 }; // white
+
+	// SDL_Surface *res_texture  = TTF_RenderText_Blended(font, "Qqrq", textColor);
+	// if(!res_texture)
+	// 	Log(Log::DIE) << "IMG_Load: " << SDL_GetError();
+
+	SDL_Surface *rt  = TTF_RenderText_Blended(font, "Qqrq", textColor);
+	SDL_Surface *res_texture = SDL_CreateRGBSurface(SDL_SWSURFACE, 512, 512,
+		32,
+		0xff000000,
+		0x00ff0000,
+		0x0000ff00,
+		0x000000ff
+    ); 
+
+	SDL_Rect rect;
+	rect.x = 0;
+	rect.y = 0;
+	rect.w = 512;
+	rect.h = 512;
+
+	SDL_BlitSurface(rt, NULL, res_texture, &rect);
+	SDL_FreeSurface(rt);
+	int bmp = SDL_SaveBMP(res_texture, "/tmp/text.bmp");
+	if(bmp != 0)
+		Log(Log::DIE) << "Cannot save BMP " << SDL_GetError();
+	else
+		Log() << "BMP saved" << SDL_GetError();
+
 
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
