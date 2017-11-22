@@ -17,12 +17,13 @@ add_custom_target(js
 					-s USE_SDL=2
 					-s USE_SDL_NET=2
 					-s USE_SDL_IMAGE=2
-					-s SDL2_IMAGE_FORMATS='["bmp"]'
+					-s SDL2_IMAGE_FORMATS='["png"]'
 					-s USE_PTHREADS=1
 					-s FULL_ES2=1
 					#-s USE_GLFW=3
 					-I lib/selene
 					-I lib/lua
+					-I lib
 					-s TOTAL_MEMORY=167772160
 					${SOURCE_FILES}
 					${PROJECT_SOURCE_DIR}/lib/lua/liblua_emscripten.a
@@ -64,4 +65,5 @@ target_link_libraries(${PROJECT_NAME}
 						#${GLUT_LIBRARIES}
 						${GLEW_LIBRARIES}
 					)
+
 

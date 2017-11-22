@@ -1,70 +1,87 @@
 #include "window.h"
 #include "log.h"
-#include <SDL.h>
+#include <SDL2/SDL_image.h>
 #include <fstream>
 
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-GLuint vbo_cube_vertices, vbo_cube_colors;
+GLuint vbo_cube_vertices, vbo_cube_texcoords;
 GLuint ibo_cube_elements;
-GLuint attribute_coord3d, attribute_v_color;
+GLuint attribute_coord3d, attribute_texcoord;
 GLint uniform_mvp;
-// GLint m_transform;
 
-struct attributes
-{
-	GLfloat coord3d[3];
-	GLfloat v_color[3];
-};
+GLuint texture_id;
+GLint uniform_mytexture;
+
 Window::Window()
 {
 	GLfloat cube_vertices[] = {
-	// front
+		// front
 		-1.0, -1.0,  1.0,
 		 1.0, -1.0,  1.0,
 		 1.0,  1.0,  1.0,
 		-1.0,  1.0,  1.0,
-		// back
-		-1.0, -1.0, -1.0,
-		 1.0, -1.0, -1.0,
+		// top
+		-1.0,  1.0,  1.0,
+		 1.0,  1.0,  1.0,
 		 1.0,  1.0, -1.0,
 		-1.0,  1.0, -1.0,
+		// back
+		 1.0, -1.0, -1.0,
+		-1.0, -1.0, -1.0,
+		-1.0,  1.0, -1.0,
+		 1.0,  1.0, -1.0,
+		// bottom
+		-1.0, -1.0, -1.0,
+		 1.0, -1.0, -1.0,
+		 1.0, -1.0,  1.0,
+		-1.0, -1.0,  1.0,
+		// left
+		-1.0, -1.0, -1.0,
+		-1.0, -1.0,  1.0,
+		-1.0,  1.0,  1.0,
+		-1.0,  1.0, -1.0,
+		// right
+		 1.0, -1.0,  1.0,
+		 1.0, -1.0, -1.0,
+		 1.0,  1.0, -1.0,
+		 1.0,  1.0,  1.0,
 	};
-	GLfloat cube_colors[] = {
-		// front colors
-		1.0, 0.0, 0.0,
-		0.0, 1.0, 0.0,
-		0.0, 0.0, 1.0,
-		1.0, 1.0, 1.0,
-		// back colors
-		1.0, 0.0, 0.0,
-		0.0, 1.0, 0.0,
-		0.0, 0.0, 1.0,
-		1.0, 1.0, 1.0,
+
+	GLfloat cube_texcoords[2*4*6] = {
+		// front
+		0.0, 0.0,
+		1.0, 0.0,
+		1.0, 1.0,
+		0.0, 1.0,
 	};
+	for (int i = 1; i < 6; i++)
+		memcpy(&cube_texcoords[i*4*2], &cube_texcoords[0], 2*4*sizeof(GLfloat));
 
 	GLushort cube_elements[] = {
 		// front
-		0, 1, 2,
-		2, 3, 0,
+		0,  1,  2,
+		2,  3,  0,
 		// top
-		1, 5, 6,
-		6, 2, 1,
+		4,  5,  6,
+		6,  7,  4,
 		// back
-		7, 6, 5,
-		5, 4, 7,
+		8,  9, 10,
+		10, 11,  8,
 		// bottom
-		4, 0, 3,
-		3, 7, 4,
+		12, 13, 14,
+		14, 15, 12,
 		// left
-		4, 5, 1,
-		1, 0, 4,
+		16, 17, 18,
+		18, 19, 16,
 		// right
-		3, 2, 6,
-		6, 7, 3,
+		20, 21, 22,
+		22, 23, 20,
 	};
+
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
@@ -81,7 +98,7 @@ Window::Window()
 		Log(Log::DIE) << "SDL could not initialize! SDL_Error: " << SDL_GetError();
 
 	//Create window
-	mWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED,
+	mWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 							SCREEN_WIDTH, SCREEN_HEIGHT,
 							SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if(!mWindow)
@@ -111,26 +128,24 @@ Window::Window()
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_vertices);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
 
+	glGenBuffers(1, &vbo_cube_texcoords);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_texcoords);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_texcoords), cube_texcoords, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &vbo_cube_colors);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_colors);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_colors), cube_colors, GL_STATIC_DRAW);
-
-
-	// Create a Vertex Buffer Object and copy the vertex data to it
 	glGenBuffers(1, &ibo_cube_elements);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_cube_elements);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_elements), cube_elements, GL_STATIC_DRAW);
 
-	GLuint vertexShader = loadShader("shaders/triangle.v.glsl", GL_VERTEX_SHADER);
-    GLuint fragmentShader = loadShader("shaders/triangle.f.glsl", GL_FRAGMENT_SHADER);
 
-    // Link the vertex and fragment shader into a shader program
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    // glBindFragDataLocation(shaderProgram, 0, "outColor");
-    glLinkProgram(shaderProgram);
+	GLuint vertexShader = loadShader("shaders/triangle.v.glsl", GL_VERTEX_SHADER);
+	GLuint fragmentShader = loadShader("shaders/triangle.f.glsl", GL_FRAGMENT_SHADER);
+
+	// Link the vertex and fragment shader into a shader program
+	shaderProgram = glCreateProgram();
+	glAttachShader(shaderProgram, vertexShader);
+	glAttachShader(shaderProgram, fragmentShader);
+	// glBindFragDataLocation(shaderProgram, 0, "outColor");
+	glLinkProgram(shaderProgram);
 
 	GLint link_ok = GL_FALSE;
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &link_ok);
@@ -142,17 +157,33 @@ Window::Window()
 	if(attribute_coord3d == -1)
 		Log(Log::DIE) << "Could not bind attribute coord3d";
 
-	attribute_v_color = glGetAttribLocation(shaderProgram, "v_color");
-	if(attribute_v_color == -1)
+	attribute_texcoord = glGetAttribLocation(shaderProgram, "texcoord");
+	if(attribute_texcoord == -1)
 		Log(Log::DIE) << "Could not bind attribute v_color";
-
-	// m_transform = glGetUniformLocation(shaderProgram, "m_transform");
-	// if(m_transform == -1)
-	// 	Log(Log::DIE) << "Could not bind uniform attribute m_transform";
 
 	uniform_mvp = glGetUniformLocation(shaderProgram, "mvp");
 	if(uniform_mvp == -1)
 		Log(Log::DIE) << "Could not bind uniform attribute mvp";
+
+
+
+	SDL_Surface* res_texture = IMG_Load("assets/tex.png");
+	if(!res_texture)
+		Log(Log::DIE) << "IMG_Load: " << SDL_GetError();
+
+	glGenTextures(1, &texture_id);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, // target
+		0, // level, 0 = base, no minimap,
+		GL_RGBA, // internalformat
+		res_texture->w, // width
+		res_texture->h, // height
+		0, // border, always 0 in OpenGL ES
+		GL_RGBA, // format
+		GL_UNSIGNED_BYTE, // type
+		res_texture->pixels);
+	SDL_FreeSurface(res_texture);
 
 	Log() << "Initialisation succesed";
 }
@@ -306,30 +337,33 @@ void Window::onPaint()
 	// glUniformMatrix4fv(m_transform, 1, GL_FALSE, glm::value_ptr(mtransform));
 	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 
+	glActiveTexture(GL_TEXTURE0);
+	glUniform1i(uniform_mytexture, /*GL_TEXTURE*/0);
+	glBindTexture(GL_TEXTURE_2D, texture_id);
+
 	glEnableVertexAttribArray(attribute_coord3d);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_vertices);
 
 	glVertexAttribPointer(
-		attribute_coord3d,   // attribute
-		3,                   // number of elements per vertex, here (x,y,z)
-		GL_FLOAT,            // the type of each element
-		GL_FALSE,            // take our values as-is
-		0,  // next coord3d appears every 5 floats
-		0                    // offset of first element
+		attribute_coord3d, // attribute
+		3,                 // number of elements per vertex, here (x,y,z)
+		GL_FLOAT,          // the type of each element
+		GL_FALSE,          // take our values as-is
+		0,                 // no extra data between each position
+		0                  // offset of first element
 	);
 
-	glEnableVertexAttribArray(attribute_v_color);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_colors);
-
+	glEnableVertexAttribArray(attribute_texcoord);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_texcoords);
 	glVertexAttribPointer(
-		attribute_v_color,      // attribute
-		3,                      // number of elements per vertex, here (r,g,b)
-		GL_FLOAT,               // the type of each element
-		GL_FALSE,               // take our values as-is
-		0,  // stride
-		0						// offset of first element
+		attribute_texcoord, // attribute
+		2,                  // number of elements per vertex, here (x,y)
+		GL_FLOAT,           // the type of each element
+		GL_FALSE,           // take our values as-is
+		0,                  // no extra data between each position
+		0                   // offset of first element
 	);
-	
+
 
 	// Draw a triangle from the 3 vertices
 	// glDrawArrays(GL_TRIANGLES, 0, 3);
@@ -340,7 +374,6 @@ void Window::onPaint()
 	glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
 
 	glDisableVertexAttribArray(attribute_coord3d);
-	glDisableVertexAttribArray(attribute_v_color);
 
 	SDL_GL_SwapWindow(mWindow);
 }
