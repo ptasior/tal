@@ -3,12 +3,17 @@
 #include "log.h"
 #include <fstream>
 
+std::map<std::string, std::shared_ptr<Shader>> Shader::mList;
+std::string Shader::mCurrent;
+std::mutex Shader::mMutex;
+
 Shader::Shader()
 {
 }
 
 void Shader::init(const char *name)
 {
+	mName = name;
 	std::string file = std::string("shaders/") + name;
 	GLuint vertexShader = loadShader((file + ".v.glsl").c_str(), GL_VERTEX_SHADER);
 	GLuint fragmentShader = loadShader((file + ".f.glsl").c_str(), GL_FRAGMENT_SHADER);
@@ -44,12 +49,6 @@ GLuint Shader::mkUniform(const char *name)
 	mVars[name] = uniform;
 	return uniform;
 }
-
-void Shader::use()
-{
-	glUseProgram(mProgram);
-}
-
 
 GLuint Shader::loadShader(const char * file, GLenum type)
 {
@@ -120,5 +119,28 @@ std::string Shader::getGlLog(GLuint object)
 GLuint Shader::var(const char *name)
 {
 	return mVars[name];
+}
+
+void Shader::use()
+{
+	std::lock_guard<std::mutex> lock(mMutex);
+
+	if(mCurrent == mName) return; // Currently used
+	mCurrent = mName;
+	glUseProgram(mProgram);
+}
+
+std::shared_ptr<Shader> Shader::getShader(const char *name)
+{
+	std::lock_guard<std::mutex> lock(mMutex);
+
+	if(!mList.count(name)) // Not yet initiaalised
+	{
+		// mList[name] = std::make_shared<Shader>();
+		mList[name].reset(new Shader);
+		mList[name]->init(name);
+	}
+
+	return mList[name];
 }
 
