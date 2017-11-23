@@ -40,7 +40,7 @@ void Texture::init(const char *path)
 	else
 	{
 		// TODO mutex
-		static TTF_Font* font = TTF_OpenFont("assets/Hack.ttf", SIZE);
+		static TTF_Font* font = TTF_OpenFont("assets/Hack.ttf", SIZE-4);
 
 		if(!font)
 			Log(Log::DIE) << "Cannot initaialise specific font " << TTF_GetError();

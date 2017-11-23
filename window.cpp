@@ -149,7 +149,7 @@ void Window::onPaint()
 	mScene->paint();
 
 	Shader::getShader("gui")->use();
-	// glDisable(GL_DEPTH_TEST);
+	glDisable(GL_DEPTH_TEST);
 	mGui->paint();
 
 	SDL_GL_SwapWindow(mWindow);

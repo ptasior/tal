@@ -26,18 +26,32 @@ public:
 	void setLayout(LayoutType t);
 	void addWidget(std::shared_ptr<Widget> w);
 
-private:
+protected:
 	void updatePosition();
 
 	std::vector<std::shared_ptr<Widget>> mWidgets;
 	std::shared_ptr<Sprite> mSprite;
 	Widget* mParent;
 
-	unsigned int mTop;
-	unsigned int mLeft;
+	unsigned int mTopOffset = 0;
+	unsigned int mLeftOffset = 0;
+	unsigned int mTop = 0;
+	unsigned int mLeft = 0;
 	unsigned int mWidth = 10;
 	unsigned int mHeight = 10;
+	unsigned int mPaddingVert = 5;
+	unsigned int mPaddingHoris = 5;
+	unsigned int mSpacing = 2;
+
 	LayoutType mLayoutType = ltNone;
+};
+
+
+class Label : public Widget
+{
+public:
+	Label(Widget *parent, const char *text);
+	void setText(const char *text);
 };
 
 class Gui
