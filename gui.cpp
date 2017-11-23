@@ -6,7 +6,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-void Widget::init(Widget* parent, const char *texture)
+Widget::Widget(Widget* parent, const char *texture)
 {
 	mParent = parent;
 	if(texture)
@@ -120,7 +120,6 @@ void Widget::addWidget(std::shared_ptr<Widget> w)
 	w->mParent = this;
 	w->mLeftOffset = mLeftOffset + mLeft;
 	w->mTopOffset = mTopOffset + mTop;
-	Log() <<  "topOffest " <<w->mTopOffset; 
 	switch(mLayoutType)
 	{
 		case ltNone:
@@ -161,43 +160,37 @@ void Label::setText(const char *text)
 	char id[] = "letter- ";
 	for(int i = 0; i < strlen(text); i++)
 	{
-		w = std::make_shared<Widget>();
 		id[7] = text[i];
-		w->init(nullptr, id);
+		w = std::make_shared<Widget>(nullptr, id);
 		w->setSize(15, 15);
 		addWidget(w);
 	}
 }
+
+//------------------------------------------------------------------------------
+Box::Box(Widget * parent):
+	Widget(parent, "assets/gui/box.png")
+{
+	mLayoutType = ltVertical;
+}
+
 //------------------------------------------------------------------------------
 
 void Gui::init()
 {
 	Log() << "Gui init";
-	mRoot = std::make_shared<Widget>();
-	mRoot->init(nullptr, nullptr);
+	mRoot = std::make_shared<Widget>(nullptr, nullptr);
 
 	mRoot->setLayout(Widget::ltNone);
 
 	// auto w = std::make_shared<Label>(nullptr, "!@#$%^&*(){}:\"<>?./;'[]\\|'");
+	auto b = std::make_shared<Box>(nullptr);
+	b->setRect(100,100, 100, 320);
+	mRoot->addWidget(b);
+
 	auto w = std::make_shared<Label>(nullptr, "qwertyuiop{asdfghjklzxcvbnm<}");
-	w->setPosition(100,100);
-	mRoot->addWidget(w);
-
-
-	// auto w = std::make_shared<Widget>();
-	// w->init(mRoot.get(), "letter-a");
-	// w->setRect(10, 10, 15, 15);
-	// mRoot->addWidget(w);
-    //
-	// w = std::make_shared<Widget>();
-	// w->init(mRoot.get(), "letter-b");
-	// w->setRect(10, 25, 15, 15);
-	// mRoot->addWidget(w);
-    //
-	// w = std::make_shared<Widget>();
-	// w->init(mRoot.get(), "letter-c");
-	// w->setRect(10, 40, 15, 15);
-	// mRoot->addWidget(w);
+	// w->setPosition(50,50);
+	b->addWidget(w);
 
 	mUniformMVP = Shader::getShader("gui")->mkUniform("mvp");
 }

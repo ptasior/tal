@@ -1,5 +1,6 @@
 #ifdef __EMSCRIPTEN__
 	#define GL_GLEXT_PROTOTYPES 1
+	#include <SDL.h>
 	#include <SDL_opengles2.h>
 #else
 	#include <GL/glew.h>

@@ -10,8 +10,9 @@ class Gui;
 class Widget
 {
 public:
+	Widget(Widget* parent=nullptr, const char *texture=nullptr);
+
 	enum LayoutType {ltNone, ltHorizontal, ltVertical};
-	void init(Widget* parent, const char *texture);
 	void paint();
 
 	void setTop(unsigned int v);
@@ -52,6 +53,12 @@ class Label : public Widget
 public:
 	Label(Widget *parent, const char *text);
 	void setText(const char *text);
+};
+
+class Box : public Widget
+{
+public:
+	Box(Widget *parent);
 };
 
 class Gui
