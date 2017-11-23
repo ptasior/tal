@@ -14,6 +14,7 @@ set(SOURCE_FILES
 		texture.cpp
 		camera.cpp
 		scene.cpp
+		gui.cpp
 	)
 
 # Rough but works for now

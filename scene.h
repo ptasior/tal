@@ -1,4 +1,5 @@
 #pragma once
+#include "gl_header.h"
 #include <memory>
 #include <vector>
 
@@ -11,15 +12,13 @@ public:
 	Scene();
 
 	void init();
-	void setSceneSize(int w, int h);
+	void setCamera(std::shared_ptr<Camera> camera);
 
 	void paint();
 
 private:
 	std::shared_ptr<Camera> mCamera;
 	std::vector<std::shared_ptr<Sprite>> mSprites;
-
-	int mSceneWidth;
-	int mSceneHeight;
+	GLuint mUniformMVP;
 };
 

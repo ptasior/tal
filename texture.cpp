@@ -28,6 +28,7 @@ Texture::~Texture()
 
 void Texture::init(const char *path)
 {
+	Log() << "Loading texture " << path;
 	mName = path;
 	SDL_Surface* res_texture;
 	if(mName.substr(0, 7) != "letter-")
@@ -159,7 +160,7 @@ SDL_Surface* flip(SDL_Surface *surface, int flags)
 			{
 				put_pixel32(flipped, x, ry, pixel);
 			}
-		}    
+		}
 	}
 	//Unlock surface
 	if(SDL_MUSTLOCK(surface))

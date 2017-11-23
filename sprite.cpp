@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-void Sprite::init(const char *path)
+void Sprite::init(const char *path, const char *shaderName)
 {
 	GLfloat vertices[] = {
 		-1.0, -1.0,  0.0,
@@ -41,16 +41,13 @@ void Sprite::init(const char *path)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
+	mShader = Shader::getShader(shaderName);
+
 	attribute_coord3d = mShader->mkAttrib("coord3d");
 	attribute_texcoord = mShader->mkAttrib("texcoord");
 	uniform_position = mShader->mkUniform("position");
 
 	mTexture = Texture::getTexture(path);
-}
-
-void Sprite::setShader(const char *name)
-{
-	mShader = Shader::getShader(name);
 }
 
 void Sprite::setPosition(const glm::mat4 &position)
@@ -60,7 +57,7 @@ void Sprite::setPosition(const glm::mat4 &position)
 
 void Sprite::paint()
 {
-	mShader->use();
+	// mShader->use(); // Set in Window. Changing the program requires Camera::apply()
 	glUniformMatrix4fv(uniform_position, 1, GL_FALSE, glm::value_ptr(mPosition));
 
 	mTexture->apply();

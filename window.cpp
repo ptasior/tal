@@ -1,6 +1,8 @@
 #include "window.h"
 #include "log.h"
 #include "net.h"
+#include "shader.h"
+#include "camera.h"
 #include "scene.h"
 #include "gui.h"
 
@@ -59,11 +61,17 @@ Window::Window()
 
 	mNet = std::make_shared<Net>();
 
+	mCamera = std::make_shared<Camera>();
+	mCamera->init();
+	mCamera->setSceneSize(mScreenWidth, mScreenHeight);
+
 	mScene = std::make_shared<Scene>();
 	mScene->init();
-	mScene->setSceneSize(mScreenWidth, mScreenHeight);
+	mScene->setCamera(mCamera);
 
 	mGui = std::make_shared<Gui>();
+	mGui->setCamera(mCamera);
+	mGui->setSceneSize(mScreenWidth, mScreenHeight);
 	mGui->init();
 
 	Log() << "Initialisation succesed";
@@ -131,19 +139,19 @@ void Window::onLoop()
 
 void Window::onPaint()
 {
-
+	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	glDisable(GL_DEPTH_TEST);
-
-	mGui->paint();
-
-	glEnable(GL_DEPTH_TEST);
+	Shader::getShader("triangle")->use();
 	mScene->paint();
+
+	Shader::getShader("gui")->use();
+	// glDisable(GL_DEPTH_TEST);
+	mGui->paint();
 
 	SDL_GL_SwapWindow(mWindow);
 }
@@ -154,6 +162,7 @@ void Window::onResize(int width, int height)
 	mScreenHeight = height;
 	glViewport(0, 0, mScreenWidth, mScreenHeight);
 
-	mScene->setSceneSize(mScreenWidth, mScreenHeight);
+	mCamera->setSceneSize(mScreenWidth, mScreenHeight);
+	mGui->setSceneSize(mScreenWidth, mScreenHeight);
 }
 

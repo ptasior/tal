@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "log.h"
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -34,11 +35,6 @@ void Camera::setPostRot(const glm::mat4& v)
 	mPostRot = v;
 }
 
-void Camera::setUniformMVP(GLuint uniform_mvp)
-{
-	mUniformMVP = uniform_mvp;
-}
-
 glm::mat4 Camera::getModel()
 {
 	return mModel;
@@ -64,9 +60,32 @@ glm::mat4 Camera::getPostRot()
 	return mPostRot;
 }
 
-void Camera::apply()
+
+void Camera::init()
+{
+	Log() << "Camera init";
+	setModel(glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -4.0)));
+	setView(glm::lookAt(glm::vec3(0.0, 2.0, 0.0),
+				glm::vec3(0.0, 0.0, -4.0), glm::vec3(0.0, 1.0, 0.0))
+			);
+	// mCamera->setProjection(glm::perspective(glm::radians(45.0f),
+	// 			1.0f * mSceneWidth / mSceneHeight, 0.1f, 10.0f)
+	// 		);
+}
+
+void Camera::setSceneSize(int w, int h)
+{
+	mSceneWidth = w;
+	mSceneHeight = h;
+
+	setProjection(glm::perspective(glm::radians(45.0f),
+				1.0f * mSceneWidth / mSceneHeight, 0.1f, 10.0f)
+			);
+}
+
+void Camera::apply(GLuint uniform_mvp)
 {
 	glm::mat4 mvp = mPostRot * mProjection * mView * mModel * mPreRot;
-	glUniformMatrix4fv(mUniformMVP, 1, GL_FALSE, glm::value_ptr(mvp));
+	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 }
 

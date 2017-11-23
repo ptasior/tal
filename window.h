@@ -4,6 +4,7 @@
 #include <memory>
 
 class Scene;
+class Camera;
 class Net;
 class Gui;
 
@@ -32,6 +33,7 @@ private:
 	GLuint vao;
 
 	std::shared_ptr<Net> mNet;
+	std::shared_ptr<Camera> mCamera;
 	std::shared_ptr<Scene> mScene;
 	std::shared_ptr<Gui> mGui;
 };
