@@ -9,6 +9,8 @@ class Sprite
 {
 public:
 	void init(const char *path);
+
+	void setShader(const char *name);
 	void setPosition(const glm::mat4 &position);
 
 	void paint();

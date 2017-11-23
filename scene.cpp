@@ -36,12 +36,14 @@ void Scene::init()
 	mSprites[0]->init("assets/tex.png");
 
 	glm::mat4 pos = glm::translate(glm::mat4(1.0f), glm::vec3(0.5, 0.0, 0.5));
+	mSprites[0]->setShader("triangle");
 	mSprites[0]->setPosition(pos);
 
 	// mSprites.emplace(std::make_shared<Sprite>());
 	// mSprites[0]->init("assets/penguin.png");
 
 	mSprites.push_back(std::make_shared<Sprite>());
+	mSprites[0]->setShader("triangle");
 	mSprites[1]->init("letter-a");
 
 	glm::mat4 pos2 = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, 0.0, 0.0));

@@ -41,12 +41,16 @@ void Sprite::init(const char *path)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
-	mShader = Shader::getShader("triangle");
 	attribute_coord3d = mShader->mkAttrib("coord3d");
 	attribute_texcoord = mShader->mkAttrib("texcoord");
 	uniform_position = mShader->mkUniform("position");
 
 	mTexture = Texture::getTexture(path);
+}
+
+void Sprite::setShader(const char *name)
+{
+	mShader = Shader::getShader(name);
 }
 
 void Sprite::setPosition(const glm::mat4 &position)

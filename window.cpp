@@ -2,6 +2,7 @@
 #include "log.h"
 #include "net.h"
 #include "scene.h"
+#include "gui.h"
 
 #ifdef __EMSCRIPTEN__
 	#include <SDL_ttf.h>
@@ -61,6 +62,9 @@ Window::Window()
 	mScene = std::make_shared<Scene>();
 	mScene->init();
 	mScene->setSceneSize(mScreenWidth, mScreenHeight);
+
+	mGui = std::make_shared<Gui>();
+	mGui->init();
 
 	Log() << "Initialisation succesed";
 }
@@ -127,7 +131,6 @@ void Window::onLoop()
 
 void Window::onPaint()
 {
-	glEnable(GL_DEPTH_TEST);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -135,6 +138,11 @@ void Window::onPaint()
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+	glDisable(GL_DEPTH_TEST);
+
+	mGui->paint();
+
+	glEnable(GL_DEPTH_TEST);
 	mScene->paint();
 
 	SDL_GL_SwapWindow(mWindow);

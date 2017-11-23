@@ -5,6 +5,7 @@
 
 class Scene;
 class Net;
+class Gui;
 
 class Window
 {
@@ -32,5 +33,6 @@ private:
 
 	std::shared_ptr<Net> mNet;
 	std::shared_ptr<Scene> mScene;
+	std::shared_ptr<Gui> mGui;
 };
 
