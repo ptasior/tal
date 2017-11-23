@@ -50,7 +50,7 @@ void Texture::init(const char *path)
 		if(!rt)
 			Log(Log::DIE) << "Error in TTF_RenderText_Blended: " << SDL_GetError();
 
-		rt = flip(rt, SDL_FLIP_VERTICAL);
+		// rt = flip(rt, SDL_FLIP_VERTICAL);
 
 		res_texture = SDL_CreateRGBSurface(SDL_SWSURFACE, SIZE, SIZE,
 				32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff

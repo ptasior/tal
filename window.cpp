@@ -70,9 +70,8 @@ Window::Window()
 	mScene->setCamera(mCamera);
 
 	mGui = std::make_shared<Gui>();
-	mGui->setCamera(mCamera);
-	mGui->setSceneSize(mScreenWidth, mScreenHeight);
 	mGui->init();
+	mGui->setSceneSize(mScreenWidth, mScreenHeight);
 
 	Log() << "Initialisation succesed";
 }
