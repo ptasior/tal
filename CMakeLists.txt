@@ -12,6 +12,8 @@ set(SOURCE_FILES
 		shader.cpp
 		sprite.cpp
 		texture.cpp
+		camera.cpp
+		scene.cpp
 	)
 
 # Rough but works for now

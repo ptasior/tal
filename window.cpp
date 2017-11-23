@@ -1,24 +1,13 @@
 #include "window.h"
 #include "log.h"
-#include "shader.h"
-#include "model.h"
-#include "sprite.h"
+#include "net.h"
+#include "scene.h"
 
 #ifdef __EMSCRIPTEN__
 	#include <SDL_ttf.h>
 #else
 	#include <SDL2/SDL_ttf.h>
 #endif
-
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-
-
-Model mModel;
-Sprite mSprite;
-Sprite mSprite2;
 
 Window::Window()
 {
@@ -38,7 +27,7 @@ Window::Window()
 
 	//Create window
 	mWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-							SCREEN_WIDTH, SCREEN_HEIGHT,
+							mScreenWidth, mScreenHeight,
 							SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if(!mWindow)
 		Log(Log::DIE) << "Window could not be created! SDL_Error: " << SDL_GetError();
@@ -53,7 +42,7 @@ Window::Window()
 
 	int fontsOK = TTF_Init();
 	if(fontsOK == -1)
-		Log(Log::DIE) << "Cannot initaialise fonts " << TTF_GetError() << SDL_GetError();
+		Log(Log::DIE) << "Cannot initialise fonts " << TTF_GetError() << SDL_GetError();
 
 #ifdef __EMSCRIPTEN__
 	glGenVertexArraysOES(1, &vao);
@@ -67,10 +56,11 @@ Window::Window()
 	glBindVertexArray(vao);
 #endif
 
-	mModel.init();
-	mSprite.init("assets/tex.png");
-	// mSprite2.init("assets/penguin.png");
-	mSprite2.init("letter-a");
+	mNet = std::make_shared<Net>();
+
+	mScene = std::make_shared<Scene>();
+	mScene->init();
+	mScene->setSceneSize(mScreenWidth, mScreenHeight);
 
 	Log() << "Initialisation succesed";
 }
@@ -81,7 +71,7 @@ Window::~Window()
 	SDL_DestroyWindow(mWindow);
 	TTF_Quit();
 	SDL_Quit();
-	// TODO check if TTF needs to be destroyerd too
+
 	Log() << "Quit";
 }
 
@@ -106,8 +96,8 @@ void Window::onEvent(SDL_Event &event)
 					break;
 			case SDLK_n:
 					Log() << "net";
-					mNet.connect();
-					mNet.send("new message");
+					mNet->connect();
+					mNet->send("new message");
 					break;
 			}
 			break;
@@ -131,54 +121,31 @@ void Window::onLoop()
 	if(SDL_PollEvent(&event))
 		onEvent(event);
 
-	mNet.loop();
+	mNet->loop();
 	onPaint();
 }
 
 void Window::onPaint()
 {
-	glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -4.0));
-	glm::mat4 view = glm::lookAt(glm::vec3(0.0, 2.0, 0.0), glm::vec3(0.0, 0.0, -4.0), glm::vec3(0.0, 1.0, 0.0));
-	glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1.0f * SCREEN_WIDTH / SCREEN_HEIGHT, 0.1f, 10.0f);
-	// glm::mat4 mvp = projection * view * model;
+	glEnable(GL_DEPTH_TEST);
 
-	float angle = SDL_GetTicks() / 1000.0 * 45;  // 45° per second
-	glm::vec3 axis_y(0, 1, 0);
-	glm::mat4 anim = glm::rotate(glm::mat4(1.0f), glm::radians(angle), axis_y);
-	glm::mat4 mvp = projection * view * model * anim;
-
-
-	// Enable alpha
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-	glEnable(GL_DEPTH_TEST);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// mModel.setMVP(mvp);
-	mSprite.setMVP(mvp);
-	glm::mat4 pos = glm::translate(glm::mat4(1.0f), glm::vec3(0.5, 0.0, 0.5));
-	mSprite.setPosition(pos);
-
-	mSprite.paint();
-
-	// mSprite2.setMVP(mvp);
-	glm::mat4 pos2 = glm::translate(glm::mat4(1.0f), glm::vec3(-0.5, 0.0, 0.0));
-		// * glm::rotate(glm::mat4(1.0f), glm::radians(1.7f), axis_y);
-	mSprite2.setPosition(pos2);
-
-	// mModel.paint();
-	mSprite2.paint();
+	mScene->paint();
 
 	SDL_GL_SwapWindow(mWindow);
 }
 
 void Window::onResize(int width, int height)
 {
-  SCREEN_WIDTH = width;
-  SCREEN_HEIGHT = height;
-  glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+	mScreenWidth = width;
+	mScreenHeight = height;
+	glViewport(0, 0, mScreenWidth, mScreenHeight);
+
+	mScene->setSceneSize(mScreenWidth, mScreenHeight);
 }
 

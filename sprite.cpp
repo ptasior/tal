@@ -45,24 +45,20 @@ void Sprite::init(const char *path)
 	attribute_coord3d = mShader->mkAttrib("coord3d");
 	attribute_texcoord = mShader->mkAttrib("texcoord");
 	uniform_position = mShader->mkUniform("position");
-	uniform_mvp = mShader->mkUniform("mvp");
 
 	mTexture = Texture::getTexture(path);
 }
 
-void Sprite::setMVP(glm::mat4 &mvp)
+void Sprite::setPosition(const glm::mat4 &position)
 {
-	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
-}
-
-void Sprite::setPosition(glm::mat4 &position)
-{
-	glUniformMatrix4fv(uniform_position, 1, GL_FALSE, glm::value_ptr(position));
+	mPosition = position;
 }
 
 void Sprite::paint()
 {
 	mShader->use();
+	glUniformMatrix4fv(uniform_position, 1, GL_FALSE, glm::value_ptr(mPosition));
+
 	mTexture->apply();
 
 	glEnableVertexAttribArray(attribute_coord3d);

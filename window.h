@@ -1,7 +1,10 @@
 #pragma once
 // SDL and  string included in net.h
-#include "net.h"
 #include "gl_header.h"
+#include <memory>
+
+class Scene;
+class Net;
 
 class Window
 {
@@ -18,21 +21,16 @@ public:
 
 
 private:
-	std::string getGlLog(GLuint object);
+	int mScreenWidth = 640;
+	int mScreenHeight = 480;
+	bool mQuit = false;
 
 	SDL_Window* mWindow = nullptr;
 	SDL_Renderer *mRenderer = nullptr;
 	SDL_GLContext mGLContext = nullptr;
-
-	SDL_Texture *tex = nullptr;
-	bool mQuit = false;
-
-	Net mNet;
-
 	GLuint vao;
 
-	//Screen dimension constants
-	int SCREEN_WIDTH = 640;
-	int SCREEN_HEIGHT = 480;
+	std::shared_ptr<Net> mNet;
+	std::shared_ptr<Scene> mScene;
 };
 

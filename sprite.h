@@ -9,9 +9,7 @@ class Sprite
 {
 public:
 	void init(const char *path);
-
-	void setMVP(glm::mat4 &mvp);
-	void setPosition(glm::mat4 &position);
+	void setPosition(const glm::mat4 &position);
 
 	void paint();
 
@@ -25,7 +23,8 @@ private:
 
 	GLuint attribute_coord3d;
 	GLuint attribute_texcoord;
-	GLint uniform_mvp;
 	GLint uniform_position;
+
+	glm::mat4 mPosition;
 };
 
