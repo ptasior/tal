@@ -112,6 +112,9 @@ void Window::onEvent(SDL_Event &event)
 					break;
 			}
 			break;
+		case SDL_MOUSEBUTTONDOWN:
+			onClick(event.button.x, event.button.y);
+			break;
 		case SDL_WINDOWEVENT:
 					if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
 						onResize(event.window.data1, event.window.data2);
@@ -163,5 +166,10 @@ void Window::onResize(int width, int height)
 
 	mCamera->setSceneSize(mScreenWidth, mScreenHeight);
 	mGui->setSceneSize(mScreenWidth, mScreenHeight);
+}
+
+void Window::onClick(int x, int y)
+{
+	mGui->click(x, y);
 }
 

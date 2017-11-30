@@ -22,8 +22,8 @@ void Widget::updatePosition()
 
 	glm::mat4 mPositionMatrix =
 		glm::translate(glm::mat4(1.0f),
-				glm::vec3(mLeft+mLeftOffset+0.5*mHeight, mTop+mTopOffset+0.5*mWidth, 0.0))
-		* glm::scale(glm::mat4(1.0f), glm::vec3(0.5*mHeight, 0.5*mWidth, 0));
+				glm::vec3(mLeft+mLeftOffset+0.5*mWidth, mTop+mTopOffset+0.5*mHeight, 0.0))
+		* glm::scale(glm::mat4(1.0f), glm::vec3(0.5*mWidth, 0.5*mHeight, 0));
 	mSprite->setPosition(mPositionMatrix);
 }
 
@@ -141,6 +141,37 @@ void Widget::addWidget(std::shared_ptr<Widget> w)
 	mWidgets.push_back(w);
 }
 
+std::tuple<int, int, int, int> Widget::getRect()
+{
+	int l = mLeftOffset + mLeft;
+	int t = mTopOffset + mTop;
+
+	return std::make_tuple(l, t, l+mWidth, t+mHeight);
+}
+
+bool Widget::click(int x, int y)
+{
+	int l, t, w, h;
+	std::tie(l, t, w, h) = getRect();
+
+	if(l < x && x < w && t < y && y < h)
+	{
+		for(auto w :mWidgets)
+			if(w->click(x, y))
+				return true;
+
+		if(mOnClick) mOnClick();
+
+		return true;
+	}
+
+	return false;
+}
+
+void Widget::onClick(std::function<void(void)> fnc)
+{
+	mOnClick = fnc;
+}
 //------------------------------------------------------------------------------
 Label::Label(Widget * parent, const char *text)
 {
@@ -186,12 +217,13 @@ void Gui::init()
 
 	// auto w = std::make_shared<Label>(nullptr, "!@#$%^&*(){}:\"<>?./;'[]\\|'");
 	auto b = std::make_shared<Box>(nullptr);
-	b->setRect(100,100, 100, 320);
+	b->setRect(100,100, 320, 100);
 	mRoot->addWidget(b);
 
 	auto w = std::make_shared<Label>(nullptr, "qwertyuiop{asdfghjklzxcvbnm<}");
 	// w->setPosition(50,50);
 	b->addWidget(w);
+	b->onClick([](){Log() << "box";});
 
 	mUniformMVP = Shader::getShader("gui")->mkUniform("mvp");
 }
@@ -211,5 +243,10 @@ void Gui::setSceneSize(int w, int h)
 	mRoot->setHeight(h);
 
 	mMvp = glm::ortho(0.f, 1.0f*mSceneWidth, 1.0f*mSceneHeight, 0.0f, -1.f, 1.f);
+}
+
+void Gui::click(int x, int y)
+{
+	mRoot->click(x, y);
 }
 

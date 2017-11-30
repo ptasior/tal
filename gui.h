@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
+#include <functional>
 
 class GuiSprite;
 class Gui;
@@ -24,11 +25,16 @@ public:
 	void setSize(unsigned int width, unsigned int height);
 	void setRect(unsigned int top, unsigned int left, unsigned int width, unsigned int height);
 
+	std::tuple<int, int, int, int> getRect();
+
 	void setLayout(LayoutType t);
 	void addWidget(std::shared_ptr<Widget> w);
 
+	void onClick(std::function<void(void)> fnc);
+
 protected:
 	void updatePosition();
+	bool click(int x, int y);
 
 	std::vector<std::shared_ptr<Widget>> mWidgets;
 	std::shared_ptr<GuiSprite> mSprite;
@@ -45,7 +51,11 @@ protected:
 	unsigned int mSpacing = 2;
 
 	LayoutType mLayoutType = ltNone;
+	std::function<void(void)> mOnClick;
+
+	friend Gui;
 };
+
 
 
 class Label : public Widget
@@ -55,17 +65,22 @@ public:
 	void setText(const char *text);
 };
 
+
+
 class Box : public Widget
 {
 public:
 	Box(Widget *parent);
 };
 
+
+
 class Gui
 {
 public:
 	void init();
 	void paint();
+	void click(int x, int y);
 
 	void setSceneSize(int w, int h);
 

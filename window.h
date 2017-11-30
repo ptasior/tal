@@ -17,6 +17,7 @@ public:
 	void onEvent(SDL_Event &event);
 	void onLoop();
 	void onPaint();
+	void onClick(int x, int y);
 	void onResize(int width, int height);
 
 	void loop();
