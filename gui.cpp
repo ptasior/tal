@@ -1,6 +1,6 @@
 #include "gui.h"
 #include "log.h"
-#include "sprite.h"
+#include "gui_sprite.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -11,7 +11,7 @@ Widget::Widget(Widget* parent, const char *texture)
 	mParent = parent;
 	if(texture)
 	{
-		mSprite = std::make_shared<Sprite>();
+		mSprite = std::make_shared<GuiSprite>();
 		mSprite->init(texture, "gui");
 	}
 }
@@ -172,6 +172,7 @@ Box::Box(Widget * parent):
 	Widget(parent, "assets/gui/box.png")
 {
 	mLayoutType = ltVertical;
+	mSprite->setColor(255,0,255,255);
 }
 
 //------------------------------------------------------------------------------

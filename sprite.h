@@ -13,7 +13,7 @@ public:
 
 	void paint();
 
-private:
+protected:
 	std::shared_ptr<Shader> mShader;
 	std::shared_ptr<Texture> mTexture;
 

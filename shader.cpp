@@ -13,6 +13,7 @@ Shader::Shader()
 
 void Shader::init(const char *name)
 {
+	Log() << "Loading shader: " << name;
 	mName = name;
 	std::string file = std::string("shaders/") + name;
 	GLuint vertexShader = loadShader((file + ".v.glsl").c_str(), GL_VERTEX_SHADER);
@@ -34,7 +35,10 @@ GLuint Shader::mkAttrib(const char *name)
 {
 	GLuint attrib = glGetAttribLocation(mProgram, name);
 	if(attrib == -1)
-		Log(Log::DIE) << "Could not bind attribute " << name;
+		Log(Log::DIE) << "Could not bind attribute "
+					  << name
+					  << " in shader: "
+					  << mName;
 
 	mVars[name] = attrib;
 	return attrib;
@@ -44,7 +48,10 @@ GLuint Shader::mkUniform(const char *name)
 {
 	GLuint uniform = glGetUniformLocation(mProgram, name);
 	if(uniform == -1)
-		Log(Log::DIE) << "Could not bind uniform " << name;
+		Log(Log::DIE) << "Could not bind uniform "
+					  << name
+					  << " in shader: "
+					  << mName;
 
 	mVars[name] = uniform;
 	return uniform;
@@ -78,7 +85,9 @@ GLuint Shader::loadShader(const char * file, GLenum type)
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_ok);
 
 	if(!compile_ok)
-		Log(Log::DIE) << "Error in vertex shader\n" << getGlLog(shader);
+		Log(Log::DIE) << "Error in vertex shader "
+					  << mName
+					  << "\n" << getGlLog(shader);
 
 	return shader;
 }

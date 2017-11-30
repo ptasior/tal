@@ -11,6 +11,7 @@ set(SOURCE_FILES
 		net.cpp
 		shader.cpp
 		sprite.cpp
+		gui_sprite.cpp
 		texture.cpp
 		camera.cpp
 		scene.cpp

@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-class Sprite;
+class GuiSprite;
 class Gui;
 
 class Widget
@@ -31,7 +31,7 @@ protected:
 	void updatePosition();
 
 	std::vector<std::shared_ptr<Widget>> mWidgets;
-	std::shared_ptr<Sprite> mSprite;
+	std::shared_ptr<GuiSprite> mSprite;
 	Widget* mParent;
 
 	unsigned int mTopOffset = 0;

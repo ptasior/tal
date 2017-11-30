@@ -6,7 +6,7 @@ uniform mat4 mvp;
 
 void main(void)
 {
-  gl_Position = mvp * position * vec4(coord3d, 1.0);
-  f_texcoord = texcoord;
+	gl_Position = mvp * position * vec4(coord3d, 1.0);
+	f_texcoord = texcoord;
 }
 

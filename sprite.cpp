@@ -1,4 +1,5 @@
 #include "sprite.h"
+#include "log.h"
 
 #define GLM_FORCE_RADIANS
 #include "shader.h"
@@ -10,6 +11,7 @@
 
 void Sprite::init(const char *path, const char *shaderName)
 {
+	Log() << "Sprite init " << shaderName;
 	GLfloat vertices[] = {
 		-1.0, -1.0,  0.0,
 		 1.0, -1.0,  0.0,
