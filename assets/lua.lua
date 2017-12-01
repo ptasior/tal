@@ -5,7 +5,7 @@ function setupGui()
 	w = gui:rootWidget()
 
 	b = Widget.new("assets/gui/box.png")
-	b:setRect(100, 100, 320, 100)
+	b:setRect(100, 30, 320, 100)
 	b:onClickLua(function() log("onclick") end)
 	w:addWidget(b)
 
@@ -20,6 +20,7 @@ function setupGui()
 	c:onClickLua(function()
 			log("xxxxx");
 			w:removeWidget(c)
+			c = nil -- TODO Find how to delete it
 		end)
 	w:addWidget(c)
 

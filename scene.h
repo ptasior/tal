@@ -5,6 +5,7 @@
 
 class Camera;
 class Sprite;
+class Model;
 
 class Scene
 {
@@ -19,6 +20,7 @@ public:
 private:
 	std::shared_ptr<Camera> mCamera;
 	std::vector<std::shared_ptr<Sprite>> mSprites;
+	std::vector<std::shared_ptr<Model>> mModels;
 	GLuint mUniformMVP;
 };
 

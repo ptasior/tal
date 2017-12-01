@@ -90,19 +90,26 @@ public:
 
 
 		mShader = Shader::getShader("triangle");
+
 		attribute_coord3d = mShader->mkAttrib("coord3d");
 		attribute_texcoord = mShader->mkAttrib("texcoord");
-		uniform_mvp = mShader->mkUniform("mvp");
+		uniform_position = mShader->mkUniform("position");
+
+		mTexture = Texture::getTexture("assets/tex.png");
 	}
 
-	void setMVP(glm::mat4 &mvp)
+	void setPosition(const glm::mat4 &position)
 	{
-		glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
+		mPosition = position;
 	}
 
 	void paint()
 	{
-		mShader->use();
+		// mShader->use();
+		//
+		glUniformMatrix4fv(uniform_position, 1, GL_FALSE, glm::value_ptr(mPosition));
+
+		mTexture->apply();
 
 		glEnableVertexAttribArray(attribute_coord3d);
 		glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_vertices);
@@ -140,11 +147,17 @@ public:
 		glDisableVertexAttribArray(attribute_coord3d);
 	}
 private:
-	GLuint vbo_cube_vertices, vbo_cube_texcoords;
+	std::shared_ptr<Shader> mShader;
+	std::shared_ptr<Texture> mTexture;
+
+	GLuint vbo_cube_vertices;
+	GLuint vbo_cube_texcoords;
 	GLuint ibo_cube_elements;
 
-	std::shared_ptr<Shader> mShader;
-	GLuint attribute_coord3d, attribute_texcoord;
-	GLint uniform_mvp;
+	GLuint attribute_coord3d;
+	GLuint attribute_texcoord;
+	GLint uniform_position;
+
+	glm::mat4 mPosition;
 };
 

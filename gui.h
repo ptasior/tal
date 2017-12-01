@@ -5,6 +5,7 @@
 #include <vector>
 #include <functional>
 #include <selene.h>
+#include "log.h"
 
 class GuiSprite;
 class Gui;
@@ -15,6 +16,7 @@ class Widget
 {
 public:
 	Widget(std::string texture="");
+	~Widget(){Log() << "~";};
 
 	enum LayoutType {ltNone, ltHorizontal, ltVertical};
 	void paint();
