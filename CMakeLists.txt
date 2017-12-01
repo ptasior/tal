@@ -17,6 +17,7 @@ set(SOURCE_FILES
 		scene.cpp
 		gui.cpp
 		lua.cpp
+		model.cpp
 	)
 
 # Rough but works for now

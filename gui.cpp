@@ -1,6 +1,7 @@
 #include "gui.h"
 #include "log.h"
 #include "gui_sprite.h"
+#include "shader.h"
 #include <algorithm>
 
 #include <glm/glm.hpp>

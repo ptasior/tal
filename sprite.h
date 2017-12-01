@@ -1,16 +1,17 @@
 #pragma once
 #define GLM_FORCE_RADIANS
-#include "shader.h"
-#include "texture.h"
 #include <glm/glm.hpp>
+#include "gl_header.h"
+#include <memory>
 
+class Shader;
+class Texture;
 
 class Sprite
 {
 public:
 	void init(const char *path, const char *shaderName);
 	void setPosition(const glm::mat4 &position);
-
 	void paint();
 
 protected:
