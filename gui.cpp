@@ -6,12 +6,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-Widget::Widget(const char *texture)
+Widget::Widget(std::string texture)
 {
-	if(texture)
+	if(!texture.empty())
 	{
 		mSprite = std::make_shared<GuiSprite>();
-		mSprite->init(texture, "gui");
+		mSprite->init(texture.c_str(), "gui");
 	}
 }
 
@@ -33,6 +33,13 @@ void Widget::setPosition(unsigned int top, unsigned int left)
 	updatePosition();
 
 	for(auto w: mWidgets)
+	{
+		w->mLeftOffset = mLeftOffset + mLeft;
+		w->mTopOffset = mTopOffset + mTop;
+		w->updatePosition();
+	}
+
+	for(auto w: mForeignWidgets)
 	{
 		w->mLeftOffset = mLeftOffset + mLeft;
 		w->mTopOffset = mTopOffset + mTop;
@@ -61,6 +68,13 @@ void Widget::setRect(unsigned int top, unsigned int left, unsigned int width, un
 		w->mTopOffset = mTopOffset + mTop;
 		w->updatePosition();
 	}
+
+	for(auto w: mForeignWidgets)
+	{
+		w->mLeftOffset = mLeftOffset + mLeft;
+		w->mTopOffset = mTopOffset + mTop;
+		w->updatePosition();
+	}
 }
 
 void Widget::setTop(unsigned int v)
@@ -73,6 +87,12 @@ void Widget::setTop(unsigned int v)
 		w->mTopOffset = mTopOffset + mTop;
 		w->updatePosition();
 	}
+
+	for(auto w: mForeignWidgets)
+	{
+		w->mTopOffset = mTopOffset + mTop;
+		w->updatePosition();
+	}
 }
 
 void Widget::setLeft(unsigned int v)
@@ -81,6 +101,12 @@ void Widget::setLeft(unsigned int v)
 	updatePosition();
 
 	for(auto w: mWidgets)
+	{
+		w->mLeftOffset = mLeftOffset + mLeft;
+		w->updatePosition();
+	}
+
+	for(auto w: mForeignWidgets)
 	{
 		w->mLeftOffset = mLeftOffset + mLeft;
 		w->updatePosition();
@@ -128,7 +154,13 @@ void Widget::addLabel(Label* w)
 	mForeignWidgets.push_back(w);
 }
 
-void Widget::addWidget(std::shared_ptr<Widget> w)
+void Widget::addWidget(Widget* w)
+{
+	setupChild(w);
+	mForeignWidgets.push_back(w);
+}
+
+void Widget::addOwnedWidget(std::shared_ptr<Widget> w)
 {
 	setupChild(w.get());
 	mWidgets.push_back(w);
@@ -140,6 +172,7 @@ void Widget::setupChild(Widget* w)
 	w->mParent = this;
 	w->mLeftOffset = mLeftOffset + mLeft;
 	w->mTopOffset = mTopOffset + mTop;
+	int widgetsCnt = mForeignWidgets.size()+mWidgets.size();
 	switch(mLayoutType)
 	{
 		case ltNone:
@@ -148,13 +181,17 @@ void Widget::setupChild(Widget* w)
 		case ltHorizontal:
 					for(auto w: mWidgets)
 						tmp += w->mWidth;
-					w->setLeft(tmp + mWidgets.size()*mSpacing + mPaddingHoris);
+					for(auto w: mForeignWidgets)
+						tmp += w->mWidth;
+					w->setLeft(tmp + widgetsCnt*mSpacing + mPaddingHoris);
 					w->setTop(mPaddingVert);
 					break;
 		case ltVertical:
 					for(auto w: mWidgets)
 						tmp += w->mHeight;
-					w->setTop(tmp + mWidgets.size()*mSpacing + mPaddingVert);
+					for(auto w: mForeignWidgets)
+						tmp += w->mHeight;
+					w->setTop(tmp + widgetsCnt*mSpacing + mPaddingVert);
 					w->setLeft(mPaddingHoris);
 					break;
 	}
@@ -179,7 +216,14 @@ bool Widget::click(int x, int y)
 			if(w->click(x, y))
 				return true;
 
-		if(mOnClick) mOnClick();
+		for(auto w :mForeignWidgets)
+			if(w->click(x, y))
+				return true;
+
+		if(mOnClick)
+			mOnClick();
+		else if(mOnClickLua.size())
+			mOnClickLua[0]();
 
 		return true;
 	}
@@ -191,9 +235,15 @@ void Widget::onClick(std::function<void(void)> fnc)
 {
 	mOnClick = fnc;
 }
+
+void Widget::onClickLua(sel::function<void(void)> fnc)
+{
+	mOnClickLua.push_back(fnc);
+}
+
 //------------------------------------------------------------------------------
 Label::Label(std::string text):
-	Widget(nullptr)
+	Widget("")
 {
 	mLayoutType = ltHorizontal;
 	mSpacing = -5;
@@ -213,7 +263,7 @@ void Label::setText(const char *text)
 		id[7] = text[i];
 		w = std::make_shared<Widget>(id);
 		w->setSize(15, 15);
-		addWidget(w);
+		addOwnedWidget(w);
 	}
 }
 
@@ -230,7 +280,7 @@ Box::Box():
 void Gui::init()
 {
 	Log() << "Gui init";
-	mRoot = std::make_shared<Widget>(nullptr);
+	mRoot = std::make_shared<Widget>();
 
 	mRoot->setLayout(Widget::ltNone);
 

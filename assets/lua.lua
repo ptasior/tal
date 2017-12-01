@@ -3,10 +3,11 @@ function setupGui()
 	log("setupGui")
 
 	w = gui:rootWidget()
-	
-	b = Box.new()
+
+	b = Widget.new("assets/gui/box.png")
 	b:setRect(100, 100, 320, 100)
-	w:addBox(b)
+	b:onClickLua(function() log("onclick") end)
+	w:addWidget(b)
 
 	l = Label.new("llaabbeell")
 	l:setPosition(50,50)

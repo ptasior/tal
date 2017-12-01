@@ -21,13 +21,13 @@ void Lua::init(Gui *gui)
 	state["log"] = &logFnc;
 	state["gui"].SetObj<Gui>(*gui, "rootWidget", &Gui::rootWidget);
 
-	state["Label"].SetClass<Widget, const char *>("setPosition", &Widget::setPosition);
+	state["Label"].SetClass<Widget, std::string>("setPosition", &Widget::setPosition);
 	state["Label"].SetClass<Label, std::string>("setText", &Label::setText);
-	state["Box"].SetClass<Widget, const char *>("setRect", &Widget::setRect);
-	state["Box"].SetClass<Widget, const char *>("addLabel", &Widget::addLabel);
-	state["Box"].SetClass<Box>();
-	state["Widget"].SetClass<Widget, const char *>("addLabel", &Widget::addLabel);
-	state["Widget"].SetClass<Widget, const char *>("addBox", &Widget::addBox);
+	// state["Box"].SetClass<Box>();
+	state["Widget"].SetClass<Widget, std::string>("setRect", &Widget::setRect);
+	state["Widget"].SetClass<Widget, std::string>("onClickLua", &Widget::onClickLua);
+	state["Widget"].SetClass<Widget, std::string>("addLabel", &Widget::addLabel);
+	state["Widget"].SetClass<Widget, std::string>("addWidget", &Widget::addWidget);
 
 	state.Load("assets/lua.lua");
 }

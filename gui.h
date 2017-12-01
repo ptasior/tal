@@ -4,6 +4,7 @@
 #include <memory>
 #include <vector>
 #include <functional>
+#include <selene.h>
 
 class GuiSprite;
 class Gui;
@@ -13,7 +14,7 @@ class Box;
 class Widget
 {
 public:
-	Widget(const char *texture=nullptr);
+	Widget(std::string texture="");
 
 	enum LayoutType {ltNone, ltHorizontal, ltVertical};
 	void paint();
@@ -33,9 +34,11 @@ public:
 
 	void addLabel(Label* w);
 	void addBox(Box* w);
-	void addWidget(std::shared_ptr<Widget> w);
+	void addWidget(Widget* w);
+	void addOwnedWidget(std::shared_ptr<Widget> w);
 
 	void onClick(std::function<void(void)> fnc);
+	void onClickLua(sel::function<void(void)> fnc);
 
 protected:
 	void setupChild(Widget *w);
@@ -58,7 +61,8 @@ protected:
 	unsigned int mPaddingHoris = 5;
 	unsigned int mSpacing = 2;
 
-	LayoutType mLayoutType = ltNone;
+	LayoutType mLayoutType = ltHorizontal;
+	std::vector<sel::function<void(void)>> mOnClickLua;
 	std::function<void(void)> mOnClick;
 
 	friend Gui;
