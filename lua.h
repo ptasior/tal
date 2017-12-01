@@ -9,7 +9,6 @@ public:
 	void run();
 
 private:
+	void applyWidgetInheritance(const char *type);
 	Gui *mGui;
-
-	// sel::State& operator();
 };

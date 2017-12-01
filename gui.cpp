@@ -1,6 +1,7 @@
 #include "gui.h"
 #include "log.h"
 #include "gui_sprite.h"
+#include <algorithm>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -54,7 +55,7 @@ void Widget::setSize(unsigned int width, unsigned int height)
 	updatePosition();
 }
 
-void Widget::setRect(unsigned int top, unsigned int left, unsigned int width, unsigned int height)
+void Widget::setRect(unsigned int left, unsigned int top, unsigned int width, unsigned int height)
 {
 	mTop = top;
 	mLeft = left;
@@ -160,6 +161,15 @@ void Widget::addWidget(Widget* w)
 	mForeignWidgets.push_back(w);
 }
 
+void Widget::removeWidget(Widget* w)
+{
+	mForeignWidgets.erase(std::remove_if(
+				mForeignWidgets.begin(),
+				mForeignWidgets.end(),
+				[&w](Widget *i){return i == w;}
+			), mForeignWidgets.end());
+}
+
 void Widget::addOwnedWidget(std::shared_ptr<Widget> w)
 {
 	setupChild(w.get());
@@ -222,7 +232,7 @@ bool Widget::click(int x, int y)
 
 		if(mOnClick)
 			mOnClick();
-		else if(mOnClickLua.size())
+		if(mOnClickLua.size())
 			mOnClickLua[0]();
 
 		return true;
@@ -239,6 +249,11 @@ void Widget::onClick(std::function<void(void)> fnc)
 void Widget::onClickLua(sel::function<void(void)> fnc)
 {
 	mOnClickLua.push_back(fnc);
+}
+
+void Widget::setColor(int r, int g, int b, int a)
+{
+	mSprite->setColor(r, g, b, a);
 }
 
 //------------------------------------------------------------------------------
@@ -321,5 +336,15 @@ void Gui::click(int x, int y)
 Widget& Gui::rootWidget()
 {
 	return *mRoot.get();
+}
+
+int Gui::getSceneWidth()
+{
+	return mSceneWidth;
+}
+
+int Gui::getSceneHeight()
+{
+	return mSceneHeight;
 }
 

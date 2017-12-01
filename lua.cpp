@@ -19,17 +19,39 @@ void Lua::init(Gui *gui)
 		});
 
 	state["log"] = &logFnc;
-	state["gui"].SetObj<Gui>(*gui, "rootWidget", &Gui::rootWidget);
+	state["gui"].SetObj<Gui>(*gui,
+			"rootWidget", &Gui::rootWidget,
+			"getSceneWidth", &Gui::getSceneWidth,
+			"getSceneHeight", &Gui::getSceneHeight
+		);
 
-	state["Label"].SetClass<Widget, std::string>("setPosition", &Widget::setPosition);
+	applyWidgetInheritance("Label");
 	state["Label"].SetClass<Label, std::string>("setText", &Label::setText);
 	// state["Box"].SetClass<Box>();
-	state["Widget"].SetClass<Widget, std::string>("setRect", &Widget::setRect);
-	state["Widget"].SetClass<Widget, std::string>("onClickLua", &Widget::onClickLua);
-	state["Widget"].SetClass<Widget, std::string>("addLabel", &Widget::addLabel);
-	state["Widget"].SetClass<Widget, std::string>("addWidget", &Widget::addWidget);
+	applyWidgetInheritance("Widget");
 
 	state.Load("assets/lua.lua");
+}
+
+void Lua::applyWidgetInheritance(const char *type)
+{
+	state[type].SetClass<Widget, std::string>(
+			"setTop", &Widget::setTop,
+			"setLeft", &Widget::setLeft,
+			"setWidth", &Widget::setWidth,
+			"setHeight", &Widget::setHeight,
+			"setPosition", &Widget::setPosition,
+			"setSize", &Widget::setSize,
+			"setRect", &Widget::setRect,
+			"setLayout", &Widget::setLayout,
+			"setColor", &Widget::setColor,
+
+			"onClickLua", &Widget::onClickLua,
+
+			"addLabel", &Widget::addLabel,
+			"addWidget", &Widget::addWidget,
+			"removeWidget", &Widget::removeWidget
+		);
 }
 
 void Lua::run()

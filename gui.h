@@ -26,16 +26,19 @@ public:
 
 	virtual void setPosition(unsigned int top, unsigned int left);
 	virtual void setSize(unsigned int width, unsigned int height);
-	virtual void setRect(unsigned int top, unsigned int left, unsigned int width, unsigned int height);
+	virtual void setRect(unsigned int left, unsigned int top, unsigned int width, unsigned int height);
 
 	std::tuple<int, int, int, int> getRect();
 
 	void setLayout(LayoutType t);
+	void setColor(int r, int g, int b, int a);
 
 	void addLabel(Label* w);
 	void addBox(Box* w);
 	void addWidget(Widget* w);
 	void addOwnedWidget(std::shared_ptr<Widget> w);
+
+	void removeWidget(Widget* w);
 
 	void onClick(std::function<void(void)> fnc);
 	void onClickLua(sel::function<void(void)> fnc);
@@ -62,6 +65,10 @@ protected:
 	unsigned int mSpacing = 2;
 
 	LayoutType mLayoutType = ltHorizontal;
+
+	// Vector because empty constructor in sel::fuction is deleted and
+	// object has to be copied, otherwise will be garbage collected
+	// TODO fix me in a more elegant way or at least add asserts(size() <= 1)
 	std::vector<sel::function<void(void)>> mOnClickLua;
 	std::function<void(void)> mOnClick;
 
@@ -95,6 +102,8 @@ public:
 	void click(int x, int y);
 
 	void setSceneSize(int w, int h);
+	int getSceneWidth();
+	int getSceneHeight();
 
 	Widget& rootWidget();
 
