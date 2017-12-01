@@ -6,9 +6,8 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-Widget::Widget(Widget* parent, const char *texture)
+Widget::Widget(const char *texture)
 {
-	mParent = parent;
 	if(texture)
 	{
 		mSprite = std::make_shared<GuiSprite>();
@@ -107,6 +106,9 @@ void Widget::paint()
 
 	for(auto w :mWidgets)
 		w->paint();
+
+	for(auto f :mForeignWidgets)
+		f->paint();
 }
 
 void Widget::setLayout(LayoutType t)
@@ -114,7 +116,25 @@ void Widget::setLayout(LayoutType t)
 	mLayoutType = t;
 }
 
+void Widget::addBox(Box* w)
+{
+	setupChild(w);
+	mForeignWidgets.push_back(w);
+}
+
+void Widget::addLabel(Label* w)
+{
+	setupChild(w);
+	mForeignWidgets.push_back(w);
+}
+
 void Widget::addWidget(std::shared_ptr<Widget> w)
+{
+	setupChild(w.get());
+	mWidgets.push_back(w);
+}
+
+void Widget::setupChild(Widget* w)
 {
 	int tmp = 0;
 	w->mParent = this;
@@ -138,7 +158,6 @@ void Widget::addWidget(std::shared_ptr<Widget> w)
 					w->setLeft(mPaddingHoris);
 					break;
 	}
-	mWidgets.push_back(w);
 }
 
 std::tuple<int, int, int, int> Widget::getRect()
@@ -173,34 +192,34 @@ void Widget::onClick(std::function<void(void)> fnc)
 	mOnClick = fnc;
 }
 //------------------------------------------------------------------------------
-Label::Label(Widget * parent, const char *text)
+Label::Label(std::string text):
+	Widget(nullptr)
 {
 	mLayoutType = ltHorizontal;
-	mParent = parent;
 	mSpacing = -5;
 
-	setText(text);
+	setText(text.c_str());
 }
 
 void Label::setText(const char *text)
 {
 	if(mWidgets.size())
-		mWidgets.clear(); // TODO Make sure shared_ptrs work
+		mWidgets.clear();
 
 	std::shared_ptr<Widget> w;
 	char id[] = "letter- ";
 	for(int i = 0; i < strlen(text); i++)
 	{
 		id[7] = text[i];
-		w = std::make_shared<Widget>(nullptr, id);
+		w = std::make_shared<Widget>(id);
 		w->setSize(15, 15);
 		addWidget(w);
 	}
 }
 
 //------------------------------------------------------------------------------
-Box::Box(Widget * parent):
-	Widget(parent, "assets/gui/box.png")
+Box::Box():
+	 Widget("assets/gui/box.png")
 {
 	mLayoutType = ltVertical;
 	mSprite->setColor(255,0,255,255);
@@ -211,19 +230,18 @@ Box::Box(Widget * parent):
 void Gui::init()
 {
 	Log() << "Gui init";
-	mRoot = std::make_shared<Widget>(nullptr, nullptr);
+	mRoot = std::make_shared<Widget>(nullptr);
 
 	mRoot->setLayout(Widget::ltNone);
 
-	// auto w = std::make_shared<Label>(nullptr, "!@#$%^&*(){}:\"<>?./;'[]\\|'");
-	auto b = std::make_shared<Box>(nullptr);
-	b->setRect(100,100, 320, 100);
-	mRoot->addWidget(b);
-
-	auto w = std::make_shared<Label>(nullptr, "qwertyuiop{asdfghjklzxcvbnm<}");
-	// w->setPosition(50,50);
-	b->addWidget(w);
-	b->onClick([](){Log() << "box";});
+	// auto b = std::make_shared<Box>(nullptr);
+	// b->setRect(100,100, 320, 100);
+	// mRoot->addWidget(b);
+    //
+	// auto w = std::make_shared<Label>(nullptr, "qwertyuiop{asdfghjklzxcvbnm<}");
+	// // w->setPosition(50,50);
+	// b->addWidget(w);
+	// b->onClick([](){Log() << "box";});
 
 	mUniformMVP = Shader::getShader("gui")->mkUniform("mvp");
 }
@@ -248,5 +266,10 @@ void Gui::setSceneSize(int w, int h)
 void Gui::click(int x, int y)
 {
 	mRoot->click(x, y);
+}
+
+Widget& Gui::rootWidget()
+{
+	return *mRoot.get();
 }
 

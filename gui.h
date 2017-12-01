@@ -7,11 +7,13 @@
 
 class GuiSprite;
 class Gui;
+class Label;
+class Box;
 
 class Widget
 {
 public:
-	Widget(Widget* parent=nullptr, const char *texture=nullptr);
+	Widget(const char *texture=nullptr);
 
 	enum LayoutType {ltNone, ltHorizontal, ltVertical};
 	void paint();
@@ -21,21 +23,27 @@ public:
 	void setWidth(unsigned int v);
 	void setHeight(unsigned int v);
 
-	void setPosition(unsigned int top, unsigned int left);
-	void setSize(unsigned int width, unsigned int height);
-	void setRect(unsigned int top, unsigned int left, unsigned int width, unsigned int height);
+	virtual void setPosition(unsigned int top, unsigned int left);
+	virtual void setSize(unsigned int width, unsigned int height);
+	virtual void setRect(unsigned int top, unsigned int left, unsigned int width, unsigned int height);
 
 	std::tuple<int, int, int, int> getRect();
 
 	void setLayout(LayoutType t);
+
+	void addLabel(Label* w);
+	void addBox(Box* w);
 	void addWidget(std::shared_ptr<Widget> w);
 
 	void onClick(std::function<void(void)> fnc);
 
 protected:
+	void setupChild(Widget *w);
 	void updatePosition();
 	bool click(int x, int y);
 
+	// Widgets created in Lua
+	std::vector<Widget*> mForeignWidgets;
 	std::vector<std::shared_ptr<Widget>> mWidgets;
 	std::shared_ptr<GuiSprite> mSprite;
 	Widget* mParent;
@@ -61,7 +69,7 @@ protected:
 class Label : public Widget
 {
 public:
-	Label(Widget *parent, const char *text);
+	Label(std::string text);
 	void setText(const char *text);
 };
 
@@ -70,7 +78,7 @@ public:
 class Box : public Widget
 {
 public:
-	Box(Widget *parent);
+	Box();
 };
 
 
@@ -83,6 +91,8 @@ public:
 	void click(int x, int y);
 
 	void setSceneSize(int w, int h);
+
+	Widget& rootWidget();
 
 private:
 	std::shared_ptr<Widget> mRoot;

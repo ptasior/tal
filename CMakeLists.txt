@@ -16,6 +16,7 @@ set(SOURCE_FILES
 		camera.cpp
 		scene.cpp
 		gui.cpp
+		lua.cpp
 	)
 
 # Rough but works for now

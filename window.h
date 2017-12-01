@@ -7,6 +7,7 @@ class Scene;
 class Camera;
 class Net;
 class Gui;
+class Lua;
 
 class Window
 {
@@ -37,5 +38,6 @@ private:
 	std::shared_ptr<Camera> mCamera;
 	std::shared_ptr<Scene> mScene;
 	std::shared_ptr<Gui> mGui;
+	std::shared_ptr<Lua> mLua;
 };
 

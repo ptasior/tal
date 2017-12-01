@@ -5,6 +5,7 @@
 #include "camera.h"
 #include "scene.h"
 #include "gui.h"
+#include "lua.h"
 
 #ifdef __EMSCRIPTEN__
 	#include <SDL_ttf.h>
@@ -73,6 +74,11 @@ Window::Window()
 	mGui->init();
 	mGui->setSceneSize(mScreenWidth, mScreenHeight);
 
+
+	mLua = std::make_shared<Lua>();
+	mLua->init(mGui.get());
+	mLua->run();
+
 	Log() << "Initialisation succesed";
 }
 
@@ -115,6 +121,8 @@ void Window::onEvent(SDL_Event &event)
 		case SDL_MOUSEBUTTONDOWN:
 			onClick(event.button.x, event.button.y);
 			break;
+		case SDL_TEXTINPUT:
+				Log() << event.text.text;
 		case SDL_WINDOWEVENT:
 					if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
 						onResize(event.window.data1, event.window.data2);
