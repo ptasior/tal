@@ -42,7 +42,8 @@ void Scene::init()
 
 	mModels.push_back(std::make_shared<ModelObj>());
 	// mModels.push_back(std::make_shared<ModelCube>());
-	mModels[0]->init();
+	mModels[0]->init("assets/3d/multi_tex.obj");
+	// mModels[0]->init("assets/3d/test.obj");
 
 	glm::mat4 m = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
 	mModels[0]->setPosition(m);

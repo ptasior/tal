@@ -10,12 +10,13 @@ class Texture;
 class Model
 {
 public:
-	virtual void init();
-	virtual void load() = 0;
+	virtual void init(const std::string& path);
 	virtual void setPosition(const glm::mat4 &position);
 	virtual void paint();
 
 protected:
+	virtual void load(const std::string& path) = 0;
+
 	std::shared_ptr<Shader> mShader;
 	std::shared_ptr<Texture> mTexture;
 

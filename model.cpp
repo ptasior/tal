@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-void Model::init()
+void Model::init(const std::string& path)
 {
 	mShader = Shader::getShader("triangle");
 
@@ -16,7 +16,7 @@ void Model::init()
 	attribute_texcoord = mShader->mkAttrib("texcoord");
 	uniform_position = mShader->mkUniform("position");
 
-	load();
+	load(path);
 }
 
 void Model::setPosition(const glm::mat4 &position)
