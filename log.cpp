@@ -36,6 +36,22 @@ Log& Log::operator << (const char* str)
     return *this;
 }
 
+Log& Log::operator << (double val)
+{
+    // TODO Use atoi
+    auto tmp = std::to_string(val);
+    write(tmp.c_str());
+    return *this;
+}
+
+Log& Log::operator << (float val)
+{
+    // TODO Use atoi
+    auto tmp = std::to_string(val);
+    write(tmp.c_str());
+    return *this;
+}
+
 Log& Log::operator << (int val)
 {
     // TODO Use atoi

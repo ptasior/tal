@@ -10,6 +10,8 @@ public:
 
     Log& operator << (const std::string & str);
     Log& operator << (const char* str);
+    Log& operator << (double val);
+    Log& operator << (float val);
     Log& operator << (int val);
 
     static const char *endl;

@@ -27,8 +27,15 @@ void Shader::init(const char *name)
 
 	GLint link_ok = GL_FALSE;
 	glGetProgramiv(mProgram, GL_LINK_STATUS, &link_ok);
+
 	if(!link_ok)
 		Log(Log::DIE) << "Error in glLinkProgram in " << name;
+
+	glDetachShader(mProgram, vertexShader);
+	glDetachShader(mProgram, fragmentShader);
+	
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
 }
 
 GLuint Shader::mkAttrib(const char *name)

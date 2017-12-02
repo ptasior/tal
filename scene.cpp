@@ -2,7 +2,8 @@
 #include "shader.h"
 #include "camera.h"
 #include "sprite.h"
-#include "model.h"
+#include "model_cube.h"
+#include "model_obj.h"
 #include "log.h"
 #include <memory>
 
@@ -39,7 +40,8 @@ void Scene::init()
 		// * glm::rotate(glm::mat4(1.0f), glm::radians(1.7f), axis_y);
 	mSprites[0]->setPosition(pos2);
 
-	mModels.push_back(std::make_shared<Model>());
+	mModels.push_back(std::make_shared<ModelObj>());
+	// mModels.push_back(std::make_shared<ModelCube>());
 	mModels[0]->init();
 
 	glm::mat4 m = glm::scale(glm::mat4(1.0f), glm::vec3(0.5, 0.5, 0.5));
