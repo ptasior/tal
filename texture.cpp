@@ -28,14 +28,16 @@ Texture::~Texture()
 
 void Texture::init(const char *path)
 {
-	Log() << "Loading texture " << path;
+	Log() << "Texture: Loading texture " << path;
 	mName = path;
 	SDL_Surface* res_texture;
 	if(mName.substr(0, 7) != "letter-")
 	{
 		res_texture = IMG_Load(path);
 		if(!res_texture)
-			Log(Log::DIE) << "IMG_Load: " << SDL_GetError();
+			Log(Log::DIE) << "Texture: IMG_Load: " << SDL_GetError();
+
+		res_texture = flip(res_texture, SDL_FLIP_VERTICAL);
 	}
 	else
 	{
@@ -43,14 +45,12 @@ void Texture::init(const char *path)
 		static TTF_Font* font = TTF_OpenFont("assets/Hack.ttf", SIZE-4);
 
 		if(!font)
-			Log(Log::DIE) << "Cannot initaialise specific font " << TTF_GetError();
+			Log(Log::DIE) << "Texture: Cannot initaialise specific font " << TTF_GetError();
 		SDL_Color textColor = {255, 255, 255, 255}; // white
 
 		SDL_Surface *rt  = TTF_RenderText_Blended(font, mName.substr(7).c_str(), textColor);
 		if(!rt)
-			Log(Log::DIE) << "Error in TTF_RenderText_Blended: " << SDL_GetError();
-
-		// rt = flip(rt, SDL_FLIP_VERTICAL);
+			Log(Log::DIE) << "Texture: Error in TTF_RenderText_Blended: " << SDL_GetError();
 
 		res_texture = SDL_CreateRGBSurface(SDL_SWSURFACE, SIZE, SIZE,
 				32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff

@@ -11,33 +11,82 @@
 
 
 
-// std::vector<GLfloat> ModelObj::readData(const char * pref, unsigned int lines, int values)
-// {
-// 	std::vector<GLfloat> ret(lines * values);
-// 	int cnt = 0;
-//
-// 	while(mFile.good())
-// 	{
-// 		mFile >> buf;
-// 		if(buf != pref)
-// 		{
-// 			mFile.ignore(300, '\n');
-// 			continue;
-// 		}
-//
-// 		if(values == 3)
-// 			mFile   >> ret[cnt*3]
-// 					>> ret[cnt*3+1]
-// 					>> ret[cnt*3+2];
-// 		else
-// 			mFile   >> ret[cnt*2]
-// 					>> ret[cnt*2+1];
-//
-// 		if(++cnt == lines) break;
-// 	}
-//
-// 	return ret;
-// }
+std::vector<GLfloat> ModelObj::readData(const char * pref, unsigned int lines, int values)
+{
+	std::vector<GLfloat> ret(lines * values);
+	if(!lines) return ret;
+
+	int cnt = 0;
+	std::string buf;
+
+	while(mFile.good())
+	{
+		mFile >> buf;
+		if(buf != pref)
+		{
+			mFile.ignore(300, '\n');
+			continue;
+		}
+
+		if(values == 3)
+			mFile   >> ret[cnt*3]
+					>> ret[cnt*3+1]
+					>> ret[cnt*3+2];
+		else
+			mFile   >> ret[cnt*2]
+					>> ret[cnt*2+1];
+
+		if(++cnt == lines) break;
+	}
+
+	return ret;
+}
+
+
+unsigned int ModelObj::setupFaceTriplet(const std::vector<GLfloat> &vert,
+										const std::vector<GLfloat> &tex,
+										const std::vector<GLfloat> &norm,
+										std::map<std::string, int> &idx,
+										std::vector<GLfloat> &out_vec
+										)
+{
+	unsigned int v, t, n;
+	char c;
+
+	mFile >> v;
+	if(mTexCnt)
+		mFile >> c >> t;
+	if(mNormCnt)
+	{
+		if(!mTexCnt) mFile >> c;
+		mFile >> c >> n;
+	}
+
+	std::string key = std::to_string(v)+"/"+std::to_string(t)+"/"+std::to_string(n);
+
+	if(!idx.count(key))
+	{
+		out_vec.push_back(vert[(v-1)*3]);
+		out_vec.push_back(vert[(v-1)*3+1]);
+		out_vec.push_back(vert[(v-1)*3+2]);
+		if(mTexCnt)
+		{
+			out_vec.push_back(tex[(t-1)*2]);
+			out_vec.push_back(tex[(t-1)*2+1]);
+		}
+
+		if(mNormCnt)
+		{
+			out_vec.push_back(norm[(n-1)*3]);
+			out_vec.push_back(norm[(n-1)*3+1]);
+			out_vec.push_back(norm[(n-1)*3+2]);
+		}
+
+		idx[key] = out_vec.size()/8-1;
+	}
+
+	return idx[key];
+}
 
 void ModelObj::load(const std::string& path)
 {
@@ -53,61 +102,10 @@ void ModelObj::load(const std::string& path)
 	mFile.clear();
 	mFile.seekg(0, std::ios::beg);
 
-	std::string buf;
 
-	std::vector<GLfloat> raw_vert(mVertCnt *3);
-	int cnt = 0;
-	while(mFile.good())
-	{
-		mFile >> buf;
-		if(buf != "v")
-		{
-			mFile.ignore(300, '\n');
-			continue;
-		}
-
-		mFile   >> raw_vert[cnt*3]
-				>> raw_vert[cnt*3+1]
-				>> raw_vert[cnt*3+2];
-
-		if(++cnt == mVertCnt) break;
-	}
-
-	std::vector<GLfloat> raw_tex(mTexCnt *2);
-	cnt = 0;
-	while(mFile.good())
-	{
-		mFile >> buf;
-		if(buf != "vt")
-		{
-			mFile.ignore(300, '\n');
-			continue;
-		}
-
-		mFile   >> raw_tex[cnt*2]
-				>> raw_tex[cnt*2+1];
-
-		if(++cnt == mTexCnt) break;
-	}
-
-	std::vector<GLfloat> raw_norm(mNormCnt *3);
-	cnt = 0;
-	while(mFile.good())
-	{
-		mFile >> buf;
-		if(buf != "vn")
-		{
-			mFile.ignore(300, '\n');
-			continue;
-		}
-
-		mFile   >> raw_norm[cnt*3]
-				>> raw_norm[cnt*3+1]
-				>> raw_norm[cnt*3+2];
-
-		if(++cnt == mNormCnt) break;
-	}
-
+	std::vector<GLfloat> raw_vert = readData("v", mVertCnt, 3);
+	std::vector<GLfloat> raw_tex = readData("vt", mTexCnt, 2);
+	std::vector<GLfloat> raw_norm = readData("vn", mNormCnt, 3);
 
 
 	std::vector<std::vector<GLushort> > faces;
@@ -118,10 +116,10 @@ void ModelObj::load(const std::string& path)
 	std::map<std::string, int> idx;
 	std::vector<GLfloat> out_vec;
 
-	cnt = 0;
-	char c;
-	int v, t, n;
-	std::string key;
+	int cnt = 0;
+	int pos;
+	std::string buf;
+
 	while(mFile.good())
 	{
 		mFile >> buf;
@@ -141,50 +139,29 @@ void ModelObj::load(const std::string& path)
 
 		for(int i = 0; i < 3; i++)
 		{
-			mFile >> v >> c >> t >> c >> n;
-
-			key = std::to_string(v)+"/"+std::to_string(t)+"/"+std::to_string(n);
-
-			if(!idx.count(key))
-			{
-				out_vec.push_back(raw_vert[(v-1)*3]);
-				out_vec.push_back(raw_vert[(v-1)*3+1]);
-				out_vec.push_back(raw_vert[(v-1)*3+2]);
-				out_vec.push_back(raw_tex[(t-1)*2]);
-				out_vec.push_back(raw_tex[(t-1)*2+1]);
-				out_vec.push_back(raw_norm[(n-1)*3]);
-				out_vec.push_back(raw_norm[(n-1)*3+1]);
-				out_vec.push_back(raw_norm[(n-1)*3+2]);
-
-				int pos = out_vec.size()/8-1;
-				idx[key] = pos;
-				faces.back().push_back(pos);
-			}
-			else
-				faces.back().push_back(idx[key]);
-
-			cnt++;
+			pos = setupFaceTriplet(raw_vert, raw_tex, raw_norm, idx, out_vec);
+			faces.back().push_back(pos);
 		}
 
-		if(cnt == mFaceCnt*3) break;
+		if(++cnt == mFaceCnt) break;
 	}
 
 	glGenBuffers(1, &vboVertices);
 	glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
-	glBufferData(GL_ARRAY_BUFFER, out_vec.size()*sizeof(GLfloat), &out_vec[0], GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, out_vec.size()*sizeof(GLfloat), out_vec.data(), GL_STATIC_DRAW);
 
 	for(int i = 0; i < faces.size(); i++)
 	{
 		GLuint ibo;
 		glGenBuffers(1, &ibo);
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces[i].size()*sizeof(GLushort), &faces[i][0], GL_STATIC_DRAW);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces[i].size()*sizeof(GLushort), faces[i].data(), GL_STATIC_DRAW);
 
 		mObjects[ibo] = Texture::getTexture((mDirectory+"/"+mTextures[materials[i]]).c_str());
 	}
 
 	mFile.close();
-	mTextures.clear(); // TODO make local
+	mTextures.clear(); // Not needed any more, clean
 }
 
 void ModelObj::readSize()
@@ -214,10 +191,8 @@ void ModelObj::readSize()
 			if(!mTextures.count(buf))
 				Log(Log::DIE) << "ModelObj: unknown mtl: " << buf;
 		}
-		else if(buf == "o")
-			Log() << "ModelObj: o";
-		else if(buf == "g")
-			Log() << "ModelObj: g";
+		else if(buf == "o") ;
+		else if(buf == "g") ;
 		else
 			Log(Log::DIE) << "ModelObj: " << buf << " unsupported";
 
@@ -320,3 +295,4 @@ void ModelObj::paint()
 	glDisableVertexAttribArray(attribute_texcoord);
 	glDisableVertexAttribArray(attribute_coord3d);
 }
+

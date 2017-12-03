@@ -1,6 +1,7 @@
 #pragma once
 #include "model.h"
 #include <fstream>
+#include <vector>
 #include <map>
 
 
@@ -13,7 +14,13 @@ public:
 private:
 	void readSize();
 	void readMtl(std::string &path);
-	// std::vector<GLfloat> readData(const char * pref, unsigned int lines, int values);
+	std::vector<GLfloat> readData(const char * pref, unsigned int lines, int values);
+	unsigned int setupFaceTriplet(const std::vector<GLfloat> &vert,
+									const std::vector<GLfloat> &tex,
+									const std::vector<GLfloat> &norm,
+									std::map<std::string, int> &idx,
+									std::vector<GLfloat> &out_vec
+									);
 
 	int mVertCnt = 0;
 	int mTexCnt = 0;
