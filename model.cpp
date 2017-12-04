@@ -10,10 +10,12 @@
 
 void Model::init(const std::string& path)
 {
-	mShader = Shader::getShader("triangle");
+	// mShader = Shader::getShader("triangle");
+	mShader = Shader::getShader("model");
 
 	attribute_coord3d = mShader->mkAttrib("coord3d");
 	attribute_texcoord = mShader->mkAttrib("texcoord");
+	attribute_vnorm = mShader->mkAttrib("vnorm");
 	uniform_position = mShader->mkUniform("position");
 
 	load(path);

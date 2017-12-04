@@ -36,8 +36,10 @@ std::vector<GLfloat> ModelObj::readData(const char * pref, unsigned int lines, i
 			mFile   >> ret[cnt*2]
 					>> ret[cnt*2+1];
 
-		if(++cnt == lines) break;
+		if(++cnt == lines-1) break;
 	}
+
+	assert(ret.size() == lines * values);
 
 	return ret;
 }
@@ -55,28 +57,36 @@ unsigned int ModelObj::setupFaceTriplet(const std::vector<GLfloat> &vert,
 
 	mFile >> v;
 	if(mTexCnt)
+	{
 		mFile >> c >> t;
+		assert(c == '/');
+	}
 	if(mNormCnt)
 	{
-		if(!mTexCnt) mFile >> c;
+		if(!mTexCnt)
+			mFile >> c;
 		mFile >> c >> n;
+		assert(c == '/');
 	}
 
 	std::string key = std::to_string(v)+"/"+std::to_string(t)+"/"+std::to_string(n);
 
 	if(!idx.count(key))
 	{
+		assert(v-1 < mVertCnt*3);
 		out_vec.push_back(vert[(v-1)*3]);
 		out_vec.push_back(vert[(v-1)*3+1]);
 		out_vec.push_back(vert[(v-1)*3+2]);
 		if(mTexCnt)
 		{
+			assert(t-1 < mTexCnt*2);
 			out_vec.push_back(tex[(t-1)*2]);
 			out_vec.push_back(tex[(t-1)*2+1]);
 		}
 
 		if(mNormCnt)
 		{
+			assert(n-1 < mNormCnt*3);
 			out_vec.push_back(norm[(n-1)*3]);
 			out_vec.push_back(norm[(n-1)*3+1]);
 			out_vec.push_back(norm[(n-1)*3+2]);
@@ -106,7 +116,6 @@ void ModelObj::load(const std::string& path)
 	std::vector<GLfloat> raw_vert = readData("v", mVertCnt, 3);
 	std::vector<GLfloat> raw_tex = readData("vt", mTexCnt, 2);
 	std::vector<GLfloat> raw_norm = readData("vn", mNormCnt, 3);
-
 
 	std::vector<std::vector<GLushort> > faces;
 	std::vector<std::string> materials;
@@ -139,11 +148,12 @@ void ModelObj::load(const std::string& path)
 
 		for(int i = 0; i < 3; i++)
 		{
+			Log() << "sft " << cnt;
 			pos = setupFaceTriplet(raw_vert, raw_tex, raw_norm, idx, out_vec);
 			faces.back().push_back(pos);
 		}
 
-		if(++cnt == mFaceCnt) break;
+		if(++cnt == mFaceCnt-1) break;
 	}
 
 	glGenBuffers(1, &vboVertices);
@@ -270,16 +280,16 @@ void ModelObj::paint()
 		(void *)(3*sizeof(GLfloat))                   // offset of first element
 	);
 
-	// glEnableVertexAttribArray(attribute_texcoord);
-	// glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
-	// glVertexAttribPointer(
-	// 	attribute_vnorm, // attribute
-	// 	2,                  // number of elements per vertex, here (x,y)
-	// 	GL_FLOAT,           // the type of each element
-	// 	GL_FALSE,           // take our values as-is
-	// 	8*sizeof(GLfloat),                  // no extra data between each position
-	// 	(void *)(5*sizeof(GLfloat))                   // offset of first element
-	// );
+	glEnableVertexAttribArray(attribute_vnorm);
+	glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+	glVertexAttribPointer(
+		attribute_vnorm, // attribute
+		3,                  // number of elements per vertex, here (x,y)
+		GL_FLOAT,           // the type of each element
+		GL_FALSE,           // take our values as-is
+		8*sizeof(GLfloat),                  // no extra data between each position
+		(void *)(5*sizeof(GLfloat))                   // offset of first element
+	);
 
 
 	for(auto a : mObjects)
@@ -294,5 +304,6 @@ void ModelObj::paint()
 
 	glDisableVertexAttribArray(attribute_texcoord);
 	glDisableVertexAttribArray(attribute_coord3d);
+	glDisableVertexAttribArray(attribute_vnorm);
 }
 

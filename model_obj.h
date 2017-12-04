@@ -22,10 +22,10 @@ private:
 									std::vector<GLfloat> &out_vec
 									);
 
-	int mVertCnt = 0;
-	int mTexCnt = 0;
-	int mNormCnt = 0;
-	int mFaceCnt = 0;
+	unsigned int mVertCnt = 0;
+	unsigned int mTexCnt = 0;
+	unsigned int mNormCnt = 0;
+	unsigned int mFaceCnt = 0;
 
 	GLuint vboVertices;
 
