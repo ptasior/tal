@@ -64,10 +64,12 @@ glm::mat4 Camera::getPostRot()
 void Camera::init()
 {
 	Log() << "Camera init";
-	setModel(glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -4.0)));
-	setView(glm::lookAt(glm::vec3(0.0, 2.0, 0.0),
-				glm::vec3(0.0, 0.0, -4.0), glm::vec3(0.0, 1.0, 0.0))
+	setView(glm::lookAt(glm::vec3(0.0, 0.0, 0.0),
+				glm::vec3(0.0, 0.0, -1.0),
+				glm::vec3(0.0, 1.0, 0.0))
 			);
+	// setModel(glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -2.0)));
+	//
 	// mCamera->setProjection(glm::perspective(glm::radians(45.0f),
 	// 			1.0f * mSceneWidth / mSceneHeight, 0.1f, 10.0f)
 	// 		);
@@ -89,3 +91,7 @@ void Camera::apply(GLuint uniform_mvp)
 	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 }
 
+bool Camera::event(SDL_Event &event)
+{
+	return false;
+}

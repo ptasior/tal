@@ -7,7 +7,7 @@ class Camera
 public:
 	Camera();
 
-	void init();
+	virtual void init();
 
 	void setModel(const glm::mat4& v);
 	void setView(const glm::mat4& v);
@@ -22,9 +22,10 @@ public:
 	glm::mat4 getPostRot();
 
 	void setSceneSize(int w, int h);
-	void apply(GLuint uniform_mvp);
+	virtual void apply(GLuint uniform_mvp);
+	virtual bool event(SDL_Event &event);
 
-private:
+protected:
 	glm::mat4 mModel;
 	glm::mat4 mView;
 	glm::mat4 mProjection;

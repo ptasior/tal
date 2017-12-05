@@ -4,6 +4,7 @@
 #include "sprite.h"
 #include "model_cube.h"
 #include "model_obj.h"
+#include "map.h"
 #include "log.h"
 #include <memory>
 
@@ -32,6 +33,10 @@ void Scene::init()
 	// mSprites.emplace(std::make_shared<Sprite>());
 	// mSprites[0]->init("assets/penguin.png");
 
+	// mMap = std::make_shared<Map>();
+	// mMap->init("assets/map.png");
+	// mMap->setPosition(glm::mat4(0));
+
 	mSprites.push_back(std::make_shared<Sprite>());
 	mSprites[0]->init("assets/penguin.png", "triangle");
 
@@ -51,14 +56,9 @@ void Scene::init()
 
 void Scene::paint()
 {
-	float angle = SDL_GetTicks() / 1000.0 * 45;  // 45° per second
-	glm::vec3 axis_y(0, 1, 0);
-	glm::mat4 anim = glm::rotate(glm::mat4(1.0f), glm::radians(angle), axis_y);
-
-	mCamera->setPreRot(anim);
 	mCamera->apply(mUniformMVP);
 
-
+	// mMap->paint();
 
 	for(auto m : mModels)
 		m->paint();

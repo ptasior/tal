@@ -148,7 +148,6 @@ void ModelObj::load(const std::string& path)
 
 		for(int i = 0; i < 3; i++)
 		{
-			Log() << "sft " << cnt;
 			pos = setupFaceTriplet(raw_vert, raw_tex, raw_norm, idx, out_vec);
 			faces.back().push_back(pos);
 		}

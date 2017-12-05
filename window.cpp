@@ -2,7 +2,8 @@
 #include "log.h"
 #include "net.h"
 #include "shader.h"
-#include "camera.h"
+#include "rotating_camera.h"
+#include "fps_camera.h"
 #include "scene.h"
 #include "gui.h"
 #include "lua.h"
@@ -62,7 +63,8 @@ Window::Window()
 
 	mNet = std::make_shared<Net>();
 
-	mCamera = std::make_shared<Camera>();
+	mCamera = std::make_shared<RotatingCamera>();
+	// mCamera = std::make_shared<FpsCamera>();
 	mCamera->init();
 	mCamera->setSceneSize(mScreenWidth, mScreenHeight);
 
@@ -99,19 +101,19 @@ void Window::onEvent(SDL_Event &event)
 	{
 		case SDL_QUIT:
 			mQuit = true;
-			break;
+			return;
 
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym)
 			{
-			case SDLK_ESCAPE:
-			case SDLK_q:
+				case SDLK_ESCAPE:
+				case SDLK_q:
 					mQuit = true;
 					break;
-			case SDLK_p:
+				case SDLK_p:
 					Log() << "a log";
 					break;
-			case SDLK_n:
+				case SDLK_n:
 					Log() << "net";
 					mNet->connect();
 					mNet->send("new message");
@@ -120,14 +122,16 @@ void Window::onEvent(SDL_Event &event)
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			onClick(event.button.x, event.button.y);
-			break;
+			return;
 		case SDL_TEXTINPUT:
 				Log() << event.text.text;
 		case SDL_WINDOWEVENT:
 					if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
 						onResize(event.window.data1, event.window.data2);
-					break;
+					return;
 	}
+
+	if(mCamera->event(event)) return;
 }
 
 void Window::loop()
@@ -153,7 +157,7 @@ void Window::onPaint()
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	Shader::getShader("model")->use();

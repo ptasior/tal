@@ -14,12 +14,15 @@ set(SOURCE_FILES
 		gui_sprite.cpp
 		texture.cpp
 		camera.cpp
+		rotating_camera.cpp
+		fps_camera.cpp
 		scene.cpp
 		gui.cpp
 		lua.cpp
 		model.cpp
 		model_cube.cpp
 		model_obj.cpp
+		# map.cpp
 	)
 
 # Rough but works for now
