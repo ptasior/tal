@@ -63,7 +63,7 @@ glm::mat4 Camera::getPostRot()
 
 void Camera::init()
 {
-	Log() << "Camera init";
+	Log() << "Camera: init";
 	setView(glm::lookAt(glm::vec3(0.0, 0.0, 0.0),
 				glm::vec3(0.0, 0.0, -1.0),
 				glm::vec3(0.0, 1.0, 0.0))

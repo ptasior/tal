@@ -22,7 +22,7 @@ set(SOURCE_FILES
 		model.cpp
 		model_cube.cpp
 		model_obj.cpp
-		# map.cpp
+		map.cpp
 	)
 
 # Rough but works for now

@@ -8,7 +8,7 @@
 
 void RotatingCamera::init()
 {
-	Log() << "RotatingCamera init";
+	Log() << "RotatingCamera: init";
 	setModel(glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -4.0)));
 
 	setView(glm::lookAt(glm::vec3(0.0, 2.0, 0.0),

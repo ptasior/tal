@@ -19,9 +19,9 @@ Scene::Scene()
 
 void Scene::init()
 {
-	Log() << "Scene Init";
+	Log() << "Scene: Init";
 
-	mUniformMVP = Shader::getShader("triangle")->mkUniform("mvp");
+	mUniformMVP = Shader::getShader("model")->mkUniform("mvp");
 
 	// mModel.init();
 	// mSprites.push_back(std::make_shared<Sprite>());
@@ -33,17 +33,17 @@ void Scene::init()
 	// mSprites.emplace(std::make_shared<Sprite>());
 	// mSprites[0]->init("assets/penguin.png");
 
-	// mMap = std::make_shared<Map>();
-	// mMap->init("assets/map.png");
-	// mMap->setPosition(glm::mat4(0));
+	mMap = std::make_shared<Map>();
+	mMap->init("assets/map.png");
+	mMap->setPosition(glm::mat4(0));
 
-	mSprites.push_back(std::make_shared<Sprite>());
-	mSprites[0]->init("assets/penguin.png", "triangle");
-
-	glm::mat4 pos2 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.8, 0.0)) *
-					glm::scale(glm::mat4(1.0f), glm::vec3(0.2, 0.2, 0.2));
-		// * glm::rotate(glm::mat4(1.0f), glm::radians(1.7f), axis_y);
-	mSprites[0]->setPosition(pos2);
+	// mSprites.push_back(std::make_shared<Sprite>());
+	// mSprites[0]->init("assets/penguin.png", "triangle");
+    //
+	// glm::mat4 pos2 = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.8, 0.0)) *
+	// 				glm::scale(glm::mat4(1.0f), glm::vec3(0.2, 0.2, 0.2));
+	// 	// * glm::rotate(glm::mat4(1.0f), glm::radians(1.7f), axis_y);
+	// mSprites[0]->setPosition(pos2);
 
 	mModels.push_back(std::make_shared<ModelObj>());
 	// mModels.push_back(std::make_shared<ModelCube>());
@@ -58,7 +58,7 @@ void Scene::paint()
 {
 	mCamera->apply(mUniformMVP);
 
-	// mMap->paint();
+	mMap->paint();
 
 	for(auto m : mModels)
 		m->paint();

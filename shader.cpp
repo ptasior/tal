@@ -13,7 +13,7 @@ Shader::Shader()
 
 void Shader::init(const char *name)
 {
-	Log() << "Loading shader: " << name;
+	Log() << "Shader: loading " << name;
 	mName = name;
 	std::string file = std::string("shaders/") + name;
 	GLuint vertexShader = loadShader((file + ".v.glsl").c_str(), GL_VERTEX_SHADER);
@@ -29,7 +29,7 @@ void Shader::init(const char *name)
 	glGetProgramiv(mProgram, GL_LINK_STATUS, &link_ok);
 
 	if(!link_ok)
-		Log(Log::DIE) << "Error in glLinkProgram in " << name;
+		Log(Log::DIE) << "Shader: Error in glLinkProgram in " << name;
 
 	glDetachShader(mProgram, vertexShader);
 	glDetachShader(mProgram, fragmentShader);
@@ -42,7 +42,7 @@ GLuint Shader::mkAttrib(const char *name)
 {
 	GLuint attrib = glGetAttribLocation(mProgram, name);
 	if(attrib == -1)
-		Log(Log::DIE) << "Could not bind attribute "
+		Log(Log::DIE) << "Shader: Could not bind attribute "
 					  << name
 					  << " in shader: "
 					  << mName;
@@ -55,7 +55,7 @@ GLuint Shader::mkUniform(const char *name)
 {
 	GLuint uniform = glGetUniformLocation(mProgram, name);
 	if(uniform == -1)
-		Log(Log::DIE) << "Could not bind uniform "
+		Log(Log::DIE) << "Shader: Could not bind uniform "
 					  << name
 					  << " in shader: "
 					  << mName;
@@ -92,7 +92,7 @@ GLuint Shader::loadShader(const char * file, GLenum type)
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compile_ok);
 
 	if(!compile_ok)
-		Log(Log::DIE) << "Error in vertex shader "
+		Log(Log::DIE) << "Shader: Error in vertex shader "
 					  << mName
 					  << "\n" << getGlLog(shader);
 
@@ -104,7 +104,7 @@ std::string Shader::readFile(const char* filename)
 {
 	std::ifstream t(filename);
 	if(t.fail())
-		Log(Log::DIE) << "Cannot open " << filename;
+		Log(Log::DIE) << "Shader: Cannot open " << filename;
 
 	return std::string((std::istreambuf_iterator<char>(t)),
 					 std::istreambuf_iterator<char>());
@@ -119,7 +119,7 @@ std::string Shader::getGlLog(GLuint object)
 	else if (glIsProgram(object))
 		glGetProgramiv(object, GL_INFO_LOG_LENGTH, &log_length);
 	else
-		return "getGlLog: Not a shader or a program";
+		return "Shader: getGlLog: Not a shader or a program";
 
 	std::string ret;
 	ret.resize(log_length);

@@ -19,17 +19,17 @@ void Net::connect()
     if(mSock) return;
 
     if(SDLNet_ResolveHost(&mIp, "10.0.0.2", 1234) < 0)
-        Log(Log::DIE) << "SDLNet_ResolveHost:" << SDLNet_GetError();
+        Log(Log::DIE) << "Net: SDLNet_ResolveHost:" << SDLNet_GetError();
 
     if(!(mSock = SDLNet_TCP_Open(&mIp)))
-        Log(Log::DIE) << "SDLNet_TCP_Open:" << SDLNet_GetError();
+        Log(Log::DIE) << "Net: SDLNet_TCP_Open:" << SDLNet_GetError();
 
     if((mSocketSet = SDLNet_AllocSocketSet(1)) == NULL)
-        Log(Log::DIE) << "Failed to allocate the socket set: " << SDLNet_GetError();
+        Log(Log::DIE) << "Net: Failed to allocate the socket set: " << SDLNet_GetError();
 
     SDLNet_TCP_AddSocket(mSocketSet, mSock);
 
-    Log() << "connected";
+    Log() << "Net: connected";
 }
 
 void Net::disconnect()
@@ -37,7 +37,7 @@ void Net::disconnect()
     SDLNet_TCP_DelSocket(mSocketSet, mSock);
     SDLNet_FreeSocketSet(mSocketSet);
     SDLNet_TCP_Close(mSock);
-    Log() << "disconnected";
+    Log() << "Net: disconnected";
 }
 
 void Net::send(const std::string & msg)
@@ -54,7 +54,7 @@ void Net::loop()
     if(SDLNet_CheckSockets(mSocketSet, 0) && SDLNet_SocketReady(mSock))
         if(SDLNet_TCP_Recv(mSock, recvbuf, 1024))
         {
-            Log() << "received: " << recvbuf;
+            Log() << "Net: received: " << recvbuf;
             mMessages.push_back(std::string(recvbuf));
         }
 
@@ -68,13 +68,13 @@ void Net::loop()
 
     if((actual = SDLNet_TCP_Send(mSock, (void *)mSendMessage.c_str(), len)) != len)
     {
-        Log() << "SDLNet_TCP_Send: count: "
+        Log() << "Net: SDLNet_TCP_Send: count: "
               << actual << "/" << len
               << " err: " << SDLNet_GetError();
 
         if(errno == ENOTCONN)
         {
-            Log() << "errno == ENOTCONN";
+            Log() << "Net: errno == ENOTCONN";
             #ifdef __EMSCRIPTEN__
             mSock = nullptr; // A bit hacky, but its for web
             #else
@@ -84,13 +84,13 @@ void Net::loop()
             return;
         }
         if (errno != EAGAIN)
-            Log(Log::DIE) << "errno != EAGAIN, " << errno;
+            Log(Log::DIE) << "Net: errno != EAGAIN, " << errno;
         if(actual > 0)
-            Log(Log::DIE) << "actual > 0";
+            Log(Log::DIE) << "Net: actual > 0";
     }
     else
     {
-        Log() << "message sent: " << mSendMessage;
+        Log() << "Net: message sent: " << mSendMessage;
         mSendMessage = "";
     }
 }

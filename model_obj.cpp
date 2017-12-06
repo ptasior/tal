@@ -102,11 +102,11 @@ void ModelObj::load(const std::string& path)
 {
 	mDirectory = path.substr(0, path.find_last_of("/"));
 
-	Log() << "Initalising ModelObj " << path;
+	Log() << "ModelObj: Initalising " << path;
 
 	mFile.open(path);
 	if(!mFile.good())
-		Log(Log::DIE) << "Cannot open model";
+		Log(Log::DIE) << "ModelObj: Cannot open model";
 
 	readSize();
 	mFile.clear();
@@ -216,7 +216,7 @@ void ModelObj::readMtl(std::string &path)
 	std::ifstream file(mDirectory + "/" + path);
 
 	if(!file.good())
-		Log(Log::DIE) << "Cannot open mtl file: " << mDirectory + "/" + path;
+		Log(Log::DIE) << "ModelObj: Cannot open mtl file: " << mDirectory + "/" + path;
 
 	std::string buf;
 	std::string name;

@@ -295,7 +295,7 @@ Box::Box():
 
 void Gui::init()
 {
-	Log() << "Gui init";
+	Log() << "Gui: init";
 	mRoot = std::make_shared<Widget>();
 
 	mRoot->setLayout(Widget::ltNone);

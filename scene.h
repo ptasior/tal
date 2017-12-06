@@ -6,7 +6,7 @@
 class Camera;
 class Sprite;
 class Model;
-// class Map;
+class Map;
 
 class Scene
 {
@@ -20,7 +20,7 @@ public:
 
 private:
 	std::shared_ptr<Camera> mCamera;
-	// std::shared_ptr<Map> mMap;
+	std::shared_ptr<Map> mMap;
 	std::vector<std::shared_ptr<Sprite>> mSprites;
 	std::vector<std::shared_ptr<Model>> mModels;
 	GLuint mUniformMVP;

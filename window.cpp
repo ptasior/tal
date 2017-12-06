@@ -28,26 +28,26 @@ Window::Window()
 #endif
 
 	if(SDL_Init(SDL_INIT_VIDEO) < 0)
-		Log(Log::DIE) << "SDL could not initialize! SDL_Error: " << SDL_GetError();
+		Log(Log::DIE) << "Window: SDL could not initialize! SDL_Error: " << SDL_GetError();
 
 	//Create window
 	mWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 							mScreenWidth, mScreenHeight,
 							SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if(!mWindow)
-		Log(Log::DIE) << "Window could not be created! SDL_Error: " << SDL_GetError();
+		Log(Log::DIE) << "Window: Window could not be created! SDL_Error: " << SDL_GetError();
 
 	mGLContext = SDL_GL_CreateContext(mWindow);
 	if(!mGLContext)
-		Log(Log::DIE) << "GL context could not be created! SDL_Error: " << SDL_GetError();
+		Log(Log::DIE) << "Window: GL context could not be created! SDL_Error: " << SDL_GetError();
 
 	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
 	if(!mRenderer)
-		Log(Log::DIE) << "Renderer could not be created! SDL_Error: " << SDL_GetError();
+		Log(Log::DIE) << "Window: Renderer could not be created! SDL_Error: " << SDL_GetError();
 
 	int fontsOK = TTF_Init();
 	if(fontsOK == -1)
-		Log(Log::DIE) << "Cannot initialise fonts " << TTF_GetError() << SDL_GetError();
+		Log(Log::DIE) << "Window: Cannot initialise fonts " << TTF_GetError() << SDL_GetError();
 
 #ifdef __EMSCRIPTEN__
 	glGenVertexArraysOES(1, &vao);
@@ -55,7 +55,7 @@ Window::Window()
 #else
 	GLenum glew = glewInit();
 	if(glew!= GLEW_OK)
-		Log(Log::DIE) << "Failed to initialize GLEW";
+		Log(Log::DIE) << "Window: Failed to initialize GLEW";
 
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -63,8 +63,8 @@ Window::Window()
 
 	mNet = std::make_shared<Net>();
 
-	mCamera = std::make_shared<RotatingCamera>();
-	// mCamera = std::make_shared<FpsCamera>();
+	// mCamera = std::make_shared<RotatingCamera>();
+	mCamera = std::make_shared<FpsCamera>();
 	mCamera->init();
 	mCamera->setSceneSize(mScreenWidth, mScreenHeight);
 
@@ -81,7 +81,7 @@ Window::Window()
 	mLua->init(mGui.get());
 	mLua->run();
 
-	Log() << "Initialisation succesed";
+	Log() << "Window: Initialisation succesed";
 }
 
 Window::~Window()
@@ -91,7 +91,7 @@ Window::~Window()
 	TTF_Quit();
 	SDL_Quit();
 
-	Log() << "Quit";
+	Log() << "Window: Quit";
 }
 
 void Window::onEvent(SDL_Event &event)

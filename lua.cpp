@@ -15,7 +15,7 @@ void Lua::init(Gui *gui)
 	mGui = gui;
 
 	state.HandleExceptionsWith([](int, std::string msg, std::exception_ptr){
-			Log() << "Lua exception: " << msg;
+			Log() << "Lua: exception " << msg;
 		});
 
 	state["log"] = &logFnc;
