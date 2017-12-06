@@ -47,6 +47,14 @@ bool FpsCamera::event(SDL_Event &event)
 				cameraPos.x += 0.05*cos(mRotX+M_PI_2);
 				update();
 				return true;
+			case SDLK_z:
+				cameraPos.y += 0.05;
+				update();
+				return true;
+			case SDLK_x:
+				cameraPos.y -= 0.05;
+				update();
+				return true;
 			case SDLK_LCTRL:
 				mCaptureMouse = true;
 				SDL_GetMouseState(&mLastMX, &mLastMY);

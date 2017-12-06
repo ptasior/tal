@@ -35,7 +35,7 @@ void Scene::init()
 
 	mMap = std::make_shared<Map>();
 	mMap->init("assets/map.png");
-	mMap->setPosition(glm::mat4(0));
+	mMap->setPosition(glm::mat4(1));
 
 	// mSprites.push_back(std::make_shared<Sprite>());
 	// mSprites[0]->init("assets/penguin.png", "triangle");

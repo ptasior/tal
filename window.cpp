@@ -118,6 +118,13 @@ void Window::onEvent(SDL_Event &event)
 					mNet->connect();
 					mNet->send("new message");
 					break;
+				case SDLK_f:
+					{
+						static bool wf = false;
+						wf = !wf;
+						glPolygonMode(GL_FRONT_AND_BACK, wf?GL_LINE:GL_FILL);
+					}
+					break;
 			}
 			break;
 		case SDL_MOUSEBUTTONDOWN:
