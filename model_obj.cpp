@@ -269,7 +269,7 @@ void ModelObj::paint()
 	);
 
 	glEnableVertexAttribArray(attribute_texcoord);
-	glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+	// glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
 	glVertexAttribPointer(
 		attribute_texcoord, // attribute
 		2,                  // number of elements per vertex, here (x,y)
@@ -280,7 +280,7 @@ void ModelObj::paint()
 	);
 
 	glEnableVertexAttribArray(attribute_vnorm);
-	glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+	// glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
 	glVertexAttribPointer(
 		attribute_vnorm, // attribute
 		3,                  // number of elements per vertex, here (x,y)
