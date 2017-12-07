@@ -12,6 +12,8 @@ void ModelCube::init(const std::string path)
 {
 	Model::init(path);
 
+	mShader = Shader::getShader("triangle");
+
 	GLfloat cube_vertices[] = {
 		// front
 		-1.0, -1.0,  1.0,
@@ -46,14 +48,38 @@ void ModelCube::init(const std::string path)
 	};
 
 	GLfloat cube_texcoords[2*4*6] = {
-		// front
-		0.0, 0.0,
-		1.0, 0.0,
-		1.0, 1.0,
-		0.0, 1.0,
+		0.25, 0.5,
+		0.5, 0.5,
+		0.5, 0.25,
+		0.25, 0.25,
+
+		0.25, 0.25,
+		0.5, 0.25,
+		0.5, 0.0,
+		0.25, 0.0,
+
+		0.75, 0.5,
+		1, 0.5,
+		1, 0.25,
+		0.75, 0.25,
+
+		0.25, 0.75,
+		0.5, 0.75,
+		0.5, 0.5,
+		0.25, 0.5,
+
+		0, 0.5,
+		0.25, 0.5,
+		0.25, 0.25,
+		0, 0.25,
+
+		0.5, 0.5,
+		0.75, 0.5,
+		0.75, 0.25,
+		0.5, 0.25
 	};
-	for (int i = 1; i < 6; i++)
-		memcpy(&cube_texcoords[i*4*2], &cube_texcoords[0], 2*4*sizeof(GLfloat));
+	// for (int i = 1; i < 6; i++)
+	// 	memcpy(&cube_texcoords[i*4*2], &cube_texcoords[0], 2*4*sizeof(GLfloat));
 
 	GLushort cube_elements[] = {
 		// front
@@ -89,7 +115,7 @@ void ModelCube::init(const std::string path)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_cube_elements);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_elements), cube_elements, GL_STATIC_DRAW);
 
-	mTexture = Texture::getTexture("assets/tex.png");
+	mTexture = Texture::getTexture("assets/skybox.png");
 }
 
 void ModelCube::paint()

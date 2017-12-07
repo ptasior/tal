@@ -23,6 +23,9 @@ void Scene::init()
 
 	GLuint mUniformMVP = Shader::getShader("model")->mkUniform("mvp");
 
+	mModels.push_back(std::make_shared<ModelCube>());
+	mModels[0]->init("");
+
 	// Setup camera for shader
 	Shader::getShader("model")->setOnChange([this, mUniformMVP](){
 			mCamera->apply(mUniformMVP);
