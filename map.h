@@ -18,19 +18,12 @@ public:
 	virtual void paint();
 
 protected:
-	unsigned int setupFaceTriplet(const std::vector<GLfloat> &vert,
-										const std::vector<GLfloat> &tex,
-										const std::vector<GLfloat> &norm,
-										int v,
-										int t,
-										int n,
-										std::map<std::tuple<int, int, int>, int> &idx,
-										std::vector<GLfloat> &out_vec
-									);
 	std::shared_ptr<Shader> mShader;
 	std::shared_ptr<Texture> mTexture;
 
-	GLuint vboVertices;
+	GLuint vboVert;
+	GLuint vboTex;
+	GLuint vboNorm;
 	GLuint iboElements;
 
 	GLuint mAttrVert;

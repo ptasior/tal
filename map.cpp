@@ -41,13 +41,13 @@ void Map::init(const std::string path, const std::string texture)
 
 	std::vector<GLfloat> vert(img->w * img->h * 3);
 	std::vector<GLfloat> tex(img->w * img->h * 2);
-	std::vector<GLfloat> norm(img->w * img->h * 3 *2); // *2 for backward triangles
+	std::vector<GLfloat> norm(img->w * img->h * 3);
 
 	stepW = (right-left)/img->w;
 	stepH = (bottom-top)/img->h;
 	stepU = up-down;
 
-	int cnt = 0;
+	unsigned int cnt = 0;
 	for(int h = 0; h < img->h; h++)
 		for(int w = 0; w < img->w; w++)
 		{
@@ -67,92 +67,100 @@ void Map::init(const std::string path, const std::string texture)
 			cnt += 2;
 		}
 
-	cnt = 0;
+	// Normals for the first triangle of the rect
 	for(int h = 0; h < img->h-1; h++)
 		for(int w = 0; w < img->w-1; w++)
 		{
-			int p = h*img->w+w;
+			unsigned int p = h*img->w+w;
 			float b[3] = {vert[(p+img->w)*3]-vert[p*3], vert[(p+img->w)*3+1]-vert[p*3+1], vert[(p+img->w)*3+2]-vert[p*3+2]};
 			float a[3] = {vert[(p+1)*3]-vert[p*3], vert[(p+1)*3+1]-vert[p*3+1], vert[(p+1)*3+2]-vert[p*3+2]};
 
-			norm[cnt*3+0] = (a[1]*b[2] - a[2]*b[1]);
-			norm[cnt*3+1] = (a[2]*b[0] - a[0]*b[2]);
-			norm[cnt*3+2] = (a[0]*b[1] - a[1]*b[0]);
-			
+			float v1 = (a[1]*b[2] - a[2]*b[1]);
+			float v2 = (a[2]*b[0] - a[0]*b[2]);
+			float v3 = (a[0]*b[1] - a[1]*b[0]);
+
+			norm[p*3+0] += v1;
+			norm[p*3+1] += v2;
+			norm[p*3+2] += v3;
+
+			norm[(p+1)*3+0] += v1;
+			norm[(p+1)*3+1] += v2;
+			norm[(p+1)*3+2] += v3;
+
+			norm[(p+img->w)*3+0] += v1;
+			norm[(p+img->w)*3+1] += v2;
+			norm[(p+img->w)*3+2] += v3;
+		}
+
+	// Normals for the second triangle of the rect
+	for(int h = 1; h < img->h; h++)
+		for(int w = 1; w < img->w; w++)
+		{
+			unsigned int p = h*img->w+w;
+			float b[3] = {vert[p*3]-vert[(p-img->w)*3], vert[p*3+1]-vert[(p-img->w)*3+1], vert[p*3+2]-vert[(p-img->w)*3+2]};
+			float a[3] = {vert[p*3]-vert[(p-1)*3],      vert[p*3+1]-vert[(p-1)*3+1],      vert[p*3+2]-vert[(p-1)*3+2]};
+
+			float v1 = (a[1]*b[2] - a[2]*b[1]);
+			float v2 = (a[2]*b[0] - a[0]*b[2]);
+			float v3 = (a[0]*b[1] - a[1]*b[0]);
+
+			norm[p*3+0] += v1;
+			norm[p*3+1] += v2;
+			norm[p*3+2] += v3;
+
+			norm[(p-1)*3+0] += v1;
+			norm[(p-1)*3+1] += v2;
+			norm[(p-1)*3+2] += v3;
+
+			norm[(p-img->w)*3+0] += v1;
+			norm[(p-img->w)*3+1] += v2;
+			norm[(p-img->w)*3+2] += v3;
+		}
+
+	// Normalize all vectors
+	cnt = 0;
+	for(int h = 0; h < img->h; h++)
+		for(int w = 0; w < img->w; w++)
+		{
 			float len = sqrt(norm[cnt*3+0]*norm[cnt*3+0] + norm[cnt*3+1]*norm[cnt*3+1] + norm[cnt*3+2]*norm[cnt*3+2]);
 
 			norm[cnt*3+0] /= len;
 			norm[cnt*3+1] /= len;
 			norm[cnt*3+2] /= len;
 
-			assert(norm.size() > cnt*3+2);
-
 			cnt++;
 		}
 
-	int norm2 = cnt;
-	cnt = 0;
-
-	for(int h = 1; h < img->h; h++)
-		for(int w = 1; w < img->w; w++)
-		{
-			int p = h*img->w+w;
-			float b[3] = {vert[p*3]-vert[(p-img->w)*3], vert[p*3+1]-vert[(p-img->w)*3+1], vert[p*3+2]-vert[(p-img->w)*3+2]};
-			float a[3] = {vert[p*3]-vert[(p-1)*3],      vert[p*3+1]-vert[(p-1)*3+1],      vert[p*3+2]-vert[(p-1)*3+2]};
-
-			norm[(cnt+norm2)*3+0] = (a[1]*b[2] - a[2]*b[1]);
-			norm[(cnt+norm2)*3+1] = (a[2]*b[0] - a[0]*b[2]);
-			norm[(cnt+norm2)*3+2] = (a[0]*b[1] - a[1]*b[0]);
-
-			float len = sqrt(norm[(cnt+norm2)*3+0]*norm[(cnt+norm2)*3+0] + norm[(cnt+norm2)*3+1]*norm[(cnt+norm2)*3+1] + norm[(cnt+norm2)*3+2]*norm[(cnt+norm2)*3+2]);
-
-			norm[(cnt+norm2)*3+0] /= len;
-			norm[(cnt+norm2)*3+1] /= len;
-			norm[(cnt+norm2)*3+2] /= len;
-
-			cnt++;
-		}
-
-	std::map<std::tuple<int, int, int>, int> idx;
-	std::vector<GLfloat> out_vec;
 	std::vector<GLushort> faces((img->w-1) * (img->h-1)*6);
 
-	int line;
-	int imgw = (img->w-1);
+	unsigned int line;
+	unsigned int imgw = (img->w-1);
 	for(int h = 0; h < img->h-1; h++)
 		for(int w = 0; w < img->w-1; w++)
 		{
 			line = h*imgw;
-			faces[(line + w)*6  ] = setupFaceTriplet(vert, tex, norm,
-								h*img->w + w, h*img->w + w, h*img->w + w-h,
-								idx, out_vec);
-			faces[(line + w)*6+1] = setupFaceTriplet(vert, tex, norm,
-								h*img->w + w+1, h*img->w + w+1, h*img->w + w-h,
-								idx, out_vec);
-			faces[(line + w)*6+2] = setupFaceTriplet(vert, tex, norm,
-								(h+1)*img->w + w, (h+1)*img->w + w, h*img->w + w-h,
-								idx, out_vec);
 
-			faces[(line + w)*6+3] = setupFaceTriplet(vert, tex, norm,
-								h*img->w + w+1, h*img->w + w+1, h*img->w + w-h + norm2,
-								idx, out_vec);
-			faces[(line + w)*6+4] = setupFaceTriplet(vert, tex, norm,
-								(h+1)*img->w + w+1, (h+1)*img->w + w+1, h*img->w + w-h + norm2,
-								idx, out_vec);
-			faces[(line + w)*6+5] = setupFaceTriplet(vert, tex, norm,
-								(h+1)*img->w + w, (h+1)*img->w + w, h*img->w + w-h + norm2,
-								idx, out_vec);
+			faces[(line + w)*6  ] = h*img->w + w;
+			faces[(line + w)*6+1] = h*img->w + w+1;
+			faces[(line + w)*6+2] = (h+1)*img->w + w;
 
-			assert((line + w)*6+5 < faces.size());
-			assert((h+1)*img->w + w+1 <= vert.size()/3);
+			faces[(line + w)*6+3] = h*img->w + w+1;
+			faces[(line + w)*6+4] = (h+1)*img->w + w+1;
+			faces[(line + w)*6+5] = (h+1)*img->w + w;
 		}
 
-	assert(faces.size() >= out_vec.size()/8);
 
+	glGenBuffers(1, &vboVert);
+	glBindBuffer(GL_ARRAY_BUFFER, vboVert);
+	glBufferData(GL_ARRAY_BUFFER, vert.size()*sizeof(GLfloat), vert.data(), GL_STATIC_DRAW);
 
-	glGenBuffers(1, &vboVertices);
-	glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
-	glBufferData(GL_ARRAY_BUFFER, out_vec.size()*sizeof(GLfloat), out_vec.data(), GL_STATIC_DRAW);
+	glGenBuffers(1, &vboTex);
+	glBindBuffer(GL_ARRAY_BUFFER, vboTex);
+	glBufferData(GL_ARRAY_BUFFER, tex.size()*sizeof(GLfloat), tex.data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &vboNorm);
+	glBindBuffer(GL_ARRAY_BUFFER, vboNorm);
+	glBufferData(GL_ARRAY_BUFFER, norm.size()*sizeof(GLfloat), norm.data(), GL_STATIC_DRAW);
 
 	glGenBuffers(1, &iboElements);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboElements);
@@ -160,36 +168,6 @@ void Map::init(const std::string path, const std::string texture)
 
 	SDL_FreeSurface(img);
 	mTexture = Texture::getTexture(texture.c_str());
-}
-
-unsigned int Map::setupFaceTriplet(const std::vector<GLfloat> &vert,
-										const std::vector<GLfloat> &tex,
-										const std::vector<GLfloat> &norm,
-										int v,
-										int t,
-										int n,
-										std::map<std::tuple<int, int, int>, int> &idx,
-										std::vector<GLfloat> &out_vec
-									)
-{
-	auto key = std::make_tuple(v,n,t);
-	if(idx.count(key)) return idx[key];
-
-	assert(v*3+2 < vert.size());
-	assert(t*2+1 < tex.size());
-	assert(n*3+2 < norm.size());
-
-	out_vec.push_back(vert[(v)*3]);
-	out_vec.push_back(vert[(v)*3+1]);
-	out_vec.push_back(vert[(v)*3+2]);
-	out_vec.push_back(tex[(t)*2]);
-	out_vec.push_back(tex[(t)*2+1]);
-	out_vec.push_back(norm[(n)*3]);
-	out_vec.push_back(norm[(n)*3+1]);
-	out_vec.push_back(norm[(n)*3+2]);
-
-	idx[key] = out_vec.size()/8-1;
-	return idx[key];
 }
 
 void Map::setPosition(const glm::mat4 &position)
@@ -203,37 +181,37 @@ void Map::paint()
 	glUniformMatrix4fv(mUniformPosition, 1, GL_FALSE, glm::value_ptr(mPosition));
 
 	glEnableVertexAttribArray(mAttrVert);
-	glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+	glBindBuffer(GL_ARRAY_BUFFER, vboVert);
 
 	glVertexAttribPointer(
 		mAttrVert, // attribute
 		3,                 // number of elements per vertex, here (x,y,z)
 		GL_FLOAT,          // the type of each element
 		GL_FALSE,          // take our values as-is
-		8*sizeof(GLfloat),                 // no extra data between each position
+		0,                 // no extra data between each position
 		0                  // offset of first element
 	);
 
 	glEnableVertexAttribArray(mAttrTex);
-	// glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+	glBindBuffer(GL_ARRAY_BUFFER, vboTex);
 	glVertexAttribPointer(
 		mAttrTex, // attribute
 		2,                  // number of elements per vertex, here (x,y)
 		GL_FLOAT,           // the type of each element
 		GL_FALSE,           // take our values as-is
-		8*sizeof(GLfloat),                  // no extra data between each position
-		(void *)(3*sizeof(GLfloat))                   // offset of first element
+		0,                 // no extra data between each position
+		0                  // offset of first element
 	);
 
 	glEnableVertexAttribArray(mAttrNorm);
-	// glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
+	glBindBuffer(GL_ARRAY_BUFFER, vboNorm);
 	glVertexAttribPointer(
 		mAttrNorm, // attribute
 		3,                  // number of elements per vertex, here (x,y)
 		GL_FLOAT,           // the type of each element
 		GL_FALSE,           // take our values as-is
-		8*sizeof(GLfloat),                  // no extra data between each position
-		(void *)(5*sizeof(GLfloat))                   // offset of first element
+		0,                 // no extra data between each position
+		0                  // offset of first element
 	);
 
 	mTexture->apply();
