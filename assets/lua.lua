@@ -33,15 +33,21 @@ function setupScene()
 
 	m = scene:getMap()
 	m:setRect(-2, -2, 2, 2, -1, 1)
-	m:init("assets/map.png")
+	m:init("assets/map.png", "assets/cloth.png")
+
+
+	mat = Matrix.new()
+	mat:translate(Glm_Vec3.new(0.0, 1, 0.0))
+	mat:scaleVec(Glm_Vec3.new(0.3, 0.3, 0.3))
 
 	m = ModelObj.new()
 	m:init("assets/models/lumberJack.obj")
+	m:setPosition(mat:val());
 	scene.addModel(m)
 
 	mat = Matrix.new()
-	mat:translate(Glm_Vec3.new(0.0, 0.8, 0.0))
-	mat:scaleVec(Glm_Vec3.new(0.2, 0.2, 0.2))
+	mat:translate(Glm_Vec3.new(0.0, 0.5, -2))
+	mat:scaleVec(Glm_Vec3.new(0.5, 0.5, 0.5))
 
 	s = Sprite.new()
 	s:init("assets/penguin.png", "triangle")

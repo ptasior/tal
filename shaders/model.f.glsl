@@ -4,7 +4,7 @@ uniform sampler2D mytexture;
 
 void main(void)
 {
-	float cosTheta = clamp(dot(f_vnorm, vec3(1,1,1)), 0.1, 1.0);
+	float cosTheta = clamp(dot(f_vnorm, vec3(1,1,1)), 0.5, 1.0);
 
 	vec4 color = vec4(1.0) * cosTheta;
 	color[3] = 1.0; // Revert Alpha

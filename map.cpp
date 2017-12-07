@@ -19,7 +19,7 @@ unsigned char pixel(SDL_Surface *surface, int x, int y)
 	return (rgba >> 8) & 0xff; // Only b channel
 }
 
-void Map::init(const std::string path)
+void Map::init(const std::string path, const std::string texture)
 {
 	// TODO Optimize it. But then, it's run only once at start, so probably later...
 
@@ -159,7 +159,7 @@ void Map::init(const std::string path)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size()*sizeof(GLushort), faces.data(), GL_STATIC_DRAW);
 
 	SDL_FreeSurface(img);
-	mTexture = Texture::getTexture("assets/tex.png");
+	mTexture = Texture::getTexture(texture.c_str());
 }
 
 unsigned int Map::setupFaceTriplet(const std::vector<GLfloat> &vert,

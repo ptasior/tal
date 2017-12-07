@@ -12,7 +12,7 @@ class Texture;
 class Map
 {
 public:
-	virtual void init(const std::string path);
+	virtual void init(const std::string path, const std::string texture);
 	virtual void setRect(double l, double t, double r, double b, double d, double u);
 	virtual void setPosition(const glm::mat4 &position);
 	virtual void paint();
