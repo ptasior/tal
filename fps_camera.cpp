@@ -1,5 +1,6 @@
 #include "fps_camera.h"
 #include "log.h"
+#include "time.h"
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -20,68 +21,66 @@ void FpsCamera::init()
 	update();
 }
 
-bool FpsCamera::event(SDL_Event &event)
+bool FpsCamera::processEvents(const Uint8 *state)
 {
-	if(event.type == SDL_KEYDOWN)
-		switch (event.key.keysym.sym)
-		{
-			case SDLK_w:
-				cameraPos.z += 0.05*sin(mRotX);
-				cameraPos.y += 0.05*sin(mRotY);
-				cameraPos.x += 0.05*cos(mRotX);
-				update();
-				return true;
-			case SDLK_s:
-				cameraPos.z -= 0.05*sin(mRotX);
-				cameraPos.y -= 0.05*sin(mRotY);
-				cameraPos.x -= 0.05*cos(mRotX);
-				update();
-				return true;
-			case SDLK_a:
-				cameraPos.z += 0.05*sin(mRotX-M_PI_2);
-				cameraPos.x += 0.05*cos(mRotX-M_PI_2);
-				update();
-				return true;
-			case SDLK_d:
-				cameraPos.z += 0.05*sin(mRotX+M_PI_2);
-				cameraPos.x += 0.05*cos(mRotX+M_PI_2);
-				update();
-				return true;
-			case SDLK_z:
-				cameraPos.y += 0.05;
-				update();
-				return true;
-			case SDLK_x:
-				cameraPos.y -= 0.05;
-				update();
-				return true;
-			case SDLK_LCTRL:
-				mCaptureMouse = true;
-				SDL_GetMouseState(&mLastMX, &mLastMY);
-				return true;
-		}
-	if(event.type == SDL_KEYUP)
-		switch (event.key.keysym.sym)
-		{
-			case SDLK_LCTRL:
-				mCaptureMouse = false;
-				return true;
-		}
+	bool ret = false;
 
-	if(mCaptureMouse && event.type == SDL_MOUSEMOTION)
+	if(state[SDL_SCANCODE_W])
+	{
+		cameraPos.z += 0.1*sin(mRotX)*Time::elapsed();
+		cameraPos.y += 0.1*sin(mRotY)*Time::elapsed();
+		cameraPos.x += 0.1*cos(mRotX)*Time::elapsed();
+		ret = true;
+	}
+	if(state[SDL_SCANCODE_S])
+	{
+		cameraPos.z -= 0.1*sin(mRotX)*Time::elapsed();
+		cameraPos.y -= 0.1*sin(mRotY)*Time::elapsed();
+		cameraPos.x -= 0.1*cos(mRotX)*Time::elapsed();
+		ret = true;
+	}
+	if(state[SDL_SCANCODE_A])
+	{
+		cameraPos.z += 0.1*sin(mRotX-M_PI_2)*Time::elapsed();
+		cameraPos.x += 0.1*cos(mRotX-M_PI_2)*Time::elapsed();
+		ret = true;
+	}
+	if(state[SDL_SCANCODE_D])
+	{
+		cameraPos.z += 0.1*sin(mRotX+M_PI_2)*Time::elapsed();
+		cameraPos.x += 0.1*cos(mRotX+M_PI_2)*Time::elapsed();
+		ret = true;
+	}
+	if(state[SDL_SCANCODE_Z])
+	{
+		cameraPos.y += 0.1*Time::elapsed();
+		ret = true;
+	}
+	if(state[SDL_SCANCODE_X])
+	{
+		cameraPos.y -= 0.1*Time::elapsed();
+		ret = true;
+	}
+
+	if(state[SDL_SCANCODE_LCTRL])
 	{
 		int x, y;
 		SDL_GetMouseState(&x, &y);
-		mRotX += 0.01*(x - mLastMX);
-		mRotY += 0.01*(mLastMY - y);
+		if(mCaptureMouse)
+		{
+			mRotX += 0.01*(x - mLastMX);
+			mRotY += 0.01*(mLastMY - y);
+		}
 		mLastMX = x;
 		mLastMY = y;
 
-		update();
-		return true;
-	}
 
-	return false;
+		ret = true;
+	}
+	mCaptureMouse = state[SDL_SCANCODE_LCTRL];
+
+	if(ret) update();
+	return ret;
 }
 
 void FpsCamera::update()
@@ -106,3 +105,4 @@ void FpsCamera::update()
 // 	glm::mat4 mvp = mProjection * mView * mModel * mPreRot ;
 // 	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 // }
+

@@ -15,6 +15,7 @@ public:
 	Window();
 	~Window();
 
+	void processEvents();
 	void onEvent(SDL_Event &event);
 	void onLoop();
 	void onPaint();

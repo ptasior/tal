@@ -96,7 +96,7 @@ void Camera::applySprite(GLuint uniform_mvp)
 	apply(uniform_mvp);
 }
 
-bool Camera::event(SDL_Event &event)
+bool Camera::processEvents(const Uint8 *state)
 {
 	return false;
 }

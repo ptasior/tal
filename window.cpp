@@ -7,6 +7,7 @@
 #include "scene.h"
 #include "gui.h"
 #include "lua.h"
+#include "time.h"
 
 #ifdef __EMSCRIPTEN__
 	#include <SDL_ttf.h>
@@ -96,9 +97,16 @@ Window::~Window()
 	Log() << "Window: Quit";
 }
 
+void Window::processEvents()
+{
+	// SDL_PumpEvents();
+	const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+	if(mCamera->processEvents(state)) return;
+}
+
 void Window::onEvent(SDL_Event &event)
 {
-	/* an event was found */
 	switch (event.type)
 	{
 		case SDL_QUIT:
@@ -141,8 +149,6 @@ void Window::onEvent(SDL_Event &event)
 						onResize(event.window.data1, event.window.data2);
 					return;
 	}
-
-	if(mCamera->event(event)) return;
 }
 
 void Window::loop()
@@ -155,8 +161,12 @@ void Window::onLoop()
 {
 	static SDL_Event event; // This SHOULD be safe
 
+	Time::registerNextFrame();
+
 	if(SDL_PollEvent(&event))
 		onEvent(event);
+
+	processEvents();
 
 	mNet->loop();
 	onPaint();

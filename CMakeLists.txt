@@ -23,6 +23,8 @@ set(SOURCE_FILES
 		model_cube.cpp
 		model_obj.cpp
 		map.cpp
+		matrix.cpp
+		time.cpp
 	)
 
 # Rough but works for now

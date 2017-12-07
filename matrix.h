@@ -9,33 +9,14 @@
 class Matrix
 {
 public:
-	glm::mat4& val()
-	{
-		return mVal;
-	}
+	glm::mat4& val();
 
-	void rotate(glm::vec3 rot)
-	{
-		if(rot.x) mVal = glm::rotate(mVal, glm::radians(rot.x), glm::vec3(1.0, 0, 0));
-		if(rot.y) mVal = glm::rotate(mVal, glm::radians(rot.y), glm::vec3(0, 1.0, 0));
-		if(rot.z) mVal = glm::rotate(mVal, glm::radians(rot.z), glm::vec3(0, 0, 1.0));
-	}
-
-	void translate(glm::vec3 pos)
-	{
-		mVal = glm::translate(mVal, pos);
-	}
-
-	void scale(float sc)
-	{
-		mVal = glm::scale(mVal, glm::vec3(sc, sc, sc));
-	}
-
-	void scaleVec(glm::vec3 sc)
-	{
-		mVal = glm::scale(mVal, glm::vec3(0.2, 0.2, 0.2));
-	}
+	void rotate(glm::vec3 rot);
+	void translate(glm::vec3 pos);
+	void scale(float sc);
+	void scaleVec(glm::vec3 sc);
 
 private:
 	glm::mat4 mVal;
 };
+

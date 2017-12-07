@@ -6,7 +6,11 @@ function setupGui()
 
 	b = Widget.new("assets/gui/box.png")
 	b:setRect(100, 30, 320, 100)
-	b:onClickLua(function() log("onclick") end)
+	b:onClickLua(function()
+			log("onclick")
+			w:removeWidget(b)
+			b = nil -- TODO Find how to delete it
+		end)
 	w:addWidget(b)
 
 	l = Label.new("llaabbeell")
@@ -33,7 +37,7 @@ function setupScene()
 
 	m = scene:getMap()
 	m:setRect(-2, -2, 2, 2, -1, 1)
-	m:init("assets/map.png", "assets/cloth.png")
+	m:init("assets/map/map.png", "assets/grass.png")
 
 
 	mat = Matrix.new()
@@ -41,7 +45,8 @@ function setupScene()
 	mat:scaleVec(Glm_Vec3.new(0.3, 0.3, 0.3))
 
 	m = ModelObj.new()
-	m:init("assets/models/lumberJack.obj")
+	m:init("assets/models/worker.obj")
+	-- m:init("assets/models/lumberJack.obj")
 	m:setPosition(mat:val());
 	scene.addModel(m)
 

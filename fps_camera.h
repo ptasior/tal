@@ -5,7 +5,7 @@ class FpsCamera : public Camera
 {
 public:
 	void init();
-	bool event(SDL_Event &event);
+	bool processEvents(const Uint8 *state);
 	// void applySprite(GLuint uniform_mvp);
 
 private:
