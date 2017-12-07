@@ -10,9 +10,9 @@ class Texture;
 class Model
 {
 public:
-	virtual void init(const std::string& path);
+	virtual void init(const std::string path);
 	virtual void setPosition(const glm::mat4 &position);
-	virtual void paint() = 0;
+	virtual void paint(); // Lua requires non abstract classes
 
 protected:
 	std::shared_ptr<Shader> mShader;

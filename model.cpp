@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-void Model::init(const std::string& path)
+void Model::init(const std::string path)
 {
 	mShader = Shader::getShader("model");
 
@@ -23,4 +23,6 @@ void Model::setPosition(const glm::mat4 &position)
 	mPosition = position;
 }
 
+void Model::paint()
+{}
 

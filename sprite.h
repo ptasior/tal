@@ -10,7 +10,8 @@ class Texture;
 class Sprite
 {
 public:
-	void init(const char *path, const char *shaderName);
+	void init(std::string path, std::string shaderName);
+	// void init(const char *path, const char *shaderName);
 	void setPosition(const glm::mat4 &position);
 	void paint();
 

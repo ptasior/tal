@@ -8,7 +8,7 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-void ModelCube::init(const std::string& path)
+void ModelCube::init(const std::string path)
 {
 	Model::init(path);
 

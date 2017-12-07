@@ -35,9 +35,8 @@ public:
 	void setLayout(LayoutType t);
 	void setColor(int r, int g, int b, int a);
 
-	void addLabel(Label* w);
-	void addBox(Box* w);
-	void addWidget(Widget* w);
+	template<class T>
+	void addWidget(T* w);
 	void addOwnedWidget(std::shared_ptr<Widget> w);
 
 	void removeWidget(Widget* w);
@@ -117,5 +116,7 @@ private:
 	// GLuint mUniformMVP;
 	glm::mat4 mMvp;
 };
+
+#include "gui.hpp"
 
  

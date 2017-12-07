@@ -144,24 +144,6 @@ void Widget::setLayout(LayoutType t)
 	mLayoutType = t;
 }
 
-void Widget::addBox(Box* w)
-{
-	setupChild(w);
-	mForeignWidgets.push_back(w);
-}
-
-void Widget::addLabel(Label* w)
-{
-	setupChild(w);
-	mForeignWidgets.push_back(w);
-}
-
-void Widget::addWidget(Widget* w)
-{
-	setupChild(w);
-	mForeignWidgets.push_back(w);
-}
-
 void Widget::removeWidget(Widget* w)
 {
 	mForeignWidgets.erase(std::remove_if(

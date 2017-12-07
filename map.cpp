@@ -19,17 +19,11 @@ unsigned char pixel(SDL_Surface *surface, int x, int y)
 	return (rgba >> 8) & 0xff; // Only b channel
 }
 
-void Map::init(const std::string& path)
+void Map::init(const std::string path)
 {
 	// TODO Optimize it. But then, it's run only once at start, so probably later...
 
 	Log() << "Map: loading " << path;
-	float left = -0.5;
-	float top = -0.5;
-	float right = 0.5;
-	float bottom = 0.5;
-	float down = 0;
-	float up = 0.5;
 	float stepW;
 	float stepH;
 	float stepU;
@@ -252,5 +246,15 @@ void Map::paint()
 	glDisableVertexAttribArray(mAttrNorm);
 	glDisableVertexAttribArray(mAttrTex);
 	glDisableVertexAttribArray(mAttrVert);
+}
+
+void Map::setRect(double l, double t, double r, double b, double d, double u)
+{
+	left = l;
+	top = t;
+	right = r;
+	bottom = b;
+	down = d;
+	up = u;
 }
 

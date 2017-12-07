@@ -7,6 +7,7 @@ class Camera;
 class Sprite;
 class Model;
 class Map;
+class ModelObj;
 
 class Scene
 {
@@ -18,11 +19,22 @@ public:
 
 	void paint();
 
+	// For Lua
+	Map &getMap();
+	void addSprite(Sprite* s);
+
+	template<class T>
+	void addModel(T* m);
+
+
 private:
 	std::shared_ptr<Camera> mCamera;
 	std::shared_ptr<Map> mMap;
 	std::vector<std::shared_ptr<Sprite>> mSprites;
 	std::vector<std::shared_ptr<Model>> mModels;
-	// GLuint mUniformMVP;
+	std::vector<Sprite*> mLuaSprites;
+	std::vector<Model*> mLuaModels;
 };
+
+#include "scene.hpp"
 

@@ -1,15 +1,15 @@
 #include "sprite.h"
 #include "log.h"
 
-#define GLM_FORCE_RADIANS
 #include "shader.h"
 #include "texture.h"
+#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 
-void Sprite::init(const char *path, const char *shaderName)
+void Sprite::init(std::string path, std::string shaderName)
 {
 	GLfloat vertices[] = {
 		-1.0, -1.0,  0.0,
@@ -42,13 +42,13 @@ void Sprite::init(const char *path, const char *shaderName)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
-	mShader = Shader::getShader(shaderName);
+	mShader = Shader::getShader(shaderName.c_str());
 
 	attribute_coord3d = mShader->mkAttrib("coord3d");
 	attribute_texcoord = mShader->mkAttrib("texcoord");
 	uniform_position = mShader->mkUniform("position");
 
-	mTexture = Texture::getTexture(path);
+	mTexture = Texture::getTexture(path.c_str());
 }
 
 void Sprite::setPosition(const glm::mat4 &position)

@@ -98,7 +98,7 @@ unsigned int ModelObj::setupFaceTriplet(const std::vector<GLfloat> &vert,
 	return idx[key];
 }
 
-void ModelObj::init(const std::string& path)
+void ModelObj::init(const std::string path)
 {
 	Model::init(path);
 	mDirectory = path.substr(0, path.find_last_of("/"));

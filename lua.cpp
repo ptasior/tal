@@ -1,8 +1,19 @@
 #include "lua.h"
 #include "log.h"
 #include "gui.h"
+#include "scene.h"
+#include "sprite.h"
+#include "model_obj.h"
+#include "map.h"
+#include "matrix.h"
 #include <selene.h>
 
+
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+// TODO Fix me somehow, I'm ugly
 sel::State state{true};
 
 void logFnc(std::string s)
@@ -10,13 +21,54 @@ void logFnc(std::string s)
 	Log() << "-- " << s;
 }
 
-void Lua::init(Gui *gui)
+void Lua::initScene(Scene *scene)
+{
+	mScene = scene;
+
+	state["Glm_Mat4"].SetClass<glm::mat4, float>();
+	state["Glm_Vec3"].SetClass<glm::vec3, double, double, double>();
+
+	state["Map"].SetClass<Map>(
+			"init", &Map::init,
+			"setRect", &Map::setRect
+		);
+
+	state["Matrix"].SetClass<Matrix>(
+			"val", &Matrix::val,
+			"rotate", &Matrix::rotate,
+			"translate", &Matrix::translate,
+			"scale", &Matrix::scale,
+			"scaleVec", &Matrix::scaleVec
+		);
+
+
+	state["Sprite"].SetClass<Sprite>(
+			"init", &Sprite::init,
+			"setPosition", &Sprite::setPosition
+		);
+
+	state["ModelObj"].SetClass<Model>(
+			"setPosition", &Model::setPosition
+		);
+	state["ModelObj"].SetClass<ModelObj>(
+			"init", &ModelObj::init
+		);
+
+	state["scene"].SetObj<Scene>(*scene,
+			"getMap", &Scene::getMap,
+			"addModel", &Scene::addModel<ModelObj>,
+			"addSprite", &Scene::addSprite
+		);
+}
+
+void Lua::initCamera(Camera *camera)
+{
+	mCamera = camera;
+}
+
+void Lua::initGui(Gui *gui)
 {
 	mGui = gui;
-
-	state.HandleExceptionsWith([](int, std::string msg, std::exception_ptr){
-			Log() << "Lua: exception " << msg;
-		});
 
 	state["log"] = &logFnc;
 	state["gui"].SetObj<Gui>(*gui,
@@ -29,8 +81,6 @@ void Lua::init(Gui *gui)
 	state["Label"].SetClass<Label, std::string>("setText", &Label::setText);
 	// state["Box"].SetClass<Box>();
 	applyWidgetInheritance("Widget");
-
-	state.Load("assets/lua.lua");
 }
 
 void Lua::applyWidgetInheritance(const char *type)
@@ -48,14 +98,22 @@ void Lua::applyWidgetInheritance(const char *type)
 
 			"onClickLua", &Widget::onClickLua,
 
-			"addLabel", &Widget::addLabel,
-			"addWidget", &Widget::addWidget,
+			"addWidget", &Widget::addWidget<Widget>,
+			"addLabel", &Widget::addWidget<Label>,
 			"removeWidget", &Widget::removeWidget
 		);
 }
 
 void Lua::run()
 {
+	state.HandleExceptionsWith([](int, std::string msg, std::exception_ptr){
+			Log(Log::DIE) << "Lua exception: " << msg;
+		});
+
+	state.Load("assets/lua.lua");
+
 	state["setupGui"]();
+	state["setupCamera"]();
+	state["setupScene"]();
 }
 

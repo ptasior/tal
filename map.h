@@ -12,12 +12,12 @@ class Texture;
 class Map
 {
 public:
-	virtual void init(const std::string& path);
+	virtual void init(const std::string path);
+	virtual void setRect(double l, double t, double r, double b, double d, double u);
 	virtual void setPosition(const glm::mat4 &position);
 	virtual void paint();
 
 protected:
-
 	unsigned int setupFaceTriplet(const std::vector<GLfloat> &vert,
 										const std::vector<GLfloat> &tex,
 										const std::vector<GLfloat> &norm,
@@ -39,5 +39,12 @@ protected:
 	GLint mUniformPosition;
 
 	glm::mat4 mPosition;
+
+	float left = -0.5;
+	float top = -0.5;
+	float right = 0.5;
+	float bottom = 0.5;
+	float down = 0;
+	float up = 0.5;
 };
 

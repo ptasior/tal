@@ -78,7 +78,9 @@ Window::Window()
 
 
 	mLua = std::make_shared<Lua>();
-	mLua->init(mGui.get());
+	mLua->initGui(mGui.get());
+	mLua->initCamera(mCamera.get());
+	mLua->initScene(mScene.get());
 	mLua->run();
 
 	Log() << "Window: Initialisation succesed";
