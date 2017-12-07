@@ -98,8 +98,9 @@ unsigned int ModelObj::setupFaceTriplet(const std::vector<GLfloat> &vert,
 	return idx[key];
 }
 
-void ModelObj::load(const std::string& path)
+void ModelObj::init(const std::string& path)
 {
+	Model::init(path);
 	mDirectory = path.substr(0, path.find_last_of("/"));
 
 	Log() << "ModelObj: Initalising " << path;
@@ -254,13 +255,13 @@ void ModelObj::readMtl(std::string &path)
 void ModelObj::paint()
 {
 	mShader->use();
-	glUniformMatrix4fv(uniform_position, 1, GL_FALSE, glm::value_ptr(mPosition));
+	glUniformMatrix4fv(mUniformPosition, 1, GL_FALSE, glm::value_ptr(mPosition));
 
-	glEnableVertexAttribArray(attribute_coord3d);
+	glEnableVertexAttribArray(mAttrVert);
 	glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
 
 	glVertexAttribPointer(
-		attribute_coord3d, // attribute
+		mAttrVert, // attribute
 		3,                 // number of elements per vertex, here (x,y,z)
 		GL_FLOAT,          // the type of each element
 		GL_FALSE,          // take our values as-is
@@ -268,10 +269,10 @@ void ModelObj::paint()
 		0                  // offset of first element
 	);
 
-	glEnableVertexAttribArray(attribute_texcoord);
+	glEnableVertexAttribArray(mAttrTex);
 	// glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
 	glVertexAttribPointer(
-		attribute_texcoord, // attribute
+		mAttrTex, // attribute
 		2,                  // number of elements per vertex, here (x,y)
 		GL_FLOAT,           // the type of each element
 		GL_FALSE,           // take our values as-is
@@ -279,10 +280,10 @@ void ModelObj::paint()
 		(void *)(3*sizeof(GLfloat))                   // offset of first element
 	);
 
-	glEnableVertexAttribArray(attribute_vnorm);
+	glEnableVertexAttribArray(mAttrNorm);
 	// glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
 	glVertexAttribPointer(
-		attribute_vnorm, // attribute
+		mAttrNorm, // attribute
 		3,                  // number of elements per vertex, here (x,y)
 		GL_FLOAT,           // the type of each element
 		GL_FALSE,           // take our values as-is
@@ -301,8 +302,8 @@ void ModelObj::paint()
 		glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
 	}
 
-	glDisableVertexAttribArray(attribute_texcoord);
-	glDisableVertexAttribArray(attribute_coord3d);
-	glDisableVertexAttribArray(attribute_vnorm);
+	glDisableVertexAttribArray(mAttrTex);
+	glDisableVertexAttribArray(mAttrVert);
+	glDisableVertexAttribArray(mAttrNorm);
 }
 

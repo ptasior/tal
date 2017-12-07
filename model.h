@@ -12,22 +12,15 @@ class Model
 public:
 	virtual void init(const std::string& path);
 	virtual void setPosition(const glm::mat4 &position);
-	virtual void paint();
+	virtual void paint() = 0;
 
 protected:
-	virtual void load(const std::string& path) = 0;
-
 	std::shared_ptr<Shader> mShader;
-	std::shared_ptr<Texture> mTexture;
 
-	GLuint vbo_cube_vertices;
-	GLuint vbo_cube_texcoords;
-	GLuint ibo_cube_elements;
-
-	GLuint attribute_coord3d;
-	GLuint attribute_texcoord;
-	GLuint attribute_vnorm;
-	GLint uniform_position;
+	GLuint mAttrVert;
+	GLuint mAttrTex;
+	GLuint mAttrNorm;
+	GLint mUniformPosition;
 
 	glm::mat4 mPosition;
 };

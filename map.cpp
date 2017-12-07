@@ -36,10 +36,10 @@ void Map::init(const std::string& path)
 
 	mShader = Shader::getShader("model");
 
-	attribute_coord3d = mShader->mkAttrib("coord3d");
-	attribute_texcoord = mShader->mkAttrib("texcoord");
-	attribute_vnorm = mShader->mkAttrib("vnorm");
-	uniform_position = mShader->mkUniform("position");
+	mAttrVert = mShader->mkAttrib("coord3d");
+	mAttrTex = mShader->mkAttrib("texcoord");
+	mAttrNorm = mShader->mkAttrib("vnorm");
+	mUniformPosition = mShader->mkUniform("position");
 
 	SDL_Surface* img = IMG_Load(path.c_str());
 	if(!img)
@@ -206,13 +206,13 @@ void Map::setPosition(const glm::mat4 &position)
 void Map::paint()
 {
 	mShader->use();
-	glUniformMatrix4fv(uniform_position, 1, GL_FALSE, glm::value_ptr(mPosition));
+	glUniformMatrix4fv(mUniformPosition, 1, GL_FALSE, glm::value_ptr(mPosition));
 
-	glEnableVertexAttribArray(attribute_coord3d);
+	glEnableVertexAttribArray(mAttrVert);
 	glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
 
 	glVertexAttribPointer(
-		attribute_coord3d, // attribute
+		mAttrVert, // attribute
 		3,                 // number of elements per vertex, here (x,y,z)
 		GL_FLOAT,          // the type of each element
 		GL_FALSE,          // take our values as-is
@@ -220,10 +220,10 @@ void Map::paint()
 		0                  // offset of first element
 	);
 
-	glEnableVertexAttribArray(attribute_texcoord);
+	glEnableVertexAttribArray(mAttrTex);
 	// glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
 	glVertexAttribPointer(
-		attribute_texcoord, // attribute
+		mAttrTex, // attribute
 		2,                  // number of elements per vertex, here (x,y)
 		GL_FLOAT,           // the type of each element
 		GL_FALSE,           // take our values as-is
@@ -231,10 +231,10 @@ void Map::paint()
 		(void *)(3*sizeof(GLfloat))                   // offset of first element
 	);
 
-	glEnableVertexAttribArray(attribute_vnorm);
+	glEnableVertexAttribArray(mAttrNorm);
 	// glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
 	glVertexAttribPointer(
-		attribute_vnorm, // attribute
+		mAttrNorm, // attribute
 		3,                  // number of elements per vertex, here (x,y)
 		GL_FLOAT,           // the type of each element
 		GL_FALSE,           // take our values as-is
@@ -249,8 +249,8 @@ void Map::paint()
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 	glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
 
-	glDisableVertexAttribArray(attribute_vnorm);
-	glDisableVertexAttribArray(attribute_texcoord);
-	glDisableVertexAttribArray(attribute_coord3d);
+	glDisableVertexAttribArray(mAttrNorm);
+	glDisableVertexAttribArray(mAttrTex);
+	glDisableVertexAttribArray(mAttrVert);
 }
 

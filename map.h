@@ -33,10 +33,10 @@ protected:
 	GLuint vboVertices;
 	GLuint iboElements;
 
-	GLuint attribute_coord3d;
-	GLuint attribute_texcoord;
-	GLuint attribute_vnorm;
-	GLint uniform_position;
+	GLuint mAttrVert;
+	GLuint mAttrTex;
+	GLuint mAttrNorm;
+	GLint mUniformPosition;
 
 	glm::mat4 mPosition;
 };

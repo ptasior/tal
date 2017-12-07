@@ -8,7 +8,7 @@
 class ModelObj : public Model
 {
 public:
-	void load(const std::string& path);
+	void init(const std::string& path);
 	void paint();
 
 private:
