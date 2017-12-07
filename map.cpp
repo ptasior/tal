@@ -205,6 +205,7 @@ void Map::setPosition(const glm::mat4 &position)
 
 void Map::paint()
 {
+	mShader->use();
 	glUniformMatrix4fv(uniform_position, 1, GL_FALSE, glm::value_ptr(mPosition));
 
 	glEnableVertexAttribArray(attribute_coord3d);

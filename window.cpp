@@ -170,11 +170,9 @@ void Window::onPaint()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// glEnable(GL_CULL_FACE);
-	Shader::getShader("model")->use();
 	mScene->paint();
 
 	// // glDisable(GL_CULL_FACE);
-	Shader::getShader("gui")->use();
 	glDisable(GL_DEPTH_TEST);
 	mGui->paint();
 

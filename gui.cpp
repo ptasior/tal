@@ -309,12 +309,18 @@ void Gui::init()
 	// b->addWidget(w);
 	// b->onClick([](){Log() << "box";});
 
-	mUniformMVP = Shader::getShader("gui")->mkUniform("mvp");
+	GLuint mUniformMVP = Shader::getShader("gui")->mkUniform("mvp");
+
+	// Setup camera for shader
+	Shader::getShader("gui")->setOnChange([this, mUniformMVP](){
+			glUniformMatrix4fv(mUniformMVP, 1, GL_FALSE, glm::value_ptr(mMvp));
+		});
 }
 
 void Gui::paint()
 {
-	glUniformMatrix4fv(mUniformMVP, 1, GL_FALSE, glm::value_ptr(mMvp));
+	Shader::getShader("gui")->use();
+
 	mRoot->paint();
 }
 

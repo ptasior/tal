@@ -10,7 +10,6 @@
 
 void Model::init(const std::string& path)
 {
-	// mShader = Shader::getShader("triangle");
 	mShader = Shader::getShader("model");
 
 	attribute_coord3d = mShader->mkAttrib("coord3d");
@@ -28,8 +27,8 @@ void Model::setPosition(const glm::mat4 &position)
 
 void Model::paint()
 {
-	// mShader->use();
-	//
+	mShader->use();
+
 	glUniformMatrix4fv(uniform_position, 1, GL_FALSE, glm::value_ptr(mPosition));
 
 	mTexture->apply();

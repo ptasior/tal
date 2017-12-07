@@ -95,3 +95,14 @@ void FpsCamera::update()
 						glm::vec3(0.0, 1.0, 0.0));
 }
 
+// void FpsCamera::applySprite(GLuint uniform_mvp)
+// {
+// 	glm::mat4 rot(1.0);
+//
+// 	glm::rotate(rot, cos(-mRotX) * cos(-mRotY), glm::vec3(1,0,0));
+// 	glm::rotate(rot, sin(-mRotY), glm::vec3(0,1,0));
+// 	glm::rotate(rot, sin(-mRotX) * cos(-mRotY), glm::vec3(0,0,1));
+//
+// 	glm::mat4 mvp = mProjection * mView * mModel * mPreRot ;
+// 	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
+// }

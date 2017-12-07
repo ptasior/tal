@@ -23,6 +23,6 @@ private:
 	std::shared_ptr<Map> mMap;
 	std::vector<std::shared_ptr<Sprite>> mSprites;
 	std::vector<std::shared_ptr<Model>> mModels;
-	GLuint mUniformMVP;
+	// GLuint mUniformMVP;
 };
 

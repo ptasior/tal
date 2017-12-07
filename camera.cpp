@@ -91,6 +91,11 @@ void Camera::apply(GLuint uniform_mvp)
 	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 }
 
+void Camera::applySprite(GLuint uniform_mvp)
+{
+	apply(uniform_mvp);
+}
+
 bool Camera::event(SDL_Event &event)
 {
 	return false;

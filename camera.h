@@ -23,6 +23,7 @@ public:
 
 	void setSceneSize(int w, int h);
 	virtual void apply(GLuint uniform_mvp);
+	virtual void applySprite(GLuint uniform_mvp);
 	virtual bool event(SDL_Event &event);
 
 protected:

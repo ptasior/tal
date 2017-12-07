@@ -139,11 +139,15 @@ GLuint Shader::var(const char *name)
 
 void Shader::use()
 {
-	std::lock_guard<std::mutex> lock(mMutex);
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
 
-	if(mCurrent == mName) return; // Currently used
-	mCurrent = mName;
-	glUseProgram(mProgram);
+		if(mCurrent == mName) return; // Currently used
+
+		mCurrent = mName;
+		glUseProgram(mProgram);
+	}
+	if(mOnChange) mOnChange();
 }
 
 std::shared_ptr<Shader> Shader::getShader(const char *name)
@@ -160,3 +164,8 @@ std::shared_ptr<Shader> Shader::getShader(const char *name)
 	return mList[name];
 }
 
+
+void Shader::setOnChange(std::function<void(void)> fnc)
+{
+	mOnChange = fnc;
+}
