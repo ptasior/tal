@@ -17,7 +17,7 @@ void Matrix::translate(glm::vec3 pos)
 	mVal = glm::translate(mVal, pos);
 }
 
-void Matrix::scale(float sc)
+void Matrix::scale(double sc)
 {
 	mVal = glm::scale(mVal, glm::vec3(sc, sc, sc));
 }

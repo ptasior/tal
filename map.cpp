@@ -28,7 +28,7 @@ void Map::init(const std::string path, const std::string texture)
 	float stepH;
 	float stepU;
 
-	mShader = Shader::getShader("model");
+	mShader = Shader::getShader("map");
 
 	mAttrVert = mShader->mkAttrib("coord3d");
 	mAttrTex = mShader->mkAttrib("texcoord");

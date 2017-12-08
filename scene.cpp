@@ -24,6 +24,10 @@ void Scene::init()
 	GLuint mUniformMVP = Shader::getShader("model")->mkUniform("mvp");
 
 	// Setup camera for shader
+	Shader::getShader("map")->setOnChange([this, mUniformMVP](){
+			mCamera->apply(mUniformMVP);
+		});
+
 	Shader::getShader("model")->setOnChange([this, mUniformMVP](){
 			mCamera->apply(mUniformMVP);
 		});

@@ -13,7 +13,7 @@ public:
 
 	void rotate(glm::vec3 rot);
 	void translate(glm::vec3 pos);
-	void scale(float sc);
+	void scale(double sc);
 	void scaleVec(glm::vec3 sc);
 
 private:
