@@ -119,11 +119,13 @@ void Skybox::init(const std::string path)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_elements), cube_elements, GL_STATIC_DRAW);
 
 	mTexture = Texture::getTexture(path.c_str());
+	mTexture->setClamp();
 }
 
 void Skybox::setTexture(const std::string path)
 {
 	mTexture = Texture::getTexture(path.c_str());
+	mTexture->setClamp();
 }
 
 void Skybox::paint()

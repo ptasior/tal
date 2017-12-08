@@ -38,8 +38,7 @@ function setupScene()
 	m = scene:getMap()
 	m:setRect(-2, -2, 2, 2, -2, 0)
 	-- m:setRect(-0.2, -0.2, 0.2, 0.2, -0.1, 0.1)
-	-- m:init("assets/map/map.png", "assets/grass.png")
-	m:init("assets/map/map.png", "assets/grass_no_alpha.png")
+	m:init("assets/map/map.png", "assets/grass.png")
 
 	scene:getSkybox():init("assets/skybox.png")
 

@@ -47,6 +47,7 @@ void Map::init(const std::string path, const std::string texture)
 	stepH = (bottom-top)/img->h;
 	stepU = up-down;
 
+	// Vertices
 	unsigned int cnt = 0;
 	for(int h = 0; h < img->h; h++)
 		for(int w = 0; w < img->w; w++)
@@ -57,13 +58,13 @@ void Map::init(const std::string path, const std::string texture)
 			cnt += 3;
 		}
 
-
+	// Textures
 	cnt = 0;
 	for(int h = 0; h < img->h; h++)
 		for(int w = 0; w < img->w; w++)
 		{
-			tex[cnt+0] = 1.0*h/(img->h-1);
-			tex[cnt+1] = 1.0*w/(img->w-1);
+			tex[cnt+0] = 10.0*h/(img->h-1);
+			tex[cnt+1] = 10.0*w/(img->w-1);
 			cnt += 2;
 		}
 

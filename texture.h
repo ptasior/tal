@@ -11,15 +11,19 @@ public:
 	// TODO Add destructor
 	~Texture();
 
+	// When repeat == false, clamping is enabled
 	void init(const char *path);
 	void apply();
+
+	void setClamp();
+	void setRepeat();
 
 	static std::shared_ptr<Texture> getTexture(const char* path);
 
 private:
 	Texture();
-	GLuint texture_id;
-	GLint uniform_mytexture;
+	GLuint mTextureId;
+	GLint mUniformTexture;
 
 	std::string mName;
 	static std::mutex mMutex;

@@ -23,7 +23,7 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-	glDeleteTextures(1, &texture_id);
+	glDeleteTextures(1, &mTextureId);
 }
 
 void Texture::init(const char *path)
@@ -67,8 +67,8 @@ void Texture::init(const char *path)
 		// TTF_CloseFont(font);
 	}
 
-	glGenTextures(1, &texture_id);
-	glBindTexture(GL_TEXTURE_2D, texture_id);
+	glGenTextures(1, &mTextureId);
+	glBindTexture(GL_TEXTURE_2D, mTextureId);
 
 	glTexImage2D(GL_TEXTURE_2D, // target
 			0, // level, 0 = base, no minimap,
@@ -81,16 +81,6 @@ void Texture::init(const char *path)
 			res_texture->pixels
 		);
 
-	// if(mRepeatTexture)
-	// {
-	// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	// }
-	// else
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glGenerateMipmap(GL_TEXTURE_2D);
@@ -98,11 +88,25 @@ void Texture::init(const char *path)
 	SDL_FreeSurface(res_texture);
 }
 
+void Texture::setClamp()
+{
+	glBindTexture(GL_TEXTURE_2D, mTextureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+}
+
+void Texture::setRepeat()
+{
+	glBindTexture(GL_TEXTURE_2D, mTextureId);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
+
 void Texture::apply()
 {
 	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(uniform_mytexture, /*GL_TEXTURE*/0);
-	glBindTexture(GL_TEXTURE_2D, texture_id);
+	glUniform1i(mUniformTexture, /*GL_TEXTURE*/0);
+	glBindTexture(GL_TEXTURE_2D, mTextureId);
 }
 
 std::shared_ptr<Texture> Texture::getTexture(const char* path)
