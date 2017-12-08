@@ -36,16 +36,17 @@ function setupScene()
 	log("setupScene")
 
 	m = scene:getMap()
-	-- m:setRect(-2, -2, 2, 2, -1, 1)
-	m:setRect(-0.2, -0.2, 0.2, 0.2, -0.1, 0.1)
-	m:init("assets/map/map.png", "assets/grass.png")
+	m:setRect(-2, -2, 2, 2, -2, 0)
+	-- m:setRect(-0.2, -0.2, 0.2, 0.2, -0.1, 0.1)
+	-- m:init("assets/map/map.png", "assets/grass.png")
+	m:init("assets/map/map.png", "assets/grass_no_alpha.png")
 
 	scene:getSkybox():init("assets/skybox.png")
 
 
 
 	mat = Matrix.new()
-	mat:translate(Glm_Vec3.new(0.0, 0.1, 0.0))
+	mat:translate(Glm_Vec3.new(0.0, 0, 0.0))
 	mat:scaleVec(Glm_Vec3.new(0.001, 0.001, 0.001))
 
 	m = ModelObj.new()

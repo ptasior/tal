@@ -52,6 +52,14 @@ Log& Log::operator << (float val)
     return *this;
 }
 
+Log& Log::operator << (unsigned int val)
+{
+    // TODO Use atoi
+    auto tmp = std::to_string(val);
+    write(tmp.c_str());
+    return *this;
+}
+
 Log& Log::operator << (int val)
 {
     // TODO Use atoi
@@ -69,3 +77,7 @@ void Log::write(const char* str)
         std::cout << str;
 }
 
+void Log::flush()
+{
+	std::cout << std::flush;
+}

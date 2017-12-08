@@ -28,14 +28,18 @@ Texture::~Texture()
 
 void Texture::init(const char *path)
 {
-	Log() << "Texture: Loading texture " << path;
+	Log() << "Texture: Loading " << path;
 	mName = path;
 	SDL_Surface* res_texture;
 	if(mName.substr(0, 7) != "letter-")
 	{
 		res_texture = IMG_Load(path);
+
 		if(!res_texture)
 			Log(Log::DIE) << "Texture: IMG_Load: " << SDL_GetError();
+
+		if(res_texture->format->BytesPerPixel != 4)
+			Log(Log::DIE) << "Texture: Image does not have alpha channel: " << path;
 
 		res_texture = flip(res_texture, SDL_FLIP_VERTICAL);
 	}
@@ -65,7 +69,7 @@ void Texture::init(const char *path)
 
 	glGenTextures(1, &texture_id);
 	glBindTexture(GL_TEXTURE_2D, texture_id);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
 	glTexImage2D(GL_TEXTURE_2D, // target
 			0, // level, 0 = base, no minimap,
 			GL_RGBA, // internalformat
@@ -76,6 +80,21 @@ void Texture::init(const char *path)
 			GL_UNSIGNED_BYTE, // type
 			res_texture->pixels
 		);
+
+	// if(mRepeatTexture)
+	// {
+	// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	// 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// }
+	// else
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glGenerateMipmap(GL_TEXTURE_2D);
+
 	SDL_FreeSurface(res_texture);
 }
 

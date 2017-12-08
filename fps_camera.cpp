@@ -13,7 +13,7 @@ void FpsCamera::init()
 
 	// Initial position to show what is in 0,0,0
 	// cameraPos = glm::vec3(0.0, 0.0, 1);
-	cameraPos = glm::vec3(0.0, 2.0, 4);
+	cameraPos = glm::vec3(0.0, 1.0, 4);
 	mRotX = 4.6;
 	// mRotY = 0;
 	mRotY = -0.3;
