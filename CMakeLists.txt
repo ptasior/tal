@@ -20,9 +20,9 @@ set(SOURCE_FILES
 		gui.cpp
 		lua.cpp
 		model.cpp
-		model_cube.cpp
 		model_obj.cpp
 		map.cpp
+		skybox.cpp
 		matrix.cpp
 		time.cpp
 	)

@@ -40,6 +40,9 @@ function setupScene()
 	m:setRect(-0.2, -0.2, 0.2, 0.2, -0.1, 0.1)
 	m:init("assets/map/map.png", "assets/grass.png")
 
+	scene:getSkybox():init("assets/skybox.png")
+
+
 
 	mat = Matrix.new()
 	mat:translate(Glm_Vec3.new(0.0, 0.1, 0.0))

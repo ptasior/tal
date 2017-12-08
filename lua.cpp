@@ -4,6 +4,7 @@
 #include "scene.h"
 #include "sprite.h"
 #include "model_obj.h"
+#include "skybox.h"
 #include "map.h"
 #include "matrix.h"
 #include <selene.h>
@@ -28,17 +29,23 @@ void Lua::initScene(Scene *scene)
 	state["Glm_Mat4"].SetClass<glm::mat4, float>();
 	state["Glm_Vec3"].SetClass<glm::vec3, double, double, double>();
 
-	state["Map"].SetClass<Map>(
-			"init", &Map::init,
-			"setRect", &Map::setRect
-		);
-
 	state["Matrix"].SetClass<Matrix>(
 			"val", &Matrix::val,
 			"rotate", &Matrix::rotate,
 			"translate", &Matrix::translate,
 			"scale", &Matrix::scale,
 			"scaleVec", &Matrix::scaleVec
+		);
+
+
+	state["Map"].SetClass<Map>(
+			"init", &Map::init,
+			"setRect", &Map::setRect
+		);
+
+	state["Skybox"].SetClass<Skybox>(
+			"init", &Skybox::init,
+			"setTexture", &Skybox::setTexture
 		);
 
 
@@ -56,6 +63,7 @@ void Lua::initScene(Scene *scene)
 
 	state["scene"].SetObj<Scene>(*scene,
 			"getMap", &Scene::getMap,
+			"getSkybox", &Scene::getSkybox,
 			"addModel", &Scene::addModel<ModelObj>,
 			"addSprite", &Scene::addSprite
 		);

@@ -1,6 +1,7 @@
-#include "model_cube.h"
+#include "skybox.h"
 #include "shader.h"
 #include "texture.h"
+#include "log.h"
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -8,43 +9,45 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
-void ModelCube::init(const std::string path)
+void Skybox::init(const std::string path)
 {
-	Model::init(path);
-
 	mShader = Shader::getShader("triangle");
 
+	mAttrVert = mShader->mkAttrib("coord3d");
+	mAttrTex = mShader->mkAttrib("texcoord");
+
+	const int val = 50.0;
 	GLfloat cube_vertices[] = {
 		// front
-		-1.0, -1.0,  1.0,
-		 1.0, -1.0,  1.0,
-		 1.0,  1.0,  1.0,
-		-1.0,  1.0,  1.0,
+		-val, -val,  val,
+		 val, -val,  val,
+		 val,  val,  val,
+		-val,  val,  val,
 		// top
-		-1.0,  1.0,  1.0,
-		 1.0,  1.0,  1.0,
-		 1.0,  1.0, -1.0,
-		-1.0,  1.0, -1.0,
+		-val,  val,  val,
+		 val,  val,  val,
+		 val,  val, -val,
+		-val,  val, -val,
 		// back
-		 1.0, -1.0, -1.0,
-		-1.0, -1.0, -1.0,
-		-1.0,  1.0, -1.0,
-		 1.0,  1.0, -1.0,
+		 val, -val, -val,
+		-val, -val, -val,
+		-val,  val, -val,
+		 val,  val, -val,
 		// bottom
-		-1.0, -1.0, -1.0,
-		 1.0, -1.0, -1.0,
-		 1.0, -1.0,  1.0,
-		-1.0, -1.0,  1.0,
+		-val, -val, -val,
+		 val, -val, -val,
+		 val, -val,  val,
+		-val, -val,  val,
 		// left
-		-1.0, -1.0, -1.0,
-		-1.0, -1.0,  1.0,
-		-1.0,  1.0,  1.0,
-		-1.0,  1.0, -1.0,
+		-val, -val, -val,
+		-val, -val,  val,
+		-val,  val,  val,
+		-val,  val, -val,
 		// right
-		 1.0, -1.0,  1.0,
-		 1.0, -1.0, -1.0,
-		 1.0,  1.0, -1.0,
-		 1.0,  1.0,  1.0,
+		 val, -val,  val,
+		 val, -val, -val,
+		 val,  val, -val,
+		 val,  val,  val,
 	};
 
 	GLfloat cube_texcoords[2*4*6] = {
@@ -103,30 +106,36 @@ void ModelCube::init(const std::string path)
 	};
 
 
-	glGenBuffers(1, &vbo_cube_vertices);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_vertices);
+	glGenBuffers(1, &mVboVert);
+	glBindBuffer(GL_ARRAY_BUFFER, mVboVert);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_vertices), cube_vertices, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &vbo_cube_texcoords);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_texcoords);
+	glGenBuffers(1, &mVboTex);
+	glBindBuffer(GL_ARRAY_BUFFER, mVboTex);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cube_texcoords), cube_texcoords, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &ibo_cube_elements);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_cube_elements);
+	glGenBuffers(1, &mIboElem);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIboElem);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_elements), cube_elements, GL_STATIC_DRAW);
 
-	mTexture = Texture::getTexture("assets/skybox.png");
+	mTexture = Texture::getTexture(path.c_str());
 }
 
-void ModelCube::paint()
+void Skybox::setTexture(const std::string path)
+{
+	mTexture = Texture::getTexture(path.c_str());
+}
+
+void Skybox::paint()
 {
 	mShader->use();
-	glUniformMatrix4fv(mUniformPosition, 1, GL_FALSE, glm::value_ptr(mPosition));
 
 	mTexture->apply();
 
+	glDepthMask(0);
+
 	glEnableVertexAttribArray(mAttrVert);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_vertices);
+	glBindBuffer(GL_ARRAY_BUFFER, mVboVert);
 
 	glVertexAttribPointer(
 		mAttrVert, // attribute
@@ -138,7 +147,7 @@ void ModelCube::paint()
 	);
 
 	glEnableVertexAttribArray(mAttrTex);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_cube_texcoords);
+	glBindBuffer(GL_ARRAY_BUFFER, mVboTex);
 	glVertexAttribPointer(
 		mAttrTex, // attribute
 		2,                  // number of elements per vertex, here (x,y)
@@ -148,15 +157,11 @@ void ModelCube::paint()
 		0                   // offset of first element
 	);
 
-
-	// Draw a triangle from the 3 vertices
-	// glDrawArrays(GL_TRIANGLES, 0, 3);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_cube_elements);
-	int size;
-	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-	glDrawElements(GL_TRIANGLES, size/sizeof(GLushort), GL_UNSIGNED_SHORT, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIboElem);
+	glDrawElements(GL_TRIANGLES, 72, GL_UNSIGNED_SHORT, 0);
 
 	glDisableVertexAttribArray(mAttrTex);
 	glDisableVertexAttribArray(mAttrVert);
+
+	glDepthMask(1);
 }

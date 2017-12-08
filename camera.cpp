@@ -81,7 +81,7 @@ void Camera::setSceneSize(int w, int h)
 	mSceneHeight = h;
 
 	setProjection(glm::perspective(glm::radians(45.0f),
-				1.0f * mSceneWidth / mSceneHeight, 0.1f, 10.0f)
+				1.0f * mSceneWidth / mSceneHeight, 0.1f, 100.0f)
 			);
 }
 

@@ -2,7 +2,7 @@
 #include "shader.h"
 #include "camera.h"
 #include "sprite.h"
-#include "model_cube.h"
+#include "skybox.h"
 #include "model_obj.h"
 #include "map.h"
 #include "log.h"
@@ -23,9 +23,6 @@ void Scene::init()
 
 	GLuint mUniformMVP = Shader::getShader("model")->mkUniform("mvp");
 
-	mModels.push_back(std::make_shared<ModelCube>());
-	mModels[0]->init("");
-
 	// Setup camera for shader
 	Shader::getShader("model")->setOnChange([this, mUniformMVP](){
 			mCamera->apply(mUniformMVP);
@@ -35,11 +32,13 @@ void Scene::init()
 			mCamera->applySprite(mUniformMVP);
 		});
 
+	mSkybox = std::make_shared<Skybox>();
 	mMap = std::make_shared<Map>();
 }
 
 void Scene::paint()
 {
+	mSkybox->paint();
 	mMap->paint();
 
 	for(auto m : mModels)
@@ -63,6 +62,11 @@ void Scene::setCamera(std::shared_ptr<Camera> camera)
 Map &Scene::getMap()
 {
 	return *mMap.get();
+}
+
+Skybox &Scene::getSkybox()
+{
+	return *mSkybox.get();
 }
 
 void Scene::addSprite(Sprite* s)
