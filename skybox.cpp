@@ -130,6 +130,8 @@ void Skybox::setTexture(const std::string path)
 
 void Skybox::paint()
 {
+	if(!mTexture) return;
+
 	mShader->use();
 
 	mTexture->apply();

@@ -24,41 +24,42 @@ void FpsCamera::init()
 bool FpsCamera::processEvents(const Uint8 *state)
 {
 	bool ret = false;
+	const float speed = 0.2;
 
 	if(state[SDL_SCANCODE_W])
 	{
-		cameraPos.z += 0.1*sin(mRotX)*Time::elapsed();
-		cameraPos.y += 0.1*sin(mRotY)*Time::elapsed();
-		cameraPos.x += 0.1*cos(mRotX)*Time::elapsed();
+		cameraPos.z += speed*sin(mRotX)*Time::elapsed();
+		cameraPos.y += speed*sin(mRotY)*Time::elapsed();
+		cameraPos.x += speed*cos(mRotX)*Time::elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_S])
 	{
-		cameraPos.z -= 0.1*sin(mRotX)*Time::elapsed();
-		cameraPos.y -= 0.1*sin(mRotY)*Time::elapsed();
-		cameraPos.x -= 0.1*cos(mRotX)*Time::elapsed();
+		cameraPos.z -= speed*sin(mRotX)*Time::elapsed();
+		cameraPos.y -= speed*sin(mRotY)*Time::elapsed();
+		cameraPos.x -= speed*cos(mRotX)*Time::elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_A])
 	{
-		cameraPos.z += 0.1*sin(mRotX-M_PI_2)*Time::elapsed();
-		cameraPos.x += 0.1*cos(mRotX-M_PI_2)*Time::elapsed();
+		cameraPos.z += speed*sin(mRotX-M_PI_2)*Time::elapsed();
+		cameraPos.x += speed*cos(mRotX-M_PI_2)*Time::elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_D])
 	{
-		cameraPos.z += 0.1*sin(mRotX+M_PI_2)*Time::elapsed();
-		cameraPos.x += 0.1*cos(mRotX+M_PI_2)*Time::elapsed();
+		cameraPos.z += speed*sin(mRotX+M_PI_2)*Time::elapsed();
+		cameraPos.x += speed*cos(mRotX+M_PI_2)*Time::elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_Z])
 	{
-		cameraPos.y += 0.1*Time::elapsed();
+		cameraPos.y += speed*Time::elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_X])
 	{
-		cameraPos.y -= 0.1*Time::elapsed();
+		cameraPos.y -= speed*Time::elapsed();
 		ret = true;
 	}
 
@@ -68,8 +69,10 @@ bool FpsCamera::processEvents(const Uint8 *state)
 		SDL_GetMouseState(&x, &y);
 		if(mCaptureMouse)
 		{
-			mRotX += 0.01*(x - mLastMX);
-			mRotY += 0.01*(mLastMY - y);
+			mRotX += glm::radians(1.0*(x - mLastMX));
+			mRotY += glm::radians(1.0*(mLastMY - y));
+
+			mRotY = glm::clamp(mRotY, -M_PI_2+0.001, M_PI_2-0.001);
 		}
 		mLastMX = x;
 		mLastMY = y;
@@ -94,15 +97,34 @@ void FpsCamera::update()
 						glm::vec3(0.0, 1.0, 0.0));
 }
 
-// void FpsCamera::applySprite(GLuint uniform_mvp)
-// {
-// 	glm::mat4 rot(1.0);
-//
-// 	glm::rotate(rot, cos(-mRotX) * cos(-mRotY), glm::vec3(1,0,0));
-// 	glm::rotate(rot, sin(-mRotY), glm::vec3(0,1,0));
-// 	glm::rotate(rot, sin(-mRotX) * cos(-mRotY), glm::vec3(0,0,1));
-//
-// 	glm::mat4 mvp = mProjection * mView * mModel * mPreRot ;
-// 	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
-// }
+void FpsCamera::applySprite(GLuint uniform_mvp)
+{
+	// glm::mat4 rot(1.0);
+
+	// glm::rotate(rot, cos(-mRotX) * cos(-mRotY), glm::vec3(1,0,0));
+	// glm::rotate(rot, sin(-mRotY), glm::vec3(0,1,0));
+	// glm::rotate(rot, sin(-mRotX) * cos(-mRotY), glm::vec3(0,0,1));
+
+    // glm::vec3 front(cos(mRotX) * cos(mRotY),
+					// sin(mRotY),
+					// sin(mRotX) * cos(mRotY));
+
+
+	// glm::vec3 front(cos(mRotX) * cos(mRotY),
+	// 				sin(mRotY),
+	// 				sin(mRotX) * cos(mRotY));
+
+	// glm::vec3 front(-1.0);
+
+	// glm::mat4 view = glm::lookAt(cameraPos,
+	// 					cameraPos + glm::normalize(front),
+	// 					glm::vec3(0.0, 1.0, 0.0));
+
+	// glm::mat4 mvp = mProjection * view * mModel * mPreRot ;
+	// glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
+
+
+	glm::mat4 mvp = mPostRot * mProjection * mView * mModel * mPreRot;
+	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
+}
 

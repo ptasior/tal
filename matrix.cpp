@@ -24,6 +24,6 @@ void Matrix::scale(double sc)
 
 void Matrix::scaleVec(glm::vec3 sc)
 {
-	mVal = glm::scale(mVal, glm::vec3(0.2, 0.2, 0.2));
+	mVal = glm::scale(mVal, sc);
 }
 
