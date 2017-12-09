@@ -34,5 +34,6 @@ protected:
 
 	int mSceneWidth;
 	int mSceneHeight;
+	glm::mat4 mMvp;
 };
 

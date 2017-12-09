@@ -255,7 +255,6 @@ void ModelObj::readMtl(std::string &path)
 void ModelObj::paint()
 {
 	mShader->use();
-	mShader->setUniform("position", {glm::value_ptr(mPosition)});
 
 	glEnableVertexAttribArray(mAttrVert);
 	glBindBuffer(GL_ARRAY_BUFFER, vboVertices);

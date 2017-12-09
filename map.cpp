@@ -168,18 +168,20 @@ void Map::init(const std::string path, const std::string texture)
 
 	SDL_FreeSurface(img);
 	mTexture = Texture::getTexture(texture.c_str());
+
+	mShader->setUniform("position", {glm::value_ptr(mPosition)});
 }
 
 void Map::setPosition(const glm::mat4 &position)
 {
 	mPosition = position;
+	mShader->setUniform("position", {glm::value_ptr(mPosition)});
 }
 
 void Map::paint()
 {
 	mShader->use();
 	// glUniformMatrix4fv(mUniformPosition, 1, GL_FALSE, glm::value_ptr(mPosition));
-	mShader->setUniform("position", {glm::value_ptr(mPosition)});
 
 	glEnableVertexAttribArray(mAttrVert);
 	glBindBuffer(GL_ARRAY_BUFFER, vboVert);

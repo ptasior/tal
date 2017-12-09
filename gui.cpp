@@ -294,9 +294,8 @@ void Gui::init()
 	// GLuint mUniformMVP = Shader::getShader("gui")->mkUniform("mvp");
 
 	// Setup camera for shader
-	Shader::getShader("gui")->setOnChange([this](){
-			Shader::getShader("gui")->setUniform("mvp", {glm::value_ptr(mMvp)});
-		});
+	// Shader::getShader("gui")->setOnChange([this](){
+	// 	});
 }
 
 void Gui::paint()
@@ -315,6 +314,7 @@ void Gui::setSceneSize(int w, int h)
 	mRoot->setHeight(h);
 
 	mMvp = glm::ortho(0.f, 1.0f*mSceneWidth, 1.0f*mSceneHeight, 0.0f, -1.f, 1.f);
+	Shader::getShader("gui")->setUniform("mvp", {glm::value_ptr(mMvp)});
 }
 
 void Gui::click(int x, int y)

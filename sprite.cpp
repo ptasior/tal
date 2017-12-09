@@ -53,13 +53,12 @@ void Sprite::init(std::string path, std::string shaderName)
 void Sprite::setPosition(const glm::mat4 &position)
 {
 	mPosition = position;
+	mShader->setUniform("position", {glm::value_ptr(mPosition)});
 }
 
 void Sprite::paint()
 {
 	mShader->use();
-	mShader->setUniform("position", {glm::value_ptr(mPosition)});
-	// glUniformMatrix4fv(uniform_position, 1, GL_FALSE, glm::value_ptr(mPosition));
 
 	mTexture->apply();
 

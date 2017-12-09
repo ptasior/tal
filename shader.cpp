@@ -167,17 +167,14 @@ void Shader::use()
 	glUseProgram(mProgram);
 
 	if(mOnChange) mOnChange();
+
 	// Apply all previous values
 	for(auto u : mUniforms)
-	{
-		Log() << "++" << u.first;
-		if(std::get<2>(u.second).float_ptr)
-		{
-			uniformFunctions.at(std::get<1>(u.second))(std::get<0>(u.second), std::get<2>(u.second));
-			Log() << "restoring " << u.first << " in " << mName;
-		}
-	}
-
+		if(std::get<2>(u.second).float_ptr &&
+			std::get<1>(u.second) != GL_SAMPLER_2D)
+			uniformFunctions.at(std::get<1>(u.second))(
+						std::get<0>(u.second), std::get<2>(u.second)
+					);
 }
 
 std::shared_ptr<Shader> Shader::getShader(const char *name)
@@ -216,7 +213,9 @@ void Shader::setUniform(const char* name, Value v)
 	auto f = uniformFunctions.at(std::get<1>(attr));
 	f(std::get<0>(attr), v);
 
-	std::get<2>(attr) = v;
+	// Log() << "set " << std::get<2>(attr).float_ptr;
+	std::get<2>(mUniforms[name]) = v;
+	// Log() << "set2 " << std::get<2>(attr).float_ptr;
 }
 
 GLuint Shader::attrib(const char* name)

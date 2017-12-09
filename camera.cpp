@@ -88,12 +88,12 @@ void Camera::setSceneSize(int w, int h)
 
 void Camera::apply()
 {
-	glm::mat4 mvp = mPostRot * mProjection * mView * mModel * mPreRot;
+	mMvp = mPostRot * mProjection * mView * mModel * mPreRot;
 	// glUniformMatrix4fv(uniform_mvp, 1, GL_FALS glm::value_ptr(mvp));
 
-	Shader::getShader("map")->setUniform("mvp", Shader::Value{glm::value_ptr(mvp)});
-	Shader::getShader("model")->setUniform("mvp", Shader::Value{glm::value_ptr(mvp)});
-	Shader::getShader("triangle")->setUniform("mvp", Shader::Value{glm::value_ptr(mvp)});
+	Shader::getShader("map")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
+	Shader::getShader("model")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
+	Shader::getShader("triangle")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
 }
 
 bool Camera::processEvents(const Uint8 *state)

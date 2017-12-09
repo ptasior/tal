@@ -20,7 +20,7 @@ void Model::init(const std::string path)
 void Model::setPosition(const glm::mat4 &position)
 {
 	mPosition = position;
-	// mShader->setUniform("position", {glm::value_ptr(mPosition)});
+	mShader->setUniform("position", {glm::value_ptr(mPosition)});
 }
 
 void Model::paint()
