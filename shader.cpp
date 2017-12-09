@@ -2,10 +2,19 @@
 #include "gl_header.h"
 #include "log.h"
 #include <fstream>
+#include <vector>
+#include <cassert>
 
 std::map<std::string, std::shared_ptr<Shader>> Shader::mList;
 std::string Shader::mCurrent;
 std::mutex Shader::mMutex;
+
+const std::map<GLenum, std::function<void(GLint, Shader::Value)>> uniformFunctions =
+{
+	{GL_FLOAT_MAT4, [](GLint id, Shader::Value v){glUniformMatrix4fv(id, 1, GL_FALSE, v.float_ptr);} },
+	{GL_FLOAT_VEC4, [](GLint id, Shader::Value v){(glUniform4f, v.float_v4[0], v.float_v4[1], v.float_v4[2], v.float_v4[2]);} }
+
+};
 
 Shader::Shader()
 {
@@ -36,32 +45,44 @@ void Shader::init(const char *name)
 	
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+
+	readVariables();
 }
 
-GLuint Shader::mkAttrib(const char *name)
+void Shader::readVariables()
 {
-	GLuint attrib = glGetAttribLocation(mProgram, name);
-	if(attrib == -1)
-		Log(Log::DIE) << "Shader: Could not bind attribute "
-					  << name
-					  << " in shader: "
-					  << mName;
+	GLint maxUniformNameLen, noOfUniforms;
+	glGetProgramiv(mProgram, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxUniformNameLen);
+	glGetProgramiv(mProgram, GL_ACTIVE_UNIFORMS, &noOfUniforms);
 
-	mVars[name] = attrib;
-	return attrib;
-}
+	GLint maxAttribNameLen, noOfAttributes;
+	glGetProgramiv(mProgram, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxAttribNameLen);
+	glGetProgramiv(mProgram, GL_ACTIVE_ATTRIBUTES, &noOfAttributes);
 
-GLuint Shader::mkUniform(const char *name)
-{
-	GLuint uniform = glGetUniformLocation(mProgram, name);
-	if(uniform == -1)
-		Log(Log::DIE) << "Shader: Could not bind uniform "
-					  << name
-					  << " in shader: "
-					  << mName;
+	GLint read, size;
+	GLenum type;
 
-	mVars[name] = uniform;
-	return uniform;
+	std::vector<GLchar>unifN(maxUniformNameLen, 0);
+	for(GLint i = 0; i < noOfUniforms; ++ i)
+	{
+		glGetActiveUniform(mProgram, i, maxUniformNameLen, &read, &size, &type, unifN.data());
+		mUniforms[unifN.data()] = std::make_tuple(glGetUniformLocation(mProgram, unifN.data()), type, Value{nullptr});
+	}
+
+	std::vector<GLchar>attrN(maxAttribNameLen, 0);
+	for(GLint i = 0; i < noOfAttributes; ++ i)
+	{
+		glGetActiveAttrib(mProgram, i, maxAttribNameLen, &read, &size, &type, attrN.data());
+		mAttribs[attrN.data()] = std::make_tuple(glGetAttribLocation(mProgram, attrN.data()), type);
+	}
+
+#ifndef NDEBUG
+	for(auto k : mAttribs)
+		Log() << "  attrib " <<  std::get<0>(k);
+
+	for(auto k : mUniforms)
+		Log() << "  uniform " <<  std::get<0>(k);
+#endif
 }
 
 GLuint Shader::loadShader(const char * file, GLenum type)
@@ -132,10 +153,6 @@ std::string Shader::getGlLog(GLuint object)
 	return ret;
 }
 
-GLuint Shader::var(const char *name)
-{
-	return mVars[name];
-}
 
 void Shader::use()
 {
@@ -145,9 +162,22 @@ void Shader::use()
 		if(mCurrent == mName) return; // Currently used
 
 		mCurrent = mName;
-		glUseProgram(mProgram);
 	}
+
+	glUseProgram(mProgram);
+
 	if(mOnChange) mOnChange();
+	// Apply all previous values
+	for(auto u : mUniforms)
+	{
+		Log() << "++" << u.first;
+		if(std::get<2>(u.second).float_ptr)
+		{
+			uniformFunctions.at(std::get<1>(u.second))(std::get<0>(u.second), std::get<2>(u.second));
+			Log() << "restoring " << u.first << " in " << mName;
+		}
+	}
+
 }
 
 std::shared_ptr<Shader> Shader::getShader(const char *name)
@@ -156,7 +186,6 @@ std::shared_ptr<Shader> Shader::getShader(const char *name)
 
 	if(!mList.count(name)) // Not yet initiaalised
 	{
-		// mList[name] = std::make_shared<Shader>();
 		mList[name].reset(new Shader);
 		mList[name]->init(name);
 	}
@@ -169,3 +198,34 @@ void Shader::setOnChange(std::function<void(void)> fnc)
 {
 	mOnChange = fnc;
 }
+
+void Shader::setUniform(const char* name, Value v)
+{
+#ifndef NDEBUG
+	if(!mUniforms.count(name))
+		Log(Log::DIE) << "No uniform " << name << " in " << mName;
+#endif
+
+	auto attr = mUniforms[name];
+
+#ifndef NDEBUG
+	if(!uniformFunctions.count(std::get<1>(attr)))
+		Log(Log::DIE) << "No function defined for given uniform type " << name << " in " << mName;
+#endif
+
+	auto f = uniformFunctions.at(std::get<1>(attr));
+	f(std::get<0>(attr), v);
+
+	std::get<2>(attr) = v;
+}
+
+GLuint Shader::attrib(const char* name)
+{
+#ifndef NDEBUG
+	if(!mAttribs.count(name))
+		Log(Log::DIE) << "No attrib " << name << " in " << mName;
+#endif
+
+	return std::get<0>(mAttribs[name]);
+}
+

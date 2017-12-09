@@ -20,7 +20,6 @@ protected:
 	GLuint mAttrVert;
 	GLuint mAttrTex;
 	GLuint mAttrNorm;
-	GLint mUniformPosition;
 
 	glm::mat4 mPosition;
 };

@@ -12,15 +12,15 @@ void Model::init(const std::string path)
 {
 	mShader = Shader::getShader("model");
 
-	mAttrVert = mShader->mkAttrib("coord3d");
-	mAttrTex = mShader->mkAttrib("texcoord");
-	mAttrNorm = mShader->mkAttrib("vnorm");
-	mUniformPosition = mShader->mkUniform("position");
+	mAttrVert = mShader->attrib("coord3d");
+	mAttrTex = mShader->attrib("texcoord");
+	mAttrNorm = mShader->attrib("vnorm");
 }
 
 void Model::setPosition(const glm::mat4 &position)
 {
 	mPosition = position;
+	// mShader->setUniform("position", {glm::value_ptr(mPosition)});
 }
 
 void Model::paint()

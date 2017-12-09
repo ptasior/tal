@@ -21,19 +21,17 @@ void Scene::init()
 {
 	Log() << "Scene: Init";
 
-	GLuint mUniformMVP = Shader::getShader("model")->mkUniform("mvp");
-
 	// Setup camera for shader
-	Shader::getShader("map")->setOnChange([this, mUniformMVP](){
-			mCamera->apply(mUniformMVP);
+	Shader::getShader("map")->setOnChange([this](){
+			mCamera->apply();
 		});
 
-	Shader::getShader("model")->setOnChange([this, mUniformMVP](){
-			mCamera->apply(mUniformMVP);
+	Shader::getShader("model")->setOnChange([this](){
+			mCamera->apply();
 		});
 
-	Shader::getShader("triangle")->setOnChange([this, mUniformMVP](){
-			mCamera->applySprite(mUniformMVP);
+	Shader::getShader("triangle")->setOnChange([this](){
+			mCamera->apply();
 		});
 
 	mSkybox = std::make_shared<Skybox>();

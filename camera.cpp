@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "shader.h"
 #include "log.h"
 
 #define GLM_FORCE_RADIANS
@@ -85,18 +86,18 @@ void Camera::setSceneSize(int w, int h)
 			);
 }
 
-void Camera::apply(GLuint uniform_mvp)
+void Camera::apply()
 {
 	glm::mat4 mvp = mPostRot * mProjection * mView * mModel * mPreRot;
-	glUniformMatrix4fv(uniform_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
-}
+	// glUniformMatrix4fv(uniform_mvp, 1, GL_FALS glm::value_ptr(mvp));
 
-void Camera::applySprite(GLuint uniform_mvp)
-{
-	apply(uniform_mvp);
+	Shader::getShader("map")->setUniform("mvp", Shader::Value{glm::value_ptr(mvp)});
+	Shader::getShader("model")->setUniform("mvp", Shader::Value{glm::value_ptr(mvp)});
+	Shader::getShader("triangle")->setUniform("mvp", Shader::Value{glm::value_ptr(mvp)});
 }
 
 bool Camera::processEvents(const Uint8 *state)
 {
 	return false;
 }
+

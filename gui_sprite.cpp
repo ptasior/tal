@@ -12,7 +12,6 @@
 void GuiSprite::init(const char *path, const char *shaderName)
 {
 	Sprite::init(path, shaderName);
-	attribute_color = mShader->mkUniform("color");
 }
 
 void GuiSprite::setColor(int r, int g, int b, int a)
@@ -25,7 +24,7 @@ void GuiSprite::setColor(int r, int g, int b, int a)
 
 void GuiSprite::paint()
 {
-	glUniform4f(attribute_color, mColor.r, mColor.g, mColor.b, mColor.a);
+	mShader->setUniform("color", Shader::Value{.float_v4 = {mColor.r, mColor.g, mColor.b, mColor.a}});
 	Sprite::paint();
 }
 

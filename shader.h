@@ -6,14 +6,22 @@
 #include <functional>
 #include <string>
 
+
 class Shader
 {
 public:
+	union Value
+	{
+		GLfloat* float_ptr;
+		float float_val;
+		float float_v4[4];
+		float float_v3[3];
+	};
+
 	void init(const char *name);
 
-	GLuint mkAttrib(const char *name);
-	GLuint mkUniform(const char *name);
-	GLuint var(const char *name);
+	void setUniform(const char* name, Value v);
+	GLuint attrib(const char* name);
 
 	void use();
 	void setOnChange(std::function<void(void)> fnc);
@@ -23,17 +31,20 @@ public:
 private:
 	Shader();
 
+	GLuint loadShader(const char * file, GLenum type);
+	void readVariables();
+	std::string readFile(const char* filename);
+	std::string getGlLog(GLuint object);
+
 	GLuint mProgram;
 	std::string mName;
-	std::map<std::string, GLuint> mVars;
+	std::map<std::string, std::tuple<GLuint, GLenum, Value>> mUniforms;
+	std::map<std::string, std::tuple<GLuint, GLenum>> mAttribs;
+
+	std::function<void(void)> mOnChange;
 
 	static std::mutex mMutex;
 	static std::map<std::string, std::shared_ptr<Shader>> mList;
 	static std::string mCurrent;
-	std::function<void(void)> mOnChange;
-
-	GLuint loadShader(const char * file, GLenum type);
-	std::string readFile(const char* filename);
-	std::string getGlLog(GLuint object);
 };
 

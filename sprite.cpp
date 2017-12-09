@@ -44,9 +44,8 @@ void Sprite::init(std::string path, std::string shaderName)
 
 	mShader = Shader::getShader(shaderName.c_str());
 
-	attribute_coord3d = mShader->mkAttrib("coord3d");
-	attribute_texcoord = mShader->mkAttrib("texcoord");
-	uniform_position = mShader->mkUniform("position");
+	attribute_coord3d = mShader->attrib("coord3d");
+	attribute_texcoord = mShader->attrib("texcoord");
 
 	mTexture = Texture::getTexture(path.c_str());
 }
@@ -59,7 +58,8 @@ void Sprite::setPosition(const glm::mat4 &position)
 void Sprite::paint()
 {
 	mShader->use();
-	glUniformMatrix4fv(uniform_position, 1, GL_FALSE, glm::value_ptr(mPosition));
+	mShader->setUniform("position", {glm::value_ptr(mPosition)});
+	// glUniformMatrix4fv(uniform_position, 1, GL_FALSE, glm::value_ptr(mPosition));
 
 	mTexture->apply();
 

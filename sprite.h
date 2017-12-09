@@ -25,7 +25,6 @@ protected:
 
 	GLuint attribute_coord3d;
 	GLuint attribute_texcoord;
-	GLint uniform_position;
 
 	glm::mat4 mPosition;
 };

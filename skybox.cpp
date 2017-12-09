@@ -13,8 +13,8 @@ void Skybox::init(const std::string path)
 {
 	mShader = Shader::getShader("triangle");
 
-	mAttrVert = mShader->mkAttrib("coord3d");
-	mAttrTex = mShader->mkAttrib("texcoord");
+	mAttrVert = mShader->attrib("coord3d");
+	mAttrTex = mShader->attrib("texcoord");
 
 	const int val = 50.0;
 	GLfloat cube_vertices[] = {

@@ -22,8 +22,7 @@ public:
 	glm::mat4 getPostRot();
 
 	void setSceneSize(int w, int h);
-	virtual void apply(GLuint uniform_mvp);
-	virtual void applySprite(GLuint uniform_mvp);
+	virtual void apply();
 	virtual bool processEvents(const Uint8 *state);
 
 protected:

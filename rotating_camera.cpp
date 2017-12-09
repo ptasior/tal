@@ -17,7 +17,7 @@ void RotatingCamera::init()
 			);
 }
 
-void RotatingCamera::apply(GLuint uniform_mvp)
+void RotatingCamera::apply()
 {
 	float angle = SDL_GetTicks() / 1000.0 * 45;  // 45° per second
 	glm::vec3 axis_y(0, 1, 0);
@@ -25,6 +25,6 @@ void RotatingCamera::apply(GLuint uniform_mvp)
 
 	setPreRot(anim);
 
-	Camera::apply(uniform_mvp);
+	Camera::apply();
 }
  
