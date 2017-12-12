@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <algorithm>
 
 Widget::Widget(std::string texture)
 {
@@ -90,10 +91,37 @@ void Widget::setRect(unsigned int left, unsigned int top, unsigned int width, un
 	updatePosition();
 }
 
+void Widget::setPadding(unsigned int h, unsigned int v)
+{
+	mPaddingHoris = h;
+	mPaddingVert = v;
+
+	setupChildren();
+}
+
 void Widget::addOwnedWidget(std::shared_ptr<Widget> w)
 {
 	mWidgets.push_back(w);
 	setupChildren();
+}
+
+void Widget::addForeignWidget(Widget* w)
+{
+	mForeignWidgets.push_back(w);
+	setupChildren();
+}
+
+void Widget::removeForeignWidget(Widget* w)
+{
+	auto f = std::remove_if(
+				mForeignWidgets.begin(),
+				mForeignWidgets.end(),
+				[&w](Widget *i){return i == w;}
+			);
+	if(f == mForeignWidgets.end())
+		Log() << "Widget: Cannot find widget to remove";
+	else
+		mForeignWidgets.erase(f, mForeignWidgets.end());
 }
 
 void Widget::setupChildren()
@@ -178,6 +206,7 @@ void Widget::setupChild(Widget* w, int pos)
 						w->setLeft(std::max(mPaddingHoris, (mWidth-w->mWidth)/2));
 						break;
 			default:
+						Log(Log::DIE) << "Widget: ltNone layout and mCenter make no sense together";
 						break;
 		}
 }
@@ -271,7 +300,7 @@ void Widget::setCenter(bool c)
 }
 
 //------------------------------------------------------------------------------
-Label::Label(std::string text):
+Label::Label(std::string &text):
 	Widget("")
 {
 	mLayoutType = ltHorizontal;
@@ -301,27 +330,69 @@ void Label::setText(const char *text)
 		addOwnedWidget(w);
 	}
 	if(!mWidth && !mHeight)
-		setSize(10*len+mSpacing*len, 15);
+		setSize(10*len+mSpacing*len+2*mPaddingHoris, 15+2*mPaddingVert);
 }
 
 //------------------------------------------------------------------------------
-Box::Box():
+Box::Box(std::string &title):
 	 Widget("")
 {
-	mLayoutType = ltVertical;
+	mLayoutType = ltNone;
+	mPaddingHoris = 15;
+	mPaddingVert = 15;
 	mSprite->setColor(150,150,150,200);
+
+	mLabel = std::make_shared<Label>(title);
+	mLabel->setColor(50,50,50,200);
+	mLabel->setPadding(3, 2);
+	mLabel->setText(title.c_str());
+
+	Widget::addOwnedWidget(mLabel);
+
+	mContent = std::make_shared<Widget>();
+	mContent->setColor(0,0,0,0);
+	mContent->setLayout(ltVertical);
+	mContent->setCenter(true);
+	mContent->setOverflow(opResize);
+	Widget::addOwnedWidget(mContent);
+}
+
+void Box::setupChildren()
+{
+	if(mLabel)
+		mLabel->setRect(0, 0, mWidth, 23);
+	if(mContent)
+		mContent->setRect(0, 20, mWidth, mHeight-23);
+	Widget::setupChildren();
+}
+
+void Box::addForeignWidget(Widget* w)
+{
+	mContent->addForeignWidget(w);
+}
+
+void Box::addOwnedWidget(std::shared_ptr<Widget> w)
+{
+	mContent->addOwnedWidget(w);
+}
+
+void Box::removeForeignWidget(Widget* w)
+{
+	mContent->removeForeignWidget(w);
 }
 
 //------------------------------------------------------------------------------
 Button::Button(std::string &label):
 	 Widget("")
 {
-	mLayoutType = ltHorizontal;
+	mLayoutType = ltVertical;
+	mPaddingVert = 10;
 	mCenter = true;
-	mOverflow = opResize;
+	mOverflow = opNone;
 
-	mSprite->setColor(150,150,150,200);
+	mSprite->setColor(100,100,100,200);
 	auto l = std::make_shared<Label>(label);
+	// l->setColor(100,0,0,200);
 	addOwnedWidget(l);
 }
 

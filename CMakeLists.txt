@@ -33,6 +33,7 @@ set(SOURCE_FILES
 # Rough but works for now
 add_custom_target(js 
 		COMMAND emcc -std=c++11
+					-DGLM_FORCE_RADIANS=1
 					-s USE_SDL=2
 					-s USE_SDL_NET=2
 					-s USE_SDL_IMAGE=2

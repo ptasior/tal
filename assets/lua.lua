@@ -35,22 +35,6 @@ function setupGui()
 	b:addWidget(e)
 	w:addWidget(b)
 
-	-- b = Widget.new("")
-	-- b:setRect(100, 30, 220, 100)
-	-- b:setColor(100,100,100, 200)
-	-- b:setLayout(2)
-	-- d:setOverflow(0)
-
-	l = Button.new("llaabbeell")
-	l:setRect(50,50, 90, 50)
-	l:onClickLua(function()
-			log("onclick")
-			gui.rootWidget():removeButton(l)
-			l = nil
-		end)
-	w:addButton(l)
-	-- w:addWidget(b)
-
 
 	c = Widget.new("")
 	c:setRect(100, 500, 320, 100)
@@ -58,13 +42,33 @@ function setupGui()
 	c:onClickLua(function()
 			log("xxxxx");
 			b:removeWidget(d)
-			d = nil -- TODO Find how to delete it
+			d = nil
 		end)
 
 	lc = Label.new("Don't click me")
 	c:addLabel(lc)
 	w:addWidget(c)
+
+	bx = Box.new("Box")
+	bx:setRect(200, 300, 320, 100)
+	w:addBox(bx)
+
+	lb = Label.new("Message goes here")
+	-- lb:setColor(255, 0,0, 128)
+	bx:addLabel(lb)
+
+	l = Button.new("Button")
+	l:setRect(50,50, 90, 50)
+	l:onClickLua(function()
+			log("onclick")
+			gui.rootWidget():removeBox(bx)
+			bx = nil
+		end)
+
+	-- w:addButton(l)
+	bx:addButton(l)
 end
+
 
 function setupScene()
 	log("setupScene")

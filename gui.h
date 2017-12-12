@@ -25,6 +25,7 @@ public:
 	virtual void setLeft(unsigned int v);
 	virtual void setWidth(unsigned int v);
 	virtual void setHeight(unsigned int v);
+	virtual void setPadding(unsigned int h, unsigned int v);
 
 	virtual void setPosition(unsigned int top, unsigned int left);
 	virtual void setSize(unsigned int width, unsigned int height);
@@ -42,6 +43,8 @@ public:
 	void addWidget(T* w);
 	template<class T>
 	void removeWidget(T* w);
+	virtual void addForeignWidget(Widget* w);
+	virtual void removeForeignWidget(Widget* w);
 	virtual void addOwnedWidget(std::shared_ptr<Widget> w);
 
 
@@ -89,7 +92,7 @@ protected:
 class Label : public Widget
 {
 public:
-	Label(std::string text);
+	Label(std::string &text);
 	void setText(const char *text);
 };
 
@@ -98,7 +101,16 @@ public:
 class Box : public Widget
 {
 public:
-	Box();
+	Box(std::string &title);
+	void setupChildren();
+
+	void removeForeignWidget(Widget* w);
+	void addForeignWidget(Widget* w);
+	void addOwnedWidget(std::shared_ptr<Widget> w);
+
+private:
+	std::shared_ptr<Label> mLabel;
+	std::shared_ptr<Widget> mContent;
 };
 
 
