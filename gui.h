@@ -19,39 +19,40 @@ public:
 
 	enum LayoutType {ltNone, ltHorizontal, ltVertical};
 	enum OverflowPolicy {opNone, opResize, opClip};
-	void paint();
+	virtual void paint();
 
-	void setTop(unsigned int v);
-	void setLeft(unsigned int v);
-	void setWidth(unsigned int v);
-	void setHeight(unsigned int v);
+	virtual void setTop(unsigned int v);
+	virtual void setLeft(unsigned int v);
+	virtual void setWidth(unsigned int v);
+	virtual void setHeight(unsigned int v);
 
 	virtual void setPosition(unsigned int top, unsigned int left);
 	virtual void setSize(unsigned int width, unsigned int height);
 	virtual void setRect(unsigned int left, unsigned int top, unsigned int width, unsigned int height);
 	virtual void setOverflow(int p);
 
-	std::tuple<int, int, int, int> getRect();
+	virtual std::tuple<int, int, int, int> getRect();
 
-	void setLayout(int t);
-	void setColor(int r, int g, int b, int a);
-	void setVisible(bool v);
-	void setCenter(bool c);
+	virtual void setLayout(int t);
+	virtual void setColor(int r, int g, int b, int a);
+	virtual void setVisible(bool v);
+	virtual void setCenter(bool c);
 
 	template<class T>
 	void addWidget(T* w);
-	void addOwnedWidget(std::shared_ptr<Widget> w);
+	template<class T>
+	void removeWidget(T* w);
+	virtual void addOwnedWidget(std::shared_ptr<Widget> w);
 
-	void removeWidget(Widget* w);
 
-	void onClick(std::function<void(void)> fnc);
-	void onClickLua(sel::function<void(void)> fnc);
+	virtual void onClick(std::function<void(void)> fnc);
+	virtual void onClickLua(sel::function<void(void)> fnc);
 
 protected:
-	void setupChild(Widget *w, int pos);
-	void setupChildren();
-	void updatePosition();
-	bool click(int x, int y);
+	virtual void setupChild(Widget *w, int pos);
+	virtual void setupChildren();
+	virtual void updatePosition();
+	virtual bool click(int x, int y);
 
 	// Widgets created in Lua
 	std::vector<Widget*> mForeignWidgets;
@@ -98,6 +99,14 @@ class Box : public Widget
 {
 public:
 	Box();
+};
+
+
+
+class Button : public Widget
+{
+public:
+	Button(std::string &label);
 };
 
 

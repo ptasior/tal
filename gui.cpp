@@ -2,7 +2,6 @@
 #include "log.h"
 #include "gui_sprite.h"
 #include "shader.h"
-#include <algorithm>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -91,15 +90,6 @@ void Widget::setRect(unsigned int left, unsigned int top, unsigned int width, un
 	updatePosition();
 }
 
-void Widget::removeWidget(Widget* w)
-{
-	mForeignWidgets.erase(std::remove_if(
-				mForeignWidgets.begin(),
-				mForeignWidgets.end(),
-				[&w](Widget *i){return i == w;}
-			), mForeignWidgets.end());
-}
-
 void Widget::addOwnedWidget(std::shared_ptr<Widget> w)
 {
 	mWidgets.push_back(w);
@@ -141,10 +131,7 @@ void Widget::setupChild(Widget* w, int pos)
 						if(cnt++ < pos)
 							tmp += w->mWidth;
 					w->setLeft(tmp + pos*mSpacing + mPaddingHoris);
-					if(mCenter)
-						w->setTop(std::max(mPaddingVert, (mHeight-w->mHeight)/2));
-					else
-						w->setTop(mPaddingVert);
+					w->setTop(mPaddingVert);
 					break;
 		case ltVertical:
 					for(auto w: mWidgets)
@@ -154,10 +141,7 @@ void Widget::setupChild(Widget* w, int pos)
 						if(cnt++ < pos)
 							tmp += w->mHeight;
 					w->setTop(tmp + pos*mSpacing + mPaddingVert);
-					if(mCenter)
-						w->setLeft(std::max(mPaddingHoris, (mWidth-w->mWidth)/2));
-					else
-						w->setLeft(mPaddingHoris);
+					w->setLeft(mPaddingHoris);
 					break;
 	}
 	switch(mOverflow)
@@ -183,6 +167,19 @@ void Widget::setupChild(Widget* w, int pos)
 						);
 					break;
 	}
+
+	if(mCenter)
+		switch(mLayoutType)
+		{
+			case ltHorizontal:
+						w->setTop(std::max(mPaddingVert, (mHeight-w->mHeight)/2));
+						break;
+			case ltVertical:
+						w->setLeft(std::max(mPaddingHoris, (mWidth-w->mWidth)/2));
+						break;
+			default:
+						break;
+		}
 }
 
 std::tuple<int, int, int, int> Widget::getRect()
@@ -224,11 +221,15 @@ bool Widget::click(int x, int y)
 				return true;
 
 		if(mOnClick)
+		{
 			mOnClick();
+			return true;
+		}
 		if(mOnClickLua.size())
+		{
 			mOnClickLua[0]();
-
-		return true;
+			return true;
+		}
 	}
 
 	return false;
@@ -278,6 +279,7 @@ Label::Label(std::string text):
 	mSpacing = 0;
 	mPaddingVert = 0;
 	mPaddingHoris = 0;
+	mCenter = true;
 	setColor(0,0,0,0);
 
 	setText(text.c_str());
@@ -307,7 +309,20 @@ Box::Box():
 	 Widget("")
 {
 	mLayoutType = ltVertical;
-	mSprite->setColor(255,0,255,255);
+	mSprite->setColor(150,150,150,200);
+}
+
+//------------------------------------------------------------------------------
+Button::Button(std::string &label):
+	 Widget("")
+{
+	mLayoutType = ltHorizontal;
+	mCenter = true;
+	mOverflow = opResize;
+
+	mSprite->setColor(150,150,150,200);
+	auto l = std::make_shared<Label>(label);
+	addOwnedWidget(l);
 }
 
 //------------------------------------------------------------------------------
