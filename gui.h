@@ -16,9 +16,9 @@ class Widget
 {
 public:
 	Widget(std::string texture="");
-	~Widget(){Log() << "~";};
 
 	enum LayoutType {ltNone, ltHorizontal, ltVertical};
+	enum OverflowPolicy {opNone, opResize, opClip};
 	void paint();
 
 	void setTop(unsigned int v);
@@ -29,11 +29,14 @@ public:
 	virtual void setPosition(unsigned int top, unsigned int left);
 	virtual void setSize(unsigned int width, unsigned int height);
 	virtual void setRect(unsigned int left, unsigned int top, unsigned int width, unsigned int height);
+	virtual void setOverflow(int p);
 
 	std::tuple<int, int, int, int> getRect();
 
-	void setLayout(LayoutType t);
+	void setLayout(int t);
 	void setColor(int r, int g, int b, int a);
+	void setVisible(bool v);
+	void setCenter(bool c);
 
 	template<class T>
 	void addWidget(T* w);
@@ -45,7 +48,8 @@ public:
 	void onClickLua(sel::function<void(void)> fnc);
 
 protected:
-	void setupChild(Widget *w);
+	void setupChild(Widget *w, int pos);
+	void setupChildren();
 	void updatePosition();
 	bool click(int x, int y);
 
@@ -64,8 +68,11 @@ protected:
 	unsigned int mPaddingVert = 5;
 	unsigned int mPaddingHoris = 5;
 	unsigned int mSpacing = 2;
+	bool mVisible = true;
+	bool mCenter = false;
 
 	LayoutType mLayoutType = ltHorizontal;
+	OverflowPolicy mOverflow = opNone;
 
 	// Vector because empty constructor in sel::fuction is deleted and
 	// object has to be copied, otherwise will be garbage collected

@@ -101,6 +101,8 @@ void Lua::applyWidgetInheritance(const char *type)
 			"setSize", &Widget::setSize,
 			"setRect", &Widget::setRect,
 			"setLayout", &Widget::setLayout,
+			"setOverflow", &Widget::setOverflow,
+			"setCenter", &Widget::setCenter,
 			"setColor", &Widget::setColor,
 
 			"onClickLua", &Widget::onClickLua,

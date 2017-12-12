@@ -4,32 +4,64 @@ function setupGui()
 
 	w = gui.rootWidget()
 
+
+
 	b = Widget.new("assets/gui/box.png")
-	b:setRect(100, 30, 320, 100)
-	b:onClickLua(function()
-			w:removeWidget(b)
-			log("onclick")
-			b = nil -- TODO Find how to delete it
-		end)
-
-	l = Label.new("llaabbeell")
-	l:setPosition(50,50)
-	b:addLabel(l)
-	w:addWidget(b)
-
+	b:setRect(100, 50, 80, 150)
+	b:setLayout(1)
+	b:setOverflow(2)
+	b:setCenter(true)
 
 	c = Widget.new("assets/gui/box.png")
-	c:setRect(100, 500, 320, 100)
-	c:setColor(255, 0,0, 128)
-	c:onClickLua(function()
-			log("xxxxx");
-			w:removeWidget(c)
-			c = nil -- TODO Find how to delete it
-		end)
+	c:setRect(100, 50, 20, 60)
+	c:setColor(255, 0,0, 255)
+	c:setLayout(2)
+	c:setOverflow(1)
 
-	lc = Label.new("Don't click me")
-	c:addLabel(lc)
-	w:addWidget(c)
+	d = Widget.new("assets/gui/box.png")
+	d:setRect(100, 50, 20, 120)
+	d:setColor(0, 255, 0, 255)
+	d:setLayout(2)
+	d:setOverflow(1)
+
+
+	e = Widget.new("assets/gui/box.png")
+	e:setRect(100, 50, 20, 100)
+	e:setColor(0, 0, 255, 255)
+	e:setLayout(2)
+	e:setOverflow(1)
+
+	b:addWidget(c)
+	b:addWidget(d)
+	b:addWidget(e)
+	w:addWidget(b)
+
+	-- b = Widget.new("assets/gui/box.png")
+	-- b:setRect(100, 30, 20, 100)
+	-- b:onClickLua(function()
+	-- 		w:removeWidget(b)
+	-- 		log("onclick")
+	-- 		b = nil -- TODO Find how to delete it
+	-- 	end)
+    --
+	-- l = Label.new("llaabbeell")
+	-- l:setPosition(50,50)
+	-- b:addLabel(l)
+	-- w:addWidget(b)
+    --
+    --
+	-- c = Widget.new("assets/gui/box.png")
+	-- c:setRect(100, 500, 320, 100)
+	-- c:setColor(255, 0,0, 128)
+	-- c:onClickLua(function()
+	-- 		log("xxxxx");
+	-- 		w:removeWidget(c)
+	-- 		c = nil -- TODO Find how to delete it
+	-- 	end)
+    --
+	-- lc = Label.new("Don't click me")
+	-- c:addLabel(lc)
+	-- w:addWidget(c)
 end
 
 function setupScene()
