@@ -10,11 +10,8 @@
 
 Widget::Widget(std::string texture)
 {
-	if(!texture.empty())
-	{
-		mSprite = std::make_shared<GuiSprite>();
-		mSprite->init(texture.c_str(), "gui");
-	}
+	mSprite = std::make_shared<GuiSprite>();
+	mSprite->init(texture.c_str(), "gui");
 }
 
 void Widget::updatePosition()
@@ -58,12 +55,14 @@ void Widget::setLeft(unsigned int v)
 void Widget::setWidth(unsigned int v)
 {
 	mWidth = v;
+	setupChildren();
 	updatePosition();
 }
 
 void Widget::setHeight(unsigned int v)
 {
 	mHeight = v;
+	setupChildren();
 	updatePosition();
 }
 
@@ -78,6 +77,7 @@ void Widget::setSize(unsigned int width, unsigned int height)
 {
 	mWidth = width;
 	mHeight = height;
+	setupChildren();
 	updatePosition();
 }
 
@@ -87,6 +87,7 @@ void Widget::setRect(unsigned int left, unsigned int top, unsigned int width, un
 	mLeft = left;
 	mWidth = width;
 	mHeight = height;
+	setupChildren();
 	updatePosition();
 }
 
@@ -176,8 +177,9 @@ void Widget::setupChild(Widget* w, int pos)
 					break;
 		case opClip:
 					w->setVisible(
-							w->mLeft+w->mWidth < mWidth-2*mPaddingVert &&
-							w->mTop+w->mHeight < mHeight-2*mPaddingHoris
+							w->mLeft+w->mWidth <= mWidth-2*mPaddingVert
+							&&
+							w->mTop+w->mHeight <= mHeight-2*mPaddingHoris
 						);
 					break;
 	}
@@ -273,7 +275,10 @@ Label::Label(std::string text):
 {
 	mLayoutType = ltHorizontal;
 	mOverflow = opClip;
-	mSpacing = -5;
+	mSpacing = 0;
+	mPaddingVert = 0;
+	mPaddingHoris = 0;
+	setColor(0,0,0,0);
 
 	setText(text.c_str());
 }
@@ -285,18 +290,21 @@ void Label::setText(const char *text)
 
 	std::shared_ptr<Widget> w;
 	char id[] = "letter- ";
-	for(unsigned int i = 0; i < strlen(text); i++)
+	unsigned int len = strlen(text);
+	for(unsigned int i = 0; i < len; i++)
 	{
 		id[7] = text[i];
 		w = std::make_shared<Widget>(id);
-		w->setSize(15, 15);
+		w->setSize(10, 15);
 		addOwnedWidget(w);
 	}
+	if(!mWidth && !mHeight)
+		setSize(10*len+mSpacing*len, 15);
 }
 
 //------------------------------------------------------------------------------
 Box::Box():
-	 Widget("assets/gui/box.png")
+	 Widget("")
 {
 	mLayoutType = ltVertical;
 	mSprite->setColor(255,0,255,255);
@@ -336,6 +344,7 @@ void Gui::setSceneSize(int w, int h)
 	mRoot->setWidth(w);
 	mRoot->setHeight(h);
 	mRoot->setOverflow(Widget::opResize);
+	mRoot->mSprite.reset();
 
 	mMvp = glm::ortho(0.f, 1.0f*mSceneWidth, 1.0f*mSceneHeight, 0.0f, -1.f, 1.f);
 	Shader::getShader("gui")->setUniform("mvp", {glm::value_ptr(mMvp)});

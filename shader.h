@@ -16,6 +16,7 @@ public:
 		float float_val;
 		float float_v4[4];
 		float float_v3[3];
+		int int_val;
 	};
 
 	void init(const char *name);

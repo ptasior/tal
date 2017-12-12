@@ -31,7 +31,7 @@ void Texture::init(const char *path)
 	Log() << "Texture: Loading " << path;
 	mName = path;
 	SDL_Surface* res_texture;
-	if(mName.substr(0, 7) != "letter-")
+	if(mName.substr(0, 7) != "letter-") // Regualr image
 	{
 		res_texture = IMG_Load(path);
 
@@ -43,7 +43,7 @@ void Texture::init(const char *path)
 
 		res_texture = flip(res_texture, SDL_FLIP_VERTICAL);
 	}
-	else
+	else // A letter
 	{
 		// TODO mutex
 		static TTF_Font* font = TTF_OpenFont("assets/Hack.ttf", SIZE-4);
@@ -59,9 +59,10 @@ void Texture::init(const char *path)
 		res_texture = SDL_CreateRGBSurface(SDL_SWSURFACE, SIZE, SIZE,
 				32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff
 			);
-		SDL_Rect rect = {0, 0, SIZE, SIZE};
 
-		SDL_BlitSurface(rt, NULL, res_texture, &rect);
+		SDL_Rect rectS = {5, 5, SIZE-20, SIZE};
+		SDL_Rect rectD = {0, 0, SIZE, SIZE};
+		SDL_BlitScaled(rt, &rectS, res_texture, &rectD);
 		SDL_FreeSurface(rt);
 
 		// TTF_CloseFont(font);
@@ -107,6 +108,11 @@ void Texture::apply()
 	glActiveTexture(GL_TEXTURE0);
 	glUniform1i(mUniformTexture, /*GL_TEXTURE*/0);
 	glBindTexture(GL_TEXTURE_2D, mTextureId);
+}
+
+void Texture::unbind()
+{
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 std::shared_ptr<Texture> Texture::getTexture(const char* path)

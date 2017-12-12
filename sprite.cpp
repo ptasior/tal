@@ -46,7 +46,9 @@ void Sprite::init(std::string path, std::string shaderName)
 	attribute_coord3d = mShader->attrib("coord3d");
 	attribute_texcoord = mShader->attrib("texcoord");
 
-	mTexture = Texture::getTexture(path.c_str());
+
+	if(!path.empty())
+		mTexture = Texture::getTexture(path.c_str());
 }
 
 void Sprite::setPosition(const glm::mat4 &position)
@@ -60,7 +62,10 @@ void Sprite::paint()
 	mShader->use();
 	mShader->setUniform("position", {glm::value_ptr(mPosition)});
 
-	mTexture->apply();
+	if(mTexture)
+		mTexture->apply();
+	else
+		Texture::unbind();
 
 	glEnableVertexAttribArray(attribute_coord3d);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_vertices);

@@ -19,6 +19,7 @@ public:
 	void setRepeat();
 
 	static std::shared_ptr<Texture> getTexture(const char* path);
+	static void unbind();
 
 private:
 	Texture();

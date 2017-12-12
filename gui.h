@@ -63,8 +63,8 @@ protected:
 	unsigned int mLeftOffset = 0;
 	unsigned int mTop = 0;
 	unsigned int mLeft = 0;
-	unsigned int mWidth = 10;
-	unsigned int mHeight = 10;
+	unsigned int mWidth = 0;
+	unsigned int mHeight = 0;
 	unsigned int mPaddingVert = 5;
 	unsigned int mPaddingHoris = 5;
 	unsigned int mSpacing = 2;

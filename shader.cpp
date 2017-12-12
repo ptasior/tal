@@ -11,9 +11,10 @@ std::mutex Shader::mMutex;
 
 const std::map<GLenum, std::function<void(GLint, Shader::Value)>> uniformFunctions =
 {
+	{GL_BOOL, [](GLint id, Shader::Value v){glUniform1i(id, v.int_val);} },
+	{GL_INT, [](GLint id, Shader::Value v){glUniform1i(id, v.int_val);} },
 	{GL_FLOAT_MAT4, [](GLint id, Shader::Value v){glUniformMatrix4fv(id, 1, GL_FALSE, v.float_ptr);} },
 	{GL_FLOAT_VEC4, [](GLint id, Shader::Value v){glUniform4f(id, v.float_v4[0], v.float_v4[1], v.float_v4[2], v.float_v4[3]);} }
-
 };
 
 Shader::Shader()
@@ -116,8 +117,9 @@ GLuint Shader::loadShader(const char * file, GLenum type)
 
 	if(!compile_ok)
 		Log(Log::DIE) << "Shader: Error in vertex shader "
-					  << mName
-					  << "\n" << getGlLog(shader);
+					  << mName << " ("
+					  << file
+					  << ")\n" << getGlLog(shader);
 
 	return shader;
 }

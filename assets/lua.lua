@@ -4,28 +4,27 @@ function setupGui()
 
 	w = gui.rootWidget()
 
-
-
-	b = Widget.new("assets/gui/box.png")
-	b:setRect(100, 50, 80, 150)
+	b = Widget.new("")
+	b:setRect(400, 250, 80, 150)
+	b:setColor(100,100,100, 200)
 	b:setLayout(1)
 	b:setOverflow(2)
 	b:setCenter(true)
 
-	c = Widget.new("assets/gui/box.png")
+	c = Widget.new("")
 	c:setRect(100, 50, 20, 60)
 	c:setColor(255, 0,0, 255)
 	c:setLayout(2)
 	c:setOverflow(1)
 
-	d = Widget.new("assets/gui/box.png")
+	d = Widget.new("")
 	d:setRect(100, 50, 20, 120)
 	d:setColor(0, 255, 0, 255)
 	d:setLayout(2)
 	d:setOverflow(1)
 
 
-	e = Widget.new("assets/gui/box.png")
+	e = Widget.new("")
 	e:setRect(100, 50, 20, 100)
 	e:setColor(0, 0, 255, 255)
 	e:setLayout(2)
@@ -36,32 +35,35 @@ function setupGui()
 	b:addWidget(e)
 	w:addWidget(b)
 
-	-- b = Widget.new("assets/gui/box.png")
-	-- b:setRect(100, 30, 20, 100)
-	-- b:onClickLua(function()
-	-- 		w:removeWidget(b)
-	-- 		log("onclick")
-	-- 		b = nil -- TODO Find how to delete it
-	-- 	end)
-    --
-	-- l = Label.new("llaabbeell")
-	-- l:setPosition(50,50)
-	-- b:addLabel(l)
-	-- w:addWidget(b)
-    --
-    --
-	-- c = Widget.new("assets/gui/box.png")
-	-- c:setRect(100, 500, 320, 100)
-	-- c:setColor(255, 0,0, 128)
-	-- c:onClickLua(function()
-	-- 		log("xxxxx");
-	-- 		w:removeWidget(c)
-	-- 		c = nil -- TODO Find how to delete it
-	-- 	end)
-    --
-	-- lc = Label.new("Don't click me")
-	-- c:addLabel(lc)
-	-- w:addWidget(c)
+	b = Widget.new("")
+	b:setRect(100, 30, 220, 100)
+	b:setColor(100,100,100, 200)
+	b:setLayout(2)
+	d:setOverflow(1)
+	b:onClickLua(function()
+			w:removeWidget(b)
+			log("onclick")
+			b = nil -- TODO Find how to delete it
+		end)
+
+	l = Label.new("llaabbeell")
+	l:setPosition(50,50)
+	b:addLabel(l)
+	w:addWidget(b)
+
+
+	c = Widget.new("")
+	c:setRect(100, 500, 320, 100)
+	c:setColor(255, 0,0, 128)
+	c:onClickLua(function()
+			log("xxxxx");
+			w:removeWidget(c)
+			c = nil -- TODO Find how to delete it
+		end)
+
+	lc = Label.new("Don't click me")
+	c:addLabel(lc)
+	w:addWidget(c)
 end
 
 function setupScene()
