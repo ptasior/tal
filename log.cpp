@@ -52,6 +52,22 @@ Log& Log::operator << (float val)
     return *this;
 }
 
+Log& Log::operator << (unsigned long val)
+{
+    // TODO Use atoi
+    auto tmp = std::to_string(val);
+    write(tmp.c_str());
+    return *this;
+}
+
+Log& Log::operator << (long val)
+{
+    // TODO Use atoi
+    auto tmp = std::to_string(val);
+    write(tmp.c_str());
+    return *this;
+}
+
 Log& Log::operator << (unsigned int val)
 {
     // TODO Use atoi

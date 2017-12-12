@@ -10,7 +10,6 @@ public:
 	void paint();
 
 private:
-	GLuint attribute_color;
 	glm::vec4 mColor = glm::vec4(1.0);
 };
 

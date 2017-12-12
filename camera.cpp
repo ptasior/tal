@@ -2,7 +2,6 @@
 #include "shader.h"
 #include "log.h"
 
-#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -65,15 +64,19 @@ glm::mat4 Camera::getPostRot()
 void Camera::init()
 {
 	Log() << "Camera: init";
-	setView(glm::lookAt(glm::vec3(0.0, 0.0, 0.0),
-				glm::vec3(0.0, 0.0, -1.0),
-				glm::vec3(0.0, 1.0, 0.0))
-			);
+	// setView(glm::lookAt(glm::vec3(0.0, 0.0, 0.0),
+	// 			glm::vec3(0.0, 0.0, -1.0),
+	// 			glm::vec3(0.0, 1.0, 0.0))
+	// 		);
 	// setModel(glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -2.0)));
 	//
 	// mCamera->setProjection(glm::perspective(glm::radians(45.0f),
 	// 			1.0f * mSceneWidth / mSceneHeight, 0.1f, 10.0f)
 	// 		);
+
+	Shader::getShader("map")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
+	Shader::getShader("model")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
+	Shader::getShader("triangle")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
 }
 
 void Camera::setSceneSize(int w, int h)
@@ -90,10 +93,6 @@ void Camera::apply()
 {
 	mMvp = mPostRot * mProjection * mView * mModel * mPreRot;
 	// glUniformMatrix4fv(uniform_mvp, 1, GL_FALS glm::value_ptr(mvp));
-
-	Shader::getShader("map")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
-	Shader::getShader("model")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
-	Shader::getShader("triangle")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
 }
 
 bool Camera::processEvents(const Uint8 *state)

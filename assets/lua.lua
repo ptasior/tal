@@ -7,15 +7,15 @@ function setupGui()
 	b = Widget.new("assets/gui/box.png")
 	b:setRect(100, 30, 320, 100)
 	b:onClickLua(function()
-			log("onclick")
 			w:removeWidget(b)
+			log("onclick")
 			b = nil -- TODO Find how to delete it
 		end)
-	w:addWidget(b)
 
 	l = Label.new("llaabbeell")
 	l:setPosition(50,50)
 	b:addLabel(l)
+	w:addWidget(b)
 
 
 	c = Widget.new("assets/gui/box.png")
@@ -26,10 +26,10 @@ function setupGui()
 			w:removeWidget(c)
 			c = nil -- TODO Find how to delete it
 		end)
-	w:addWidget(c)
 
 	lc = Label.new("Don't click me")
 	c:addLabel(lc)
+	w:addWidget(c)
 end
 
 function setupScene()
@@ -45,6 +45,17 @@ function setupScene()
 	mat = Matrix.new()
 	mat:scale(0.1)
 	mat:translate(Glm_Vec3.new(0.0, 0, 0.0))
+
+	m = ModelObj.new()
+	m:init("assets/models/worker.obj")
+	-- m:init("assets/models/lumberJack.obj")
+	m:setPosition(mat:val());
+	scene.addModel(m)
+
+
+	mat = Matrix.new()
+	mat:translate(Glm_Vec3.new(0.5, -0.4, 0.5))
+	mat:scale(0.1)
 
 	m = ModelObj.new()
 	m:init("assets/models/worker.obj")

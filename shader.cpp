@@ -12,7 +12,7 @@ std::mutex Shader::mMutex;
 const std::map<GLenum, std::function<void(GLint, Shader::Value)>> uniformFunctions =
 {
 	{GL_FLOAT_MAT4, [](GLint id, Shader::Value v){glUniformMatrix4fv(id, 1, GL_FALSE, v.float_ptr);} },
-	{GL_FLOAT_VEC4, [](GLint id, Shader::Value v){(glUniform4f, v.float_v4[0], v.float_v4[1], v.float_v4[2], v.float_v4[2]);} }
+	{GL_FLOAT_VEC4, [](GLint id, Shader::Value v){glUniform4f(id, v.float_v4[0], v.float_v4[1], v.float_v4[2], v.float_v4[3]);} }
 
 };
 
@@ -66,7 +66,9 @@ void Shader::readVariables()
 	for(GLint i = 0; i < noOfUniforms; ++ i)
 	{
 		glGetActiveUniform(mProgram, i, maxUniformNameLen, &read, &size, &type, unifN.data());
-		mUniforms[unifN.data()] = std::make_tuple(glGetUniformLocation(mProgram, unifN.data()), type, Value{nullptr});
+		mUniforms[unifN.data()] = std::make_tuple(
+				glGetUniformLocation(mProgram, unifN.data()), type, Value{nullptr}, false
+			);
 	}
 
 	std::vector<GLchar>attrN(maxAttribNameLen, 0);
@@ -99,7 +101,7 @@ GLuint Shader::loadShader(const char * file, GLenum type)
 		"#  else                             \n"
 		"     precision mediump float;       \n"
 		"#  endif                            \n"
-		"#endif                              \n";
+		"#endif                              \n\n\n";
 
 	const GLchar* sources[] = {
 		precision,
@@ -165,23 +167,31 @@ void Shader::use()
 	}
 
 	glUseProgram(mProgram);
+	// Log() << "Shader: Using " << mName;
 
 	if(mOnChange) mOnChange();
 
 	// Apply all previous values
 	for(auto u : mUniforms)
-		if(std::get<2>(u.second).float_ptr &&
-			std::get<1>(u.second) != GL_SAMPLER_2D)
-			uniformFunctions.at(std::get<1>(u.second))(
-						std::get<0>(u.second), std::get<2>(u.second)
-					);
+		if(std::get<1>(u.second) != GL_SAMPLER_2D)
+		{
+#ifndef NDEBUG
+			if(!std::get<3>(u.second))
+				Log(Log::DIE) << "Shader: Value " << u.first
+							<< " not inititlised in shader " << mName;
+			else
+#endif
+				uniformFunctions.at(std::get<1>(u.second))(
+							std::get<0>(u.second), std::get<2>(u.second)
+						);
+		}
 }
 
 std::shared_ptr<Shader> Shader::getShader(const char *name)
 {
 	std::lock_guard<std::mutex> lock(mMutex);
 
-	if(!mList.count(name)) // Not yet initiaalised
+	if(!mList.count(name)) // Not yet initialised
 	{
 		mList[name].reset(new Shader);
 		mList[name]->init(name);
@@ -210,12 +220,16 @@ void Shader::setUniform(const char* name, Value v)
 		Log(Log::DIE) << "No function defined for given uniform type " << name << " in " << mName;
 #endif
 
+	// Log() << "Shader: set " << mName << " " << name << " val " << (long)v.float_ptr;
+
 	auto f = uniformFunctions.at(std::get<1>(attr));
 	f(std::get<0>(attr), v);
 
-	// Log() << "set " << std::get<2>(attr).float_ptr;
 	std::get<2>(mUniforms[name]) = v;
-	// Log() << "set2 " << std::get<2>(attr).float_ptr;
+
+#ifndef NDEBUG
+	std::get<3>(mUniforms[name]) = true;
+#endif
 }
 
 GLuint Shader::attrib(const char* name)

@@ -3,7 +3,6 @@
 #include "shader.h"
 #include "texture.h"
 
-#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -16,7 +15,7 @@ std::vector<GLfloat> ModelObj::readData(const char * pref, unsigned int lines, i
 	std::vector<GLfloat> ret(lines * values);
 	if(!lines) return ret;
 
-	int cnt = 0;
+	unsigned int cnt = 0;
 	std::string buf;
 
 	while(mFile.good())
@@ -126,7 +125,7 @@ void ModelObj::init(const std::string path)
 	std::map<std::string, int> idx;
 	std::vector<GLfloat> out_vec;
 
-	int cnt = 0;
+	unsigned int cnt = 0;
 	int pos;
 	std::string buf;
 
@@ -160,7 +159,7 @@ void ModelObj::init(const std::string path)
 	glBindBuffer(GL_ARRAY_BUFFER, vboVertices);
 	glBufferData(GL_ARRAY_BUFFER, out_vec.size()*sizeof(GLfloat), out_vec.data(), GL_STATIC_DRAW);
 
-	for(int i = 0; i < faces.size(); i++)
+	for(unsigned int i = 0; i < faces.size(); i++)
 	{
 		GLuint ibo;
 		glGenBuffers(1, &ibo);
@@ -236,7 +235,7 @@ void ModelObj::readMtl(std::string &path)
 		{
 			std::string tmp;
 			file >> tmp;
-			for(int i = 0; i < tmp.length(); i++)
+			for(unsigned int i = 0; i < tmp.length(); i++)
 				if(tmp[i] == '\\')
 					tmp[i] = '/';
 			mTextures[name] = tmp;
@@ -255,6 +254,7 @@ void ModelObj::readMtl(std::string &path)
 void ModelObj::paint()
 {
 	mShader->use();
+	mShader->setUniform("position", {glm::value_ptr(mPosition)});
 
 	glEnableVertexAttribArray(mAttrVert);
 	glBindBuffer(GL_ARRAY_BUFFER, vboVertices);

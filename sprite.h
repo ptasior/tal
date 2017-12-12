@@ -1,5 +1,4 @@
 #pragma once
-#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include "gl_header.h"
 #include <memory>
@@ -10,10 +9,10 @@ class Texture;
 class Sprite
 {
 public:
-	void init(std::string path, std::string shaderName);
+	virtual void init(std::string path, std::string shaderName);
 	// void init(const char *path, const char *shaderName);
-	void setPosition(const glm::mat4 &position);
-	void paint();
+	virtual void setPosition(const glm::mat4 &position);
+	virtual void paint();
 
 protected:
 	std::shared_ptr<Shader> mShader;

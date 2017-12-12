@@ -1,10 +1,10 @@
 attribute vec3 coord3d;
 attribute vec2 texcoord;
 uniform vec4 color;
-varying vec2 f_texcoord;
-varying vec4 f_color;
 uniform mat4 position;
 uniform mat4 mvp;
+varying vec2 f_texcoord;
+varying vec4 f_color;
 
 void main(void)
 {

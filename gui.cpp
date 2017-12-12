@@ -256,7 +256,7 @@ void Label::setText(const char *text)
 
 	std::shared_ptr<Widget> w;
 	char id[] = "letter- ";
-	for(int i = 0; i < strlen(text); i++)
+	for(unsigned int i = 0; i < strlen(text); i++)
 	{
 		id[7] = text[i];
 		w = std::make_shared<Widget>(id);
@@ -290,12 +290,6 @@ void Gui::init()
 	// // w->setPosition(50,50);
 	// b->addWidget(w);
 	// b->onClick([](){Log() << "box";});
-
-	// GLuint mUniformMVP = Shader::getShader("gui")->mkUniform("mvp");
-
-	// Setup camera for shader
-	// Shader::getShader("gui")->setOnChange([this](){
-	// 	});
 }
 
 void Gui::paint()

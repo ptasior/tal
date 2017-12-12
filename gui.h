@@ -113,7 +113,6 @@ private:
 	int mSceneWidth;
 	int mSceneHeight;
 
-	// GLuint mUniformMVP;
 	glm::mat4 mMvp;
 };
 

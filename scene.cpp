@@ -8,7 +8,6 @@
 #include "log.h"
 #include <memory>
 
-#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -21,25 +20,14 @@ void Scene::init()
 {
 	Log() << "Scene: Init";
 
-	// Setup camera for shader
-	Shader::getShader("map")->setOnChange([this](){
-			mCamera->apply();
-		});
-
-	Shader::getShader("model")->setOnChange([this](){
-			mCamera->apply();
-		});
-
-	Shader::getShader("triangle")->setOnChange([this](){
-			mCamera->apply();
-		});
-
 	mSkybox = std::make_shared<Skybox>();
 	mMap = std::make_shared<Map>();
 }
 
 void Scene::paint()
 {
+	mCamera->apply();
+
 	mSkybox->paint();
 	mMap->paint();
 
@@ -59,6 +47,7 @@ void Scene::paint()
 void Scene::setCamera(std::shared_ptr<Camera> camera)
 {
 	mCamera = camera;
+	// mCamera->apply();
 }
 
 Map &Scene::getMap()

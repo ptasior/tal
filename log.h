@@ -12,6 +12,8 @@ public:
     Log& operator << (const char* str);
     Log& operator << (double val);
     Log& operator << (float val);
+    Log& operator << (unsigned long val);
+    Log& operator << (long val);
     Log& operator << (unsigned int val);
     Log& operator << (int val);
 

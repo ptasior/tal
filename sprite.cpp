@@ -1,9 +1,8 @@
 #include "sprite.h"
 #include "log.h"
-
 #include "shader.h"
 #include "texture.h"
-#define GLM_FORCE_RADIANS
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -59,6 +58,7 @@ void Sprite::setPosition(const glm::mat4 &position)
 void Sprite::paint()
 {
 	mShader->use();
+	mShader->setUniform("position", {glm::value_ptr(mPosition)});
 
 	mTexture->apply();
 

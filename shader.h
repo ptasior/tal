@@ -38,7 +38,9 @@ private:
 
 	GLuint mProgram;
 	std::string mName;
-	std::map<std::string, std::tuple<GLuint, GLenum, Value>> mUniforms;
+
+	// Args: variable name, location(id), type(var type), value, isVarSet
+	std::map<std::string, std::tuple<GLuint, GLenum, Value, bool>> mUniforms;
 	std::map<std::string, std::tuple<GLuint, GLenum>> mAttribs;
 
 	std::function<void(void)> mOnChange;

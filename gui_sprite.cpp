@@ -1,9 +1,8 @@
 #include "gui_sprite.h"
 #include "log.h"
-
-#define GLM_FORCE_RADIANS
 #include "shader.h"
 #include "texture.h"
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -25,6 +24,7 @@ void GuiSprite::setColor(int r, int g, int b, int a)
 
 void GuiSprite::paint()
 {
+	mShader->setUniform("color", Shader::Value{.float_v4 = {mColor.r, mColor.g, mColor.b, mColor.a}});
 	Sprite::paint();
 }
 

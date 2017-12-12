@@ -2,14 +2,13 @@
 #include "log.h"
 #include "time.h"
 
-#define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 void FpsCamera::init()
 {
-	Log() << "FpsCamera: init";
+	Camera::init();
 
 	// Initial position to show what is in 0,0,0
 	// cameraPos = glm::vec3(0.0, 0.0, 1);
