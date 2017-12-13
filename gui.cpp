@@ -222,6 +222,16 @@ std::tuple<int, int, int, int> Widget::getRect()
 	return std::make_tuple(l, t, l+mWidth, t+mHeight);
 }
 
+int Widget::getLeft()
+{
+	return mLeftOffset + mLeft;
+}
+
+int Widget::getTop()
+{
+	return mTopOffset + mTop;
+}
+
 void Widget::paint()
 {
 	if(!mVisible)
@@ -237,35 +247,77 @@ void Widget::paint()
 		f->paint();
 }
 
-bool Widget::click(int x, int y)
+bool Widget::isPositionOver(int x, int y)
 {
 	int l, t, w, h;
 	std::tie(l, t, w, h) = getRect();
 
-	if(l < x && x < w && t < y && y < h)
+	return l < x && x < w && t < y && y < h;
+}
+
+bool Widget::click(int x, int y)
+{
+	if(!isPositionOver(x, y)) return false;
+
+	focus();
+
+	for(auto w :mWidgets)
+		if(w->click(x, y))
+			return true;
+
+	for(auto w :mForeignWidgets)
+		if(w->click(x, y))
+			return true;
+
+	if(mOnClick)
 	{
-		focus();
-
-		for(auto w :mWidgets)
-			if(w->click(x, y))
-				return true;
-
-		for(auto w :mForeignWidgets)
-			if(w->click(x, y))
-				return true;
-
-		if(mOnClick)
-		{
-			mOnClick();
-			return true;
-		}
-		if(mOnClickLua.size())
-		{
-			mOnClickLua[0]();
-			return true;
-		}
+		mOnClick();
+		return true;
+	}
+	if(mOnClickLua.size())
+	{
+		mOnClickLua[0]();
+		return true;
 	}
 
+	return false;
+}
+
+bool Widget::drag(int x, int y)
+{
+	if(!isPositionOver(x, y)) return false;
+
+	for(auto w :mWidgets)
+		if(w->drag(x, y))
+			return true;
+
+	for(auto w :mForeignWidgets)
+		if(w->drag(x, y))
+			return true;
+
+	return onDrag(x,y);
+}
+
+bool Widget::onDrag(int x, int y)
+{
+	return false;
+}
+
+bool Widget::drop(int x, int y)
+{
+	for(auto w :mWidgets)
+		if(w->drop(x, y))
+			return true;
+
+	for(auto w :mForeignWidgets)
+		if(w->drop(x, y))
+			return true;
+
+	return onDrop(x,y);
+}
+
+bool Widget::onDrop(int x, int y)
+{
 	return false;
 }
 
@@ -366,7 +418,7 @@ Edit::Edit(std::string text):
 	Label(text)
 {
 	mText = text;
-	setColor(180,180,180,200);
+	setColor(mColorUnfocused,mColorUnfocused,mColorUnfocused,200);
 }
 
 
@@ -378,13 +430,13 @@ std::string Edit::getText()
 void Edit::focus()
 {
 	Widget::doFocus();
-	setColor(200,200,200,200);
+	setColor(mColorFocused,mColorFocused,mColorFocused,200);
 }
 
 void Edit::unfocus()
 {
 	Widget::doUnfocus();
-	setColor(180,180,180,200);
+	setColor(mColorUnfocused,mColorUnfocused,mColorUnfocused,200);
 }
 
 void Edit::addText(std::string t)
@@ -420,6 +472,40 @@ void Edit::setOnReturn(std::function<void(void)> fnc)
 }
 
 //------------------------------------------------------------------------------
+class BoxLabelDrag : public Label
+{
+public:
+	BoxLabelDrag(std::string text, Widget*box):
+		Label(text),
+		mBox(box)
+	{}
+
+	bool onDrag(int x, int y)
+	{
+		if(mLastX == 0) mLastX = x;
+		if(mLastY == 0) mLastY = y;
+
+		mBox->setLeft(mBox->getLeft() + x-mLastX);
+		mBox->setTop(mBox->getTop() + y-mLastY);
+
+		mLastX = x;
+		mLastY = y;
+
+		return true;
+	}
+
+	bool onDrop(int x, int y)
+	{
+		mLastX = 0;
+		mLastY = 0;
+	}
+
+private:
+	Widget *mBox;
+	int mLastX = 0;
+	int mLastY = 0;
+};
+
 Box::Box(std::string title):
 	 Widget("")
 {
@@ -428,7 +514,7 @@ Box::Box(std::string title):
 	mPaddingVert = 15;
 	mSprite->setColor(150,150,150,200);
 
-	mLabel = std::make_shared<Label>(title);
+	mLabel = std::make_shared<BoxLabelDrag>(title, this);
 	mLabel->setColor(50,50,50,200);
 	mLabel->setPadding(3, 2);
 	mLabel->setText(title.c_str());
@@ -536,7 +622,9 @@ Console::Console():
 	}
 
 	mEdit = std::make_shared<Edit>("");
-	mEdit->setColor(0,0,0,0);
+	mEdit->mColorUnfocused = 0;
+	mEdit->mColorFocused = 0;
+	mEdit->setColor(0,0,0,200);
 	mEdit->setOnReturn([this](){
 			std::string cmd = mEdit->getText();
 			mEdit->setText("");
@@ -545,12 +633,6 @@ Console::Console():
 			Lua::getInstance()->execute(cmd.c_str());
 		});
 	addOwnedWidget(mEdit);
-
-	// Log::setOnLog([this](const char* line){
-	// 		std::string l = line;
-	// 		mLines.push_back(l);
-	// 		// Console::log(l);
-	// 	});
 }
 
 void Console::log(std::string &log)
@@ -606,6 +688,16 @@ void Gui::click(int x, int y)
 	mRoot->click(x, y);
 }
 
+void Gui::drag(int x, int y)
+{
+	mRoot->drag(x, y);
+}
+
+void Gui::drop(int x, int y)
+{
+	mRoot->drop(x, y);
+}
+
 Widget& Gui::rootWidget()
 {
 	return *mRoot.get();
@@ -641,5 +733,10 @@ bool Gui::textInput(std::string t)
 Console* Gui::getConsole()
 {
 	return mConsole.get();
+}
+
+bool Gui::grabsFocus()
+{
+	return mFocused;
 }
 

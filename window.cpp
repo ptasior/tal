@@ -144,6 +144,16 @@ bool Window::onEvent(SDL_Event &event)
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			onClick(event.button.x, event.button.y);
+			mDragging = true;
+			return true;
+		case SDL_MOUSEMOTION:
+			if(mDragging)
+				onDrag(event.button.x, event.button.y);
+			return mDragging;
+		case SDL_MOUSEBUTTONUP:
+			if(mDragging)
+				onDrop(event.button.x, event.button.y);
+			mDragging = false;
 			return true;
 		case SDL_TEXTINPUT:
 			if(mGui->textInput(event.text.text))
@@ -173,7 +183,8 @@ void Window::onLoop()
 	if(SDL_PollEvent(&event))
 		onEvent(event);
 
-	processEvents();
+	if(!mGui->grabsFocus())
+		processEvents();
 
 	mNet->loop();
 	onPaint();
@@ -211,5 +222,15 @@ void Window::onResize(int width, int height)
 void Window::onClick(int x, int y)
 {
 	mGui->click(x, y);
+}
+
+void Window::onDrag(int x, int y)
+{
+	mGui->drag(x, y);
+}
+
+void Window::onDrop(int x, int y)
+{
+	mGui->drop(x, y);
 }
 

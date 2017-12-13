@@ -19,15 +19,17 @@ public:
 	void onLoop();
 	void onPaint();
 	void onClick(int x, int y);
+	void onDrag(int x, int y);
+	void onDrop(int x, int y);
 	void onResize(int width, int height);
 
 	void loop();
-
 
 private:
 	int mScreenWidth = 640;
 	int mScreenHeight = 480;
 	bool mQuit = false;
+	bool mDragging = false;
 
 	SDL_Window* mWindow = nullptr;
 	SDL_Renderer *mRenderer = nullptr;

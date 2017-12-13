@@ -12,6 +12,7 @@ class Gui;
 class Label;
 class Box;
 class Button;
+class Console;
 
 class Widget
 {
@@ -34,6 +35,8 @@ public:
 	virtual void setOverflow(int p);
 
 	virtual std::tuple<int, int, int, int> getRect();
+	virtual int getLeft();
+	virtual int getTop();
 
 	virtual void setLayout(int t);
 	virtual void setColor(int r, int g, int b, int a);
@@ -61,9 +64,14 @@ protected:
 	virtual void setupChildren();
 	virtual void updatePosition();
 	virtual bool click(int x, int y);
+	virtual bool drag(int x, int y);
+	virtual bool drop(int x, int y);
+	bool isPositionOver(int x, int y);
 
 	virtual void doFocus();
 	virtual void doUnfocus();
+	virtual bool onDrag(int x, int y);
+	virtual bool onDrop(int x, int y);
 
 	// Widgets created in Lua
 	std::vector<Widget*> mForeignWidgets;
@@ -120,6 +128,10 @@ public:
 private:
 	std::string mText;
 	std::function<void(void)> mOnReturn;
+	int mColorFocused = 200;
+	int mColorUnfocused = 180;
+
+	friend Console;
 };
 
 
@@ -183,11 +195,15 @@ public:
 	void init();
 	void paint();
 	void click(int x, int y);
+	void drag(int x, int y);
+	void drop(int x, int y);
 
 	void setSceneSize(int w, int h);
 	int getSceneWidth();
 	int getSceneHeight();
 	bool textInput(std::string t);
+
+	bool grabsFocus();
 
 	Widget& rootWidget();
 	Console* getConsole();
