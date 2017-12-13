@@ -3,6 +3,7 @@
 #include "gui_sprite.h"
 #include "shader.h"
 #include "lua.h"
+#include "time.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -20,40 +21,49 @@ Label::Label(std::string text):
 	mCenter = true;
 	setColor(0,0,0,0);
 
-	setText(text.c_str());
+	setTextColor(255,255,255, 255);
+	setText(text);
 }
 
-void Label::setText(const char *text)
+void Label::setText(std::string text)
 {
-	if(mWidgets.size())
-		mWidgets.clear();
+	mText = text;
+	mWidgets.clear();
 
 	std::shared_ptr<Widget> w;
 	char id[] = "letter- ";
-	unsigned int len = strlen(text);
+	unsigned int len = text.size();
+
 	for(unsigned int i = 0; i < len; i++)
 	{
 		id[7] = text[i];
 		w = std::make_shared<Widget>(id);
 		w->setSize(10, 15);
+		w->setColor(mColor.x, mColor.y, mColor.z, mColor.w);
 		addOwnedWidget(w);
 	}
 	if(!mWidth && !mHeight)
 		setSize(10*len+mSpacing*len+2*mPaddingHoris, 15+2*mPaddingVert);
 }
 
+std::string& Label::getText()
+{
+	return mText;
+}
+
+void Label::setTextColor(int r, int g, int b, int a)
+{
+	mColor.x = r;
+	mColor.y = g;
+	mColor.z = b;
+	mColor.w = a;
+}
+
 //------------------------------------------------------------------------------
 Edit::Edit(std::string text):
 	Label(text)
 {
-	mText = text;
 	setColor(mColorUnfocused,mColorUnfocused,mColorUnfocused,200);
-}
-
-
-std::string Edit::getText()
-{
-	return mText;
 }
 
 void Edit::focus()
@@ -70,12 +80,12 @@ void Edit::unfocus()
 
 void Edit::addText(std::string t)
 {
+	std::string text = getText();
 	if(t == "backspace")
 	{
-		if(mText.empty()) return;
+		if(text.empty()) return;
 
-		mText = mText.substr(0, mText.length()-1);
-		Label::setText(mText.c_str());
+		Label::setText(text.substr(0, text.length()-1));
 	}
 	else if(t == "return")
 	{
@@ -83,16 +93,12 @@ void Edit::addText(std::string t)
 			mOnReturn();
 	}
 	else
-	{
-		mText = mText + t;
-		Label::setText(mText.c_str());
-	}
+		Label::setText(text + t);
 }
 
 void Edit::setText(std::string t)
 {
-	mText = t;
-	Label::setText(mText.c_str());
+	Label::setText(t);
 }
 
 void Edit::setOnReturn(std::function<void(void)> fnc)
@@ -147,7 +153,7 @@ Box::Box(std::string title):
 	mLabel = std::make_shared<BoxLabelDrag>(title, this);
 	mLabel->setColor(50,50,50,200);
 	mLabel->setPadding(3, 2);
-	mLabel->setText(title.c_str());
+	mLabel->setText(title);
 
 	Widget::addOwnedWidget(mLabel);
 
@@ -273,7 +279,7 @@ void Console::log(std::string &log)
 		mLines.erase(mLines.begin());
 
 	for(unsigned int i = 0; i < mLines.size(); i++)
-		mLabels[i]->setText(mLines[i].c_str());
+		mLabels[i]->setText(mLines[i]);
 }
 
 //------------------------------------------------------------------------------
@@ -288,10 +294,16 @@ void Gui::init()
 
 	mConsole = std::make_shared<Console>();
 	mRoot->addOwnedWidget(mConsole);
+
+	mFps = std::make_shared<Label>("");
+	mFps->setTextColor(255, 0,0, 200);
+	mFps->setRect(0,0, 90, 15);
+	mRoot->addOwnedWidget(mFps);
 }
 
 void Gui::paint()
 {
+	mFps->setText("FPS: "+std::to_string((int)Time::fps()));
 	Shader::getShader("gui")->use();
 
 	mRoot->paint();
@@ -368,5 +380,23 @@ Console* Gui::getConsole()
 bool Gui::grabsFocus()
 {
 	return mFocused;
+}
+
+void Gui::message(std::string title, std::string msg)
+{
+	auto box = std::make_shared<ButtonBox>(title);
+	int width = 10+msg.length()*10;
+	box->setRect((mSceneWidth-width)/2, (mSceneHeight-100)/2, width, 100);
+
+	auto btn = std::make_shared<Button>("OK");
+	btn->onClick([box, this](){
+			mRoot->removeOwnedWidget(box.get());
+		});
+	box->addBottomButton(btn);
+
+	auto lbl = std::make_shared<Label>(msg);
+	box->addOwnedWidget(lbl);
+
+	mRoot->addOwnedWidget(box);
 }
 

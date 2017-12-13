@@ -122,9 +122,22 @@ void Widget::removeForeignWidget(Widget* w)
 				[&w](Widget *i){return i == w;}
 			);
 	if(f == mForeignWidgets.end())
-		Log() << "Widget: Cannot find widget to remove";
+		Log() << "Widget: Cannot find foreign widget to remove";
 	else
 		mForeignWidgets.erase(f, mForeignWidgets.end());
+}
+
+void Widget::removeOwnedWidget(Widget* w)
+{
+	auto f = std::remove_if(
+				mWidgets.begin(),
+				mWidgets.end(),
+				[&w](std::shared_ptr<Widget> &i){return i.get() == w;}
+			);
+	if(f == mWidgets.end())
+		Log() << "Widget: Cannot find widget to remove";
+	else
+		mWidgets.erase(f, mWidgets.end());
 }
 
 void Widget::setupChildren()

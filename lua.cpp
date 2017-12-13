@@ -90,7 +90,8 @@ void Lua::initGui(Gui *gui)
 	state["gui"].SetObj<Gui>(*gui,
 			"rootWidget", &Gui::rootWidget,
 			"getSceneWidth", &Gui::getSceneWidth,
-			"getSceneHeight", &Gui::getSceneHeight
+			"getSceneHeight", &Gui::getSceneHeight,
+			"message", &Gui::message
 		);
 
 	applyWidgetInheritance("Label");

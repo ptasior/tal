@@ -84,29 +84,20 @@ function setupGui()
 	-- lb:setColor(255, 0,0, 128)
 	bx:addLabel(lb)
 
-	l = Button.new("Button")
+	l = Button.new("Message")
+	l:onClickLua(function()
+			gui.message("message", "content")
+		end)
+	bx:addBottomButton(l)
+
+	l = Button.new("Close")
 	l:onClickLua(function()
 			log("onclick")
-			gui.rootWidget():removeBox(bx)
+			gui.rootWidget():removeButtonBox(bx)
 			bx = nil
 		end)
 	bx:addBottomButton(l)
 
-	l = Button.new("OK")
-	l:onClickLua(function()
-			log("onclick")
-			gui.rootWidget():removeBox(bx)
-			bx = nil
-		end)
-	bx:addBottomButton(l)
-
-	l = Button.new("OK")
-	l:onClickLua(function()
-			log("onclick")
-			gui.rootWidget():removeBox(bx)
-			bx = nil
-		end)
-	bx:addBottomButton(l)
 end
 
 

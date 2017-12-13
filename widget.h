@@ -5,7 +5,6 @@
 #include <vector>
 #include <functional>
 #include <selene.h>
-#include "log.h"
 
 class GuiSprite;
 class Gui;
@@ -47,6 +46,7 @@ public:
 	virtual void addForeignWidget(Widget* w);
 	virtual void removeForeignWidget(Widget* w);
 	virtual void addOwnedWidget(std::shared_ptr<Widget> w);
+	virtual void removeOwnedWidget(Widget* w);
 
 
 	virtual void onClick(std::function<void(void)> fnc);

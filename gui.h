@@ -16,7 +16,13 @@ class Label : public Widget
 {
 public:
 	Label(std::string text);
-	void setText(const char *text);
+	virtual void setText(std::string text);
+	virtual std::string& getText();
+	virtual void setTextColor(int r, int g, int b, int a);
+
+private:
+	glm::vec4 mColor;
+	std::string mText;
 };
 
 
@@ -25,16 +31,14 @@ class Edit : public Label
 {
 public:
 	Edit(std::string text);
-	std::string getText();
-	void addText(std::string t);
-	void setText(std::string t);
+	virtual void addText(std::string t);
+	virtual void setText(std::string t);
 
-	void focus();
-	void unfocus();
-	void setOnReturn(std::function<void(void)> fnc);
+	virtual void focus();
+	virtual void unfocus();
+	virtual void setOnReturn(std::function<void(void)> fnc);
 
 private:
-	std::string mText;
 	std::function<void(void)> mOnReturn;
 	int mColorFocused = 200;
 	int mColorUnfocused = 180;
@@ -65,10 +69,10 @@ class ButtonBox : public Box
 {
 public:
 	ButtonBox(std::string title);
-	void setupChildren();
+	virtual void setupChildren();
 
-	void addBottomButton(std::shared_ptr<Widget> w);
-	void addForeignBottomButton(Button* w);
+	virtual void addBottomButton(std::shared_ptr<Widget> w);
+	virtual void addForeignBottomButton(Button* w);
 
 private:
 	std::shared_ptr<Widget> mButtonWidget;
@@ -119,6 +123,8 @@ public:
 	Widget& rootWidget();
 	Console* getConsole();
 
+	void message(std::string title, std::string msg);
+
 private:
 	std::shared_ptr<Widget> mRoot;
 	int mSceneWidth;
@@ -127,6 +133,7 @@ private:
 	glm::mat4 mMvp;
 	static Widget *mFocused;
 	std::shared_ptr<Console> mConsole;
+	std::shared_ptr<Label> mFps;
 
 	friend Widget;
 };
