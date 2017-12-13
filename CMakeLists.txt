@@ -21,6 +21,7 @@ set(SOURCE_FILES
 		fps_camera.cpp
 		scene.cpp
 		gui.cpp
+		widget.cpp
 		lua.cpp
 		model.cpp
 		model_obj.cpp
