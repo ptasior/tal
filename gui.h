@@ -11,6 +11,7 @@ class GuiSprite;
 class Gui;
 class Label;
 class Box;
+class Button;
 
 class Widget
 {
@@ -36,8 +37,9 @@ public:
 
 	virtual void setLayout(int t);
 	virtual void setColor(int r, int g, int b, int a);
-	virtual void setVisible(bool v);
 	virtual void setCenter(bool c);
+	virtual void setVisible(bool v);
+	virtual bool isVisible();
 
 	template<class T>
 	void addWidget(T* w);
@@ -51,11 +53,17 @@ public:
 	virtual void onClick(std::function<void(void)> fnc);
 	virtual void onClickLua(sel::function<void(void)> fnc);
 
+	virtual void focus();
+	virtual void unfocus();
+
 protected:
 	virtual void setupChild(Widget *w, int pos);
 	virtual void setupChildren();
 	virtual void updatePosition();
 	virtual bool click(int x, int y);
+
+	virtual void doFocus();
+	virtual void doUnfocus();
 
 	// Widgets created in Lua
 	std::vector<Widget*> mForeignWidgets;
@@ -92,8 +100,26 @@ protected:
 class Label : public Widget
 {
 public:
-	Label(std::string &text);
+	Label(std::string text);
 	void setText(const char *text);
+};
+
+
+class Edit : public Label
+{
+public:
+	Edit(std::string text);
+	std::string getText();
+	void addText(std::string t);
+	void setText(std::string t);
+
+	void focus();
+	void unfocus();
+	void setOnReturn(std::function<void(void)> fnc);
+
+private:
+	std::string mText;
+	std::function<void(void)> mOnReturn;
 };
 
 
@@ -101,24 +127,52 @@ public:
 class Box : public Widget
 {
 public:
-	Box(std::string &title);
-	void setupChildren();
+	Box(std::string title);
+	virtual void setupChildren();
 
-	void removeForeignWidget(Widget* w);
-	void addForeignWidget(Widget* w);
-	void addOwnedWidget(std::shared_ptr<Widget> w);
+	virtual void removeForeignWidget(Widget* w);
+	virtual void addForeignWidget(Widget* w);
+	virtual void addOwnedWidget(std::shared_ptr<Widget> w);
 
-private:
+protected:
 	std::shared_ptr<Label> mLabel;
 	std::shared_ptr<Widget> mContent;
 };
 
 
+class ButtonBox : public Box
+{
+public:
+	ButtonBox(std::string title);
+	void setupChildren();
+
+	void addBottomButton(std::shared_ptr<Widget> w);
+	void addForeignBottomButton(Button* w);
+
+private:
+	std::shared_ptr<Widget> mButtonWidget;
+};
+
+
+class Console : public Widget
+{
+public:
+	Console();
+	void log(std::string &log);
+	void execute(std::string &cmd);
+
+private:
+	std::vector<std::shared_ptr<Label>> mLabels;
+	std::vector<std::string> mLines;
+	std::shared_ptr<Edit> mEdit;
+	const unsigned int LINESCNT = 19;
+};
+
 
 class Button : public Widget
 {
 public:
-	Button(std::string &label);
+	Button(std::string label);
 };
 
 
@@ -133,8 +187,10 @@ public:
 	void setSceneSize(int w, int h);
 	int getSceneWidth();
 	int getSceneHeight();
+	bool textInput(std::string t);
 
 	Widget& rootWidget();
+	Console* getConsole();
 
 private:
 	std::shared_ptr<Widget> mRoot;
@@ -142,6 +198,10 @@ private:
 	int mSceneHeight;
 
 	glm::mat4 mMvp;
+	static Widget *mFocused;
+	std::shared_ptr<Console> mConsole;
+
+	friend Widget;
 };
 
 #include "gui.hpp"

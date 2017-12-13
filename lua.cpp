@@ -7,18 +7,28 @@
 #include "skybox.h"
 #include "map.h"
 #include "matrix.h"
-#include <selene.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// TODO Fix me somehow, I'm ugly
-sel::State state{true};
-
-void logFnc(std::string s)
+void Lua::logFnc(std::string s)
 {
 	Log() << "-- " << s;
+	Gui* gui = getInstance()->mGui;
+	if(gui) gui->getConsole()->log(s);
+}
+
+Lua* Lua::getInstance()
+{
+	static Lua l;
+	return &l;
+}
+
+Lua::Lua():
+	state(true)
+{
+	state["log"] = &Lua::logFnc;
 }
 
 void Lua::initScene(Scene *scene)
@@ -77,7 +87,6 @@ void Lua::initGui(Gui *gui)
 {
 	mGui = gui;
 
-	state["log"] = &logFnc;
 	state["gui"].SetObj<Gui>(*gui,
 			"rootWidget", &Gui::rootWidget,
 			"getSceneWidth", &Gui::getSceneWidth,
@@ -87,12 +96,20 @@ void Lua::initGui(Gui *gui)
 	applyWidgetInheritance("Label");
 	state["Label"].SetClass<Label, std::string>("setText", &Label::setText);
 
+	applyWidgetInheritance("Edit");
+	state["Edit"].SetClass<Edit, std::string>();//"setText", &Button::setText);
+
 	applyWidgetInheritance("Button");
 	state["Button"].SetClass<Button, std::string>();//"setText", &Button::setText);
 
 	applyWidgetInheritance("Box");
 	state["Box"].SetClass<Box, std::string>();//"setText", &Button::setText);
-	// state["Box"].SetClass<Box>();
+
+	applyWidgetInheritance("ButtonBox");
+	state["ButtonBox"].SetClass<ButtonBox, std::string>(
+			"addBottomButton", &ButtonBox::addForeignBottomButton
+		);
+
 	applyWidgetInheritance("Widget");
 }
 
@@ -115,20 +132,25 @@ void Lua::applyWidgetInheritance(const char *type)
 
 			"addWidget", &Widget::addWidget<Widget>,
 			"addLabel", &Widget::addWidget<Label>,
+			"addEdit", &Widget::addWidget<Edit>,
 			"addButton", &Widget::addWidget<Button>,
 			"addBox", &Widget::addWidget<Box>,
+			"addButtonBox", &Widget::addWidget<ButtonBox>,
 
 			"removeWidget", &Widget::removeWidget<Widget>,
 			"removeLabel", &Widget::removeWidget<Label>,
+			"removeEdit", &Widget::removeWidget<Edit>,
 			"removeButton", &Widget::removeWidget<Button>,
-			"removeBox", &Widget::removeWidget<Box>
+			"removeBox", &Widget::removeWidget<Box>,
+			"removeButtonBox", &Widget::removeWidget<ButtonBox>
 		);
 }
 
 void Lua::run()
 {
-	state.HandleExceptionsWith([](int, std::string msg, std::exception_ptr){
-			Log(Log::DIE) << "Lua exception: " << msg;
+	state.HandleExceptionsWith([this](int, std::string msg, std::exception_ptr){
+			if(mGui) mGui->getConsole()->log(msg);
+			Log() << "Lua exception: " << msg;
 		});
 
 	state.Load("assets/lua.lua");
@@ -136,5 +158,10 @@ void Lua::run()
 	state["setupGui"]();
 	state["setupCamera"]();
 	state["setupScene"]();
+}
+
+void Lua::execute(const char *cmd)
+{
+	state(cmd);
 }
 

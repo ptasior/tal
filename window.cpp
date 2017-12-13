@@ -78,11 +78,10 @@ Window::Window()
 	mGui->setSceneSize(mScreenWidth, mScreenHeight);
 
 
-	mLua = std::make_shared<Lua>();
-	mLua->initGui(mGui.get());
-	mLua->initCamera(mCamera.get());
-	mLua->initScene(mScene.get());
-	mLua->run();
+	Lua::getInstance()->initGui(mGui.get());
+	Lua::getInstance()->initCamera(mCamera.get());
+	Lua::getInstance()->initScene(mScene.get());
+	Lua::getInstance()->run();
 
 	Log() << "Window: Initialisation succesed";
 }
@@ -105,25 +104,21 @@ void Window::processEvents()
 	if(mCamera->processEvents(state)) return;
 }
 
-void Window::onEvent(SDL_Event &event)
+bool Window::onEvent(SDL_Event &event)
 {
 	switch (event.type)
 	{
 		case SDL_QUIT:
 			mQuit = true;
-			return;
+			return true;
 
 		case SDL_KEYDOWN:
 			switch (event.key.keysym.sym)
 			{
 				case SDLK_ESCAPE:
-				case SDLK_q:
 					mQuit = true;
 					break;
-				case SDLK_p:
-					Log() << "a log";
-					break;
-				case SDLK_n:
+				/*case SDLK_n:
 					Log() << "net";
 					mNet->connect();
 					mNet->send("new message");
@@ -136,19 +131,31 @@ void Window::onEvent(SDL_Event &event)
 						glPolygonMode(GL_FRONT_AND_BACK, wf?GL_LINE:GL_FILL);
 					#endif
 					}
+					break;*/
+				case SDLK_BACKSPACE:
+					if(mGui->textInput("backspace"))
+						return true;
+					break;
+				case SDLK_RETURN:
+					if(mGui->textInput("return"))
+						return true;
 					break;
 			}
 			break;
 		case SDL_MOUSEBUTTONDOWN:
 			onClick(event.button.x, event.button.y);
-			return;
+			return true;
 		case SDL_TEXTINPUT:
-				Log() << event.text.text;
+			if(mGui->textInput(event.text.text))
+				return true;
+			break;
 		case SDL_WINDOWEVENT:
-					if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
-						onResize(event.window.data1, event.window.data2);
-					return;
+			if(event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
+				onResize(event.window.data1, event.window.data2);
+			return true;
 	}
+
+	return false;
 }
 
 void Window::loop()

@@ -2,11 +2,14 @@
 #include "log.h"
 #include "gui_sprite.h"
 #include "shader.h"
+#include "lua.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
+
+Widget *Gui::mFocused = nullptr;
 
 Widget::Widget(std::string texture)
 {
@@ -241,6 +244,8 @@ bool Widget::click(int x, int y)
 
 	if(l < x && x < w && t < y && y < h)
 	{
+		focus();
+
 		for(auto w :mWidgets)
 			if(w->click(x, y))
 				return true;
@@ -262,6 +267,24 @@ bool Widget::click(int x, int y)
 	}
 
 	return false;
+}
+
+void Widget::doFocus()
+{
+	Gui::mFocused = this;
+}
+
+void Widget::doUnfocus()
+{
+	Gui::mFocused = nullptr;
+}
+
+void Widget::focus()
+{
+}
+
+void Widget::unfocus()
+{
 }
 
 void Widget::onClick(std::function<void(void)> fnc)
@@ -289,18 +312,23 @@ void Widget::setOverflow(int p)
 	mOverflow = (OverflowPolicy)p;
 }
 
-void Widget::setVisible(bool v)
-{
-	mVisible = v;
-}
-
 void Widget::setCenter(bool c)
 {
 	mCenter = c;
 }
 
+void Widget::setVisible(bool v)
+{
+	mVisible = v;
+}
+
+bool Widget::isVisible()
+{
+	return mVisible;
+}
+
 //------------------------------------------------------------------------------
-Label::Label(std::string &text):
+Label::Label(std::string text):
 	Widget("")
 {
 	mLayoutType = ltHorizontal;
@@ -334,7 +362,65 @@ void Label::setText(const char *text)
 }
 
 //------------------------------------------------------------------------------
-Box::Box(std::string &title):
+Edit::Edit(std::string text):
+	Label(text)
+{
+	mText = text;
+	setColor(180,180,180,200);
+}
+
+
+std::string Edit::getText()
+{
+	return mText;
+}
+
+void Edit::focus()
+{
+	Widget::doFocus();
+	setColor(200,200,200,200);
+}
+
+void Edit::unfocus()
+{
+	Widget::doUnfocus();
+	setColor(180,180,180,200);
+}
+
+void Edit::addText(std::string t)
+{
+	if(t == "backspace")
+	{
+		if(mText.empty()) return;
+
+		mText = mText.substr(0, mText.length()-1);
+		Label::setText(mText.c_str());
+	}
+	else if(t == "return")
+	{
+		if(mOnReturn)
+			mOnReturn();
+	}
+	else
+	{
+		mText = mText + t;
+		Label::setText(mText.c_str());
+	}
+}
+
+void Edit::setText(std::string t)
+{
+	mText = t;
+	Label::setText(mText.c_str());
+}
+
+void Edit::setOnReturn(std::function<void(void)> fnc)
+{
+	mOnReturn = fnc;
+}
+
+//------------------------------------------------------------------------------
+Box::Box(std::string title):
 	 Widget("")
 {
 	mLayoutType = ltNone;
@@ -382,7 +468,41 @@ void Box::removeForeignWidget(Widget* w)
 }
 
 //------------------------------------------------------------------------------
-Button::Button(std::string &label):
+ButtonBox::ButtonBox(std::string title):
+	 Box(title)
+{
+	mButtonWidget = std::make_shared<Widget>();
+	mButtonWidget->setLayout(ltHorizontal);
+	mButtonWidget->setOverflow(opResize);
+	mButtonWidget->setCenter(true);
+	mButtonWidget->setColor(0,0,0,0);
+
+	Widget::addOwnedWidget(mButtonWidget);
+}
+
+void ButtonBox::setupChildren()
+{
+	if(mLabel)
+		mLabel->setRect(0, 0, mWidth, 23);
+	if(mContent)
+		mContent->setRect(0, 20, mWidth, mHeight-60);
+	if(mButtonWidget)
+		mButtonWidget->setRect(0, mHeight-40, mWidth, 40);
+	Widget::setupChildren();
+}
+
+void ButtonBox::addBottomButton(std::shared_ptr<Widget> w)
+{
+	mButtonWidget->addOwnedWidget(w);
+}
+
+void ButtonBox::addForeignBottomButton(Button* w)
+{
+	mButtonWidget->addForeignWidget(w);
+}
+
+//------------------------------------------------------------------------------
+Button::Button(std::string label):
 	 Widget("")
 {
 	mLayoutType = ltVertical;
@@ -397,22 +517,65 @@ Button::Button(std::string &label):
 }
 
 //------------------------------------------------------------------------------
+Console::Console():
+	Widget("")
+{
+	mSpacing = 0;
+	setLayout(ltVertical);
+	setOverflow(opResize);
+	setVisible(false);
 
+	setRect(0,0, 400, 400);
+	setColor(0,0,0,200);
+
+	for(unsigned int i = 0; i < LINESCNT; i++)
+	{
+		auto l = std::make_shared<Label>("");
+		addOwnedWidget(l);
+		mLabels.push_back(l);
+	}
+
+	mEdit = std::make_shared<Edit>("");
+	mEdit->setColor(0,0,0,0);
+	mEdit->setOnReturn([this](){
+			std::string cmd = mEdit->getText();
+			mEdit->setText("");
+			log(cmd);
+
+			Lua::getInstance()->execute(cmd.c_str());
+		});
+	addOwnedWidget(mEdit);
+
+	// Log::setOnLog([this](const char* line){
+	// 		std::string l = line;
+	// 		mLines.push_back(l);
+	// 		// Console::log(l);
+	// 	});
+}
+
+void Console::log(std::string &log)
+{
+	mLines.push_back(log);
+
+	while(mLines.size() > LINESCNT)
+		mLines.erase(mLines.begin());
+
+	for(unsigned int i = 0; i < mLines.size(); i++)
+		mLabels[i]->setText(mLines[i].c_str());
+}
+
+//------------------------------------------------------------------------------
 void Gui::init()
 {
 	Log() << "Gui: init";
 	mRoot = std::make_shared<Widget>();
 
 	mRoot->setLayout(Widget::ltNone);
+	mRoot->setOverflow(Widget::opNone);
+	mRoot->mSprite.reset(); // Do not display anything
 
-	// auto b = std::make_shared<Box>(nullptr);
-	// b->setRect(100,100, 320, 100);
-	// mRoot->addWidget(b);
-    //
-	// auto w = std::make_shared<Label>(nullptr, "qwertyuiop{asdfghjklzxcvbnm<}");
-	// // w->setPosition(50,50);
-	// b->addWidget(w);
-	// b->onClick([](){Log() << "box";});
+	mConsole = std::make_shared<Console>();
+	mRoot->addOwnedWidget(mConsole);
 }
 
 void Gui::paint()
@@ -429,8 +592,7 @@ void Gui::setSceneSize(int w, int h)
 
 	mRoot->setWidth(w);
 	mRoot->setHeight(h);
-	mRoot->setOverflow(Widget::opResize);
-	mRoot->mSprite.reset();
+	mConsole->setWidth(w);
 
 	mMvp = glm::ortho(0.f, 1.0f*mSceneWidth, 1.0f*mSceneHeight, 0.0f, -1.f, 1.f);
 	Shader::getShader("gui")->setUniform("mvp", {glm::value_ptr(mMvp)});
@@ -438,6 +600,9 @@ void Gui::setSceneSize(int w, int h)
 
 void Gui::click(int x, int y)
 {
+	// TODO Mutex?
+	if(mFocused)
+		mFocused->unfocus();
 	mRoot->click(x, y);
 }
 
@@ -454,5 +619,27 @@ int Gui::getSceneWidth()
 int Gui::getSceneHeight()
 {
 	return mSceneHeight;
+}
+
+bool Gui::textInput(std::string t)
+{
+	if(dynamic_cast<Edit*>(mFocused))
+	{
+		dynamic_cast<Edit*>(mFocused)->addText(t);
+		return true;
+	}
+
+	if(t == "~")
+	{
+		mConsole->setVisible(!mConsole->isVisible());
+		return true;
+	}
+
+	return false;
+}
+
+Console* Gui::getConsole()
+{
+	return mConsole.get();
 }
 

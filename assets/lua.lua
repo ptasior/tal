@@ -39,34 +39,74 @@ function setupGui()
 	c = Widget.new("")
 	c:setRect(100, 500, 320, 100)
 	c:setColor(255, 0,0, 128)
-	c:onClickLua(function()
-			log("xxxxx");
-			b:removeWidget(d)
-			d = nil
-		end)
+	c:setLayout(2)
+	c:setOverflow(1)
+	-- c:onClickLua(function()
+	-- 		log("xxxxx");
+	-- 		b:removeWidget(d)
+	-- 		d = nil
+	-- 	end)
 
-	lc = Label.new("Don't click me")
-	c:addLabel(lc)
-	w:addWidget(c)
+	-- lc = Edit.new("Don't click me")
+	-- c:addEdit(lc)
+	-- w:addWidget(c)
+    --
+	-- bx = Box.new("Box")
+	-- bx:setRect(200, 300, 320, 100)
+	-- w:addBox(bx)
+    --
+	-- lb = Label.new("Message goes here")
+	-- -- lb:setColor(255, 0,0, 128)
+	-- bx:addLabel(lb)
+    --
+	-- l = Button.new("Button")
+	-- l:setRect(50,50, 90, 50)
+	-- l:onClickLua(function()
+	-- 		log("onclick")
+	-- 		gui.rootWidget():removeBox(bx)
+	-- 		bx = nil
+	-- 	end)
+    --
+	-- -- w:addButton(l)
+	-- bx:addButton(l)
 
-	bx = Box.new("Box")
+
+
+	-- lc = Edit.new("Don't click me")
+	-- c:addEdit(lc)
+	-- w:addWidget(c)
+
+	bx = ButtonBox.new("Button Box")
 	bx:setRect(200, 300, 320, 100)
-	w:addBox(bx)
+	w:addButtonBox(bx)
 
 	lb = Label.new("Message goes here")
 	-- lb:setColor(255, 0,0, 128)
 	bx:addLabel(lb)
 
 	l = Button.new("Button")
-	l:setRect(50,50, 90, 50)
 	l:onClickLua(function()
 			log("onclick")
 			gui.rootWidget():removeBox(bx)
 			bx = nil
 		end)
+	bx:addBottomButton(l)
 
-	-- w:addButton(l)
-	bx:addButton(l)
+	l = Button.new("OK")
+	l:onClickLua(function()
+			log("onclick")
+			gui.rootWidget():removeBox(bx)
+			bx = nil
+		end)
+	bx:addBottomButton(l)
+
+	l = Button.new("OK")
+	l:onClickLua(function()
+			log("onclick")
+			gui.rootWidget():removeBox(bx)
+			bx = nil
+		end)
+	bx:addBottomButton(l)
 end
 
 
