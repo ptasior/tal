@@ -6,6 +6,7 @@
 #include <map>
 
 class SDL_Surface;
+class Shader;
 
 class Texture
 {
@@ -14,13 +15,13 @@ public:
 	~Texture();
 
 	// When repeat == false, clamping is enabled
-	void init(const char *path);
+	void init(const char *path, Shader *shader);
 	void apply();
 
 	void setClamp();
 	void setRepeat();
 
-	static std::shared_ptr<Texture> getTexture(const char* path);
+	static std::shared_ptr<Texture> getTexture(const char* path, Shader *s);
 	static void unbind();
 
 	// Input surface is deleted
@@ -34,5 +35,6 @@ private:
 	std::string mName;
 	static std::mutex mMutex;
 	static std::map<std::string, std::shared_ptr<Texture>> mList;
+	Shader *mShader;
 };
 

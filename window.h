@@ -12,7 +12,7 @@ class Window
 {
 public:
 	Window();
-	~Window();
+	virtual ~Window();
 
 	void processEvents();
 	bool onEvent(SDL_Event &event);

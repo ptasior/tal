@@ -4,6 +4,7 @@
 class Skybox
 {
 public:
+	~Skybox();
 	void init(const std::string path);
 	void setTexture(const std::string path);
 	void load();

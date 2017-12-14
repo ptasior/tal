@@ -13,6 +13,7 @@ const std::map<GLenum, std::function<void(GLint, Shader::Value)>> uniformFunctio
 {
 	{GL_BOOL, [](GLint id, Shader::Value v){glUniform1i(id, v.int_val);} },
 	{GL_INT, [](GLint id, Shader::Value v){glUniform1i(id, v.int_val);} },
+	{GL_SAMPLER_2D, [](GLint id, Shader::Value v){glUniform1i(id, v.int_val);} },
 	{GL_FLOAT_MAT4, [](GLint id, Shader::Value v){glUniformMatrix4fv(id, 1, GL_FALSE, v.float_ptr);} },
 	{GL_FLOAT_VEC4, [](GLint id, Shader::Value v){glUniform4f(id, v.float_v4[0], v.float_v4[1], v.float_v4[2], v.float_v4[3]);} }
 };
@@ -175,18 +176,17 @@ void Shader::use()
 
 	// Apply all previous values
 	for(auto u : mUniforms)
-		if(std::get<1>(u.second) != GL_SAMPLER_2D)
-		{
+	{
 #ifndef NDEBUG
-			if(!std::get<3>(u.second))
-				Log(Log::DIE) << "Shader: Value " << u.first
-							<< " not inititlised in shader " << mName;
-			else
+		if(!std::get<3>(u.second))
+			Log(Log::DIE) << "Shader: Value " << u.first
+						<< " not inititlised in shader " << mName;
+		else
 #endif
-				uniformFunctions.at(std::get<1>(u.second))(
-							std::get<0>(u.second), std::get<2>(u.second)
-						);
-		}
+			uniformFunctions.at(std::get<1>(u.second))(
+						std::get<0>(u.second), std::get<2>(u.second)
+					);
+	}
 }
 
 std::shared_ptr<Shader> Shader::getShader(const char *name)
@@ -212,14 +212,14 @@ void Shader::setUniform(const char* name, Value v)
 {
 #ifndef NDEBUG
 	if(!mUniforms.count(name))
-		Log(Log::DIE) << "No uniform " << name << " in " << mName;
+		Log(Log::DIE) << "Shader: No uniform \"" << name << "\" in shader \"" << mName  << "\"";
 #endif
 
 	auto attr = mUniforms[name];
 
 #ifndef NDEBUG
 	if(!uniformFunctions.count(std::get<1>(attr)))
-		Log(Log::DIE) << "No function defined for given uniform type " << name << " in " << mName;
+		Log(Log::DIE) << "Shader: No function defined for given uniform type " << name << " in " << mName;
 #endif
 
 	// Log() << "Shader: set " << mName << " " << name << " val " << (long)v.float_ptr;

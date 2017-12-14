@@ -88,7 +88,8 @@ void Lua::initGui(Gui *gui)
 			"rootWidget", &Gui::rootWidget,
 			"getSceneWidth", &Gui::getSceneWidth,
 			"getSceneHeight", &Gui::getSceneHeight,
-			"message", &Gui::message
+			"message", &Gui::message,
+			"showFps", &Gui::showFps
 		);
 
 	applyWidgetInheritance("Label");

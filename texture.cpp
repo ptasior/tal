@@ -1,4 +1,5 @@
 #include "texture.h"
+#include "shader.h"
 #include "log.h"
 #include <SDL2/SDL_image.h>
 #ifdef __EMSCRIPTEN__
@@ -25,10 +26,11 @@ Texture::~Texture()
 	glDeleteTextures(1, &mTextureId);
 }
 
-void Texture::init(const char *path)
+void Texture::init(const char *path, Shader *shader)
 {
 	Log() << "Texture: Loading " << path;
 	mName = path;
+	mShader = shader;
 	SDL_Surface* res_texture;
 	if(mName.substr(0, 7) != "letter-") // Regualr image
 	{
@@ -86,6 +88,8 @@ void Texture::init(const char *path)
 	glGenerateMipmap(GL_TEXTURE_2D);
 
 	SDL_FreeSurface(res_texture);
+
+	mShader->setUniform("mytexture", Shader::Value{0});
 }
 
 void Texture::setClamp()
@@ -105,7 +109,8 @@ void Texture::setRepeat()
 void Texture::apply()
 {
 	glActiveTexture(GL_TEXTURE0);
-	glUniform1i(mUniformTexture, /*GL_TEXTURE*/0);
+
+	mShader->setUniform("mytexture", Shader::Value{0});
 	glBindTexture(GL_TEXTURE_2D, mTextureId);
 }
 
@@ -114,13 +119,14 @@ void Texture::unbind()
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-std::shared_ptr<Texture> Texture::getTexture(const char* path)
+std::shared_ptr<Texture> Texture::getTexture(const char* path, Shader *s)
 {
+	// TODO Is it ok that texture may be reused with another shader???
 	std::lock_guard<std::mutex> lock(mMutex);
 	if(!mList.count(path))
 	{
 		mList[path].reset(new Texture);
-		mList[path]->init(path);
+		mList[path]->init(path, s);
 	}
 
 	return mList[path];

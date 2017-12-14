@@ -294,16 +294,12 @@ void Gui::init()
 
 	mConsole = std::make_shared<Console>();
 	mRoot->addOwnedWidget(mConsole);
-
-	mFps = std::make_shared<Label>("");
-	mFps->setTextColor(255, 0,0, 200);
-	mFps->setRect(0,0, 100, 15);
-	// mRoot->addOwnedWidget(mFps);
+	showFps();
 }
 
 void Gui::paint()
 {
-	// mFps->setText("FPS: "+std::to_string((int)Time::fps()));
+	if(mFps) mFps->setText("FPS: "+std::to_string((int)Time::fps()));
 	Shader::getShader("gui")->use();
 
 	mRoot->paint();
@@ -398,5 +394,21 @@ void Gui::message(std::string title, std::string msg)
 	box->addOwnedWidget(lbl);
 
 	mRoot->addOwnedWidget(box);
+}
+
+void Gui::showFps()
+{
+	if(!mFps)
+	{
+		mFps = std::make_shared<Label>("");
+		mFps->setTextColor(255, 0,0, 200);
+		mFps->setRect(0,0, 100, 15);
+		mRoot->addOwnedWidget(mFps);
+	}
+	else
+	{
+		mRoot->removeOwnedWidget(mFps.get());
+		mFps.reset();
+	}
 }
 

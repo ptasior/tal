@@ -21,6 +21,12 @@ unsigned char pixel(SDL_Surface *surface, int x, int y)
 Map::~Map()
 {
 	if(mImg) SDL_FreeSurface(mImg);
+
+	if(!mShader) return;
+	glDeleteBuffers(1, &vboVert);
+	glDeleteBuffers(1, &vboTex);
+	glDeleteBuffers(1, &vboNorm);
+	glDeleteBuffers(1, &iboElements);
 }
 
 void Map::init(const std::string path, const std::string texture)
@@ -170,7 +176,7 @@ void Map::init(const std::string path, const std::string texture)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboElements);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size()*sizeof(GLushort), faces.data(), GL_STATIC_DRAW);
 
-	mTexture = Texture::getTexture(texture.c_str());
+	mTexture = Texture::getTexture(texture.c_str(), mShader.get());
 
 	mShader->setUniform("position", {glm::value_ptr(mPosition)});
 }

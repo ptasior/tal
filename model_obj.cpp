@@ -10,6 +10,16 @@
 
 
 
+ModelObj::~ModelObj()
+{
+	if(!mShader) return;
+
+	glDeleteBuffers(1, &vboVertices);
+
+	for(auto a : mObjects)
+		glDeleteBuffers(1, &a.first);
+}
+
 std::vector<GLfloat> ModelObj::readData(const char * pref, unsigned int lines, int values)
 {
 	std::vector<GLfloat> ret(lines * values);
@@ -103,6 +113,7 @@ void ModelObj::init(const std::string path)
 	mDirectory = path.substr(0, path.find_last_of("/"));
 
 	Log() << "ModelObj: Initalising " << path;
+	assert(!mObjects.size()); // If not empty, make sure glDeleteBuffers is called
 
 	mFile.open(path);
 	if(!mFile.good())
@@ -166,7 +177,7 @@ void ModelObj::init(const std::string path)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces[i].size()*sizeof(GLushort), faces[i].data(), GL_STATIC_DRAW);
 
-		mObjects[ibo] = Texture::getTexture((mDirectory+"/"+mTextures[materials[i]]).c_str());
+		mObjects[ibo] = Texture::getTexture((mDirectory+"/"+mTextures[materials[i]]).c_str(), mShader.get());
 	}
 
 	mFile.close();

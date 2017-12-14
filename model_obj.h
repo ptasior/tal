@@ -8,6 +8,7 @@
 class ModelObj : public Model
 {
 public:
+	virtual ~ModelObj();
 	void init(const std::string path);
 	void paint();
 

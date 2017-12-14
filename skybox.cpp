@@ -8,6 +8,15 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+Skybox::~Skybox()
+{
+	if(!mShader) return;
+
+	glDeleteBuffers(1, &mVboVert);
+	glDeleteBuffers(1, &mVboTex);
+	glDeleteBuffers(1, &mIboElem);
+}
+
 void Skybox::init(const std::string path)
 {
 	mShader = Shader::getShader("triangle");
@@ -120,13 +129,13 @@ void Skybox::init(const std::string path)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIboElem);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_elements), cube_elements, GL_STATIC_DRAW);
 
-	mTexture = Texture::getTexture(path.c_str());
+	mTexture = Texture::getTexture(path.c_str(), mShader.get());
 	mTexture->setClamp();
 }
 
 void Skybox::setTexture(const std::string path)
 {
-	mTexture = Texture::getTexture(path.c_str());
+	mTexture = Texture::getTexture(path.c_str(), mShader.get());
 	mTexture->setClamp();
 }
 

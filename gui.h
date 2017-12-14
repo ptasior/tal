@@ -124,6 +124,7 @@ public:
 	Console* getConsole();
 
 	void message(std::string title, std::string msg);
+	void showFps();
 
 private:
 	std::shared_ptr<Widget> mRoot;

@@ -8,6 +8,15 @@
 #include <glm/gtc/type_ptr.hpp>
 
 
+Sprite::~Sprite()
+{
+	if(!mShader) return;
+
+	glDeleteBuffers(1, &vbo_vertices);
+	glDeleteBuffers(1, &vbo_texcoords);
+	glDeleteBuffers(1, &ibo_elements);
+}
+
 void Sprite::init(std::string path, std::string shaderName)
 {
 	GLfloat vertices[] = {
@@ -48,7 +57,7 @@ void Sprite::init(std::string path, std::string shaderName)
 
 
 	if(!path.empty())
-		mTexture = Texture::getTexture(path.c_str());
+		mTexture = Texture::getTexture(path.c_str(), mShader.get());
 }
 
 void Sprite::setPosition(const glm::mat4 &position)
