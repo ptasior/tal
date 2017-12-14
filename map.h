@@ -7,14 +7,17 @@
 
 class Shader;
 class Texture;
+class SDL_Surface;
 
 class Map
 {
 public:
+	~Map();
 	virtual void init(const std::string path, const std::string texture);
 	virtual void setRect(double l, double t, double r, double b, double d, double u);
 	virtual void setPosition(const glm::mat4 &position);
 	virtual void paint();
+	virtual double getAltitude(double x, double z);
 
 protected:
 	std::shared_ptr<Shader> mShader;
@@ -30,6 +33,7 @@ protected:
 	GLuint mAttrNorm;
 
 	glm::mat4 mPosition;
+	SDL_Surface* mImg;
 
 	float left = -0.5;
 	float top = -0.5;

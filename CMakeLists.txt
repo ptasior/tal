@@ -52,7 +52,8 @@ add_custom_target(js
 					-o "${CMAKE_BINARY_DIR}/${PROJECT_NAME}.html"
 					-s USE_PTHREADS=1
 					-ldl
-					--preload-file assets
+					--preload-file game
+					--preload-file lua_lib
 					--preload-file shaders
 		WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
 	)

@@ -11,7 +11,6 @@
 std::mutex Texture::mMutex;
 std::map<std::string, std::shared_ptr<Texture>> Texture::mList;
 
-SDL_Surface* flip(SDL_Surface *surface, int flags);
 Uint32 get_pixel32(SDL_Surface *surface, int x, int y);
 void put_pixel32(SDL_Surface *surface, int x, int y, Uint32 pixel);
 
@@ -46,7 +45,7 @@ void Texture::init(const char *path)
 	else // A letter
 	{
 		// TODO mutex
-		static TTF_Font* font = TTF_OpenFont("assets/Hack.ttf", SIZE-4);
+		static TTF_Font* font = TTF_OpenFont("game/assets/Hack.ttf", SIZE-4);
 
 		if(!font)
 			Log(Log::DIE) << "Texture: Cannot initaialise specific font " << TTF_GetError();
@@ -145,7 +144,7 @@ void put_pixel32(SDL_Surface *surface, int x, int y, Uint32 pixel)
 	pixels[(y * surface->w) + x] = pixel;
 }
 
-SDL_Surface* flip(SDL_Surface *surface, int flags)
+SDL_Surface* Texture::flip(SDL_Surface *surface, int flags)
 // Frees input, allocates new output
 {
 	//Pointer to the soon to be flipped surface

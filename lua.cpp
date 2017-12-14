@@ -29,6 +29,7 @@ Lua::Lua():
 	state(true)
 {
 	state["log"] = &Lua::logFnc;
+	state["wireframe"] = &Lua::wireframe;
 }
 
 void Lua::initScene(Scene *scene)
@@ -49,7 +50,8 @@ void Lua::initScene(Scene *scene)
 
 	state["Map"].SetClass<Map>(
 			"init", &Map::init,
-			"setRect", &Map::setRect
+			"setRect", &Map::setRect,
+			"getAltitude", &Map::getAltitude
 		);
 
 	state["Skybox"].SetClass<Skybox>(
@@ -76,11 +78,6 @@ void Lua::initScene(Scene *scene)
 			"addModel", &Scene::addModel<ModelObj>,
 			"addSprite", &Scene::addSprite
 		);
-}
-
-void Lua::initCamera(Camera *camera)
-{
-	mCamera = camera;
 }
 
 void Lua::initGui(Gui *gui)
@@ -154,11 +151,10 @@ void Lua::run()
 			Log() << "Lua exception: " << msg;
 		});
 
-	state.Load("assets/lua.lua");
+	state.Load("game/game.lua");
 
-	state["setupGui"]();
-	state["setupCamera"]();
-	state["setupScene"]();
+	state["setup"]();
+	state["start"]();
 }
 
 void Lua::execute(const char *cmd)
@@ -166,3 +162,11 @@ void Lua::execute(const char *cmd)
 	state(cmd);
 }
 
+void Lua::wireframe()
+{
+	static bool wf = false;
+	wf = !wf;
+#ifndef __EMSCRIPTEN__
+	glPolygonMode(GL_FRONT_AND_BACK, wf?GL_LINE:GL_FILL);
+#endif
+}

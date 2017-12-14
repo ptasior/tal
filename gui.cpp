@@ -297,13 +297,13 @@ void Gui::init()
 
 	mFps = std::make_shared<Label>("");
 	mFps->setTextColor(255, 0,0, 200);
-	mFps->setRect(0,0, 90, 15);
-	mRoot->addOwnedWidget(mFps);
+	mFps->setRect(0,0, 100, 15);
+	// mRoot->addOwnedWidget(mFps);
 }
 
 void Gui::paint()
 {
-	mFps->setText("FPS: "+std::to_string((int)Time::fps()));
+	// mFps->setText("FPS: "+std::to_string((int)Time::fps()));
 	Shader::getShader("gui")->use();
 
 	mRoot->paint();

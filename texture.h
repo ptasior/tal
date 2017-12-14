@@ -5,6 +5,8 @@
 #include <string>
 #include <map>
 
+class SDL_Surface;
+
 class Texture
 {
 public:
@@ -20,6 +22,9 @@ public:
 
 	static std::shared_ptr<Texture> getTexture(const char* path);
 	static void unbind();
+
+	// Input surface is deleted
+	static SDL_Surface* flip(SDL_Surface *surface, int flags);
 
 private:
 	Texture();

@@ -79,7 +79,6 @@ Window::Window()
 
 
 	Lua::getInstance()->initGui(mGui.get());
-	Lua::getInstance()->initCamera(mCamera.get());
 	Lua::getInstance()->initScene(mScene.get());
 	Lua::getInstance()->run();
 
@@ -125,11 +124,6 @@ bool Window::onEvent(SDL_Event &event)
 					break;
 				case SDLK_f:
 					{
-						static bool wf = false;
-						wf = !wf;
-					#ifndef __EMSCRIPTEN__
-						glPolygonMode(GL_FRONT_AND_BACK, wf?GL_LINE:GL_FILL);
-					#endif
 					}
 					break;*/
 				case SDLK_BACKSPACE:

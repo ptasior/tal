@@ -15,6 +15,9 @@ void Skybox::init(const std::string path)
 	mAttrVert = mShader->attrib("coord3d");
 	mAttrTex = mShader->attrib("texcoord");
 
+	mPosition = glm::mat4(1.0);
+	mShader->setUniform("position", {glm::value_ptr(mPosition)});
+
 	const int val = 50.0;
 	GLfloat cube_vertices[] = {
 		// front
@@ -133,6 +136,8 @@ void Skybox::paint()
 
 	mShader->use();
 
+	mShader->setUniform("position", {glm::value_ptr(mPosition)});
+
 	mTexture->apply();
 
 	glDepthMask(0);
@@ -168,3 +173,4 @@ void Skybox::paint()
 
 	glDepthMask(1);
 }
+

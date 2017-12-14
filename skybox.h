@@ -17,6 +17,8 @@ private:
 	GLuint mAttrVert;
 	GLuint mAttrTex;
 
+	glm::mat4 mPosition;
+
 	std::shared_ptr<Shader> mShader;
 	std::shared_ptr<Texture> mTexture;
 };

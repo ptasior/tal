@@ -14,7 +14,7 @@ void main(void)
 	gl_Position = mvp * position * vec4(coord3d, 1.0);
 	f_texcoord = texcoord;
 	f_vnorm = vnorm;
-	if(coord3d.y <= -2.0)
+	if(coord3d.y <= -1.0)
 		f_alpha = 0.0;
 	else
 		f_alpha = 1.0;

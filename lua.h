@@ -3,14 +3,12 @@
 
 class Gui;
 class Scene;
-class Camera;
 
 class Lua
 {
 public:
 	void initGui(Gui *gui);
 	void initScene(Scene *scene);
-	void initCamera(Camera *camera);
 	void execute(const char *cmd);
 
 	void run();
@@ -21,10 +19,10 @@ private:
 	void applyWidgetInheritance(const char *type);
 
 	static void logFnc(std::string s);
+	static void wireframe();
 
 	Gui *mGui;
 	Scene *mScene;
-	Camera *mCamera;
 
 	sel::State state;
 };
