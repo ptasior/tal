@@ -5,7 +5,7 @@ Player = class(function(self, character)
 		self.fileName = character;
 
 		self:load(character);
-		print(var_dump(self));
+		-- print(var_dump(self));
 
 		self.model = ModelObj.new();
 		self.model:init('game/models/'..self.fileName..'.obj');
@@ -25,8 +25,18 @@ function Player:randomPlayer()
 	return Player('thief');
 end
 
+function Player:getCurrentField()
+	return board:getField(self.field);
+end
+
+function Player:getPossibleDirections()
+	local f = board:getField(self.field);
+	-- TODO
+	return {'left', 'right', 'up'};
+end
+
 function Player:update()
-	local field = board:getField(self.field);
+	local field = self:getCurrentField();
 
 	local mat = Matrix.new()
 	mat:translate(Glm_Vec3.new(field.pos_x, field.pos_y, field.pos_z));

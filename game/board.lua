@@ -2,6 +2,7 @@ class = require('lua_lib/class')
 
 Field = class(function(self, name)
 		self:loadField(name);
+		-- print(var_dump(self));
 		self.pos_y = scene:getMap():getAltitude(self.pos_x, self.pos_z);
 	end)
 
@@ -10,6 +11,9 @@ function Field:loadField(name)
 	for k,v in pairs(c) do
 		self[k] = v;
 	end
+end
+
+function Field:getDirections(from)
 end
 
 -------------------------------------------------------------------------------
@@ -53,8 +57,6 @@ end
 
 
 function Board:getField(name)
-	print(name)
-	print(var_dump(self.fields))
 	return self.fields[name];
 end
 

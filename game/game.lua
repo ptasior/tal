@@ -1,6 +1,7 @@
 Board = require('game/board')
 GameState = require('game/state')
 Player = require('game/player')
+GuiHelpers = require('game/gui_helpers')
 var_dump = require('lua_lib/var_dump')
 
 
@@ -19,6 +20,10 @@ function setup()
 
 	-- Temporarily
 	setLoopResolution(100);
+
+	GuiHelpers:randomButton('My turn', function()
+			gameState.myTurn=true;
+		end);
 
 	log('Lua setup done');
 end

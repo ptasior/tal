@@ -1,17 +1,20 @@
+Dice = require('game/dice')
+GuiHelpers = require('game/gui_helpers')
 class = require('lua_lib/class')
 
 local states = {
-	boardAction = {'abilities'},
-	abilities = {'castDice'},
-	castDice = {'move'},
-	move = {'wait', 'landOnField'},
-	-- move = {'passField', 'landOnField'},
-	passField = {'decideDirection', 'battle', 'move'},
-	decideDirection = {'battle', 'move'},
+	wait = {'preMove'},
+	preMove = {'castDice'},
+	castDice = {'decideDirection'},
+	decideDirection = {'move'},
+	move = {'wait'},
+
+
+	passField = {'decideDirection'},
 	landOnField = {'battle'},
 	battle = {'updatePlayer'},
-	updatePlayer = {'wait', 'move'},
-	wait = {'boardAction'},
+	updatePlayer = {'wait'},
+
 }
 
 GameState = class(function(self)
@@ -22,12 +25,11 @@ GameState = class(function(self)
 	end)
 
 function GameState:process()
-	-- Implement waitUserInput and modal messageBoxes
 	if(self.waitUserInput) then
 		return;
 	end
 
-	log('Processing '..self.state);
+	print('Processing '..self.state);
 
 	self.nextState = states[self.state][1];
 	self['_'..self.state](self);
@@ -45,17 +47,28 @@ function GameState:_wait()
 	end
 end
 
-function GameState:_boardAction()
+function GameState:_preMove()
 	if(board.action) then
 		board.action:perform();
 	end
-end
-
-function GameState:_abilities()
+	-- abilities
 end
 
 function GameState:_castDice()
-	gui.message('Dice says', 'random number = 3');
+	local r = Dice:cast();
+	player.steps = r;
+	GuiHelpers:message('You\'ve casted '..r, nil);
+end
+
+function GameState:_decideDirection()
+	local r = Dice:cast();
+	player.steps = r;
+	GuiHelpers:askQuestion(
+		'Which direction do you want to go?',
+		player:getPossibleDirections(), function(answer)
+			player.direction = answer;
+			log('chosen direction: '..answer);
+		end)
 end
 
 function GameState:_move()
