@@ -30,6 +30,7 @@ Lua::Lua():
 {
 	state["log"] = &Lua::logFnc;
 	state["wireframe"] = &Lua::wireframe;
+	state["setLoopResolution"] = &Lua::setLoopResolution;
 }
 
 void Lua::initScene(Scene *scene)
@@ -145,7 +146,7 @@ void Lua::applyWidgetInheritance(const char *type)
 		);
 }
 
-void Lua::run()
+void Lua::setup()
 {
 	state.HandleExceptionsWith([this](int, std::string msg, std::exception_ptr){
 			if(mGui) mGui->getConsole()->log(msg);
@@ -155,7 +156,15 @@ void Lua::run()
 	state.Load("game/game.lua");
 
 	state["setup"]();
-	state["start"]();
+}
+
+void Lua::loop()
+{
+	static unsigned int cnt = 0;
+	if(cnt++ % mLoopResolution)
+		return; // Don't call every frame
+
+	state["loop"]();
 }
 
 void Lua::execute(const char *cmd)
@@ -171,3 +180,9 @@ void Lua::wireframe()
 	glPolygonMode(GL_FRONT_AND_BACK, wf?GL_LINE:GL_FILL);
 #endif
 }
+
+void Lua::setLoopResolution(unsigned int res)
+{
+	getInstance()->mLoopResolution = res;
+}
+

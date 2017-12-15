@@ -1,7 +1,7 @@
 return {
-'a',
-'b',
-'c',
-'d',
-'e',
+'city',
+'forest',
+'meadow',
+'swamps',
+'village',
 }

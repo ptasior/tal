@@ -11,7 +11,11 @@ public:
 	void initScene(Scene *scene);
 	void execute(const char *cmd);
 
-	void run();
+	// TODO Make it non static and provide Lua obj to script
+	static void setLoopResolution(unsigned int res);
+
+	void setup();
+	void loop();
 	static Lua* getInstance();
 
 private:
@@ -23,6 +27,7 @@ private:
 
 	Gui *mGui;
 	Scene *mScene;
+	unsigned int mLoopResolution = 10;
 
 	sel::State state;
 };

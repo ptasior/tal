@@ -80,7 +80,7 @@ Window::Window()
 
 	Lua::getInstance()->initGui(mGui.get());
 	Lua::getInstance()->initScene(mScene.get());
-	Lua::getInstance()->run();
+	Lua::getInstance()->setup();
 
 	Log() << "Window: Initialisation succesed";
 }
@@ -181,6 +181,10 @@ void Window::onLoop()
 		processEvents();
 
 	mNet->loop();
+
+	// Internally executes every n-th frame
+	Lua::getInstance()->loop();
+
 	onPaint();
 }
 
