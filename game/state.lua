@@ -8,12 +8,7 @@ local states = {
 	castDice = {'decideDirection'},
 	decideDirection = {'move'},
 	move = {'wait'},
-
-
-	passField = {'decideDirection'},
-	landOnField = {'battle'},
-	battle = {'updatePlayer'},
-	updatePlayer = {'wait'},
+	battle = {'wait'},
 
 }
 
@@ -61,8 +56,6 @@ function GameState:_castDice()
 end
 
 function GameState:_decideDirection()
-	local r = Dice:cast();
-	player.steps = r;
 	GuiHelpers:askQuestion(
 		'Which direction do you want to go?',
 		player:getPossibleDirections(), function(answer)
@@ -72,8 +65,26 @@ function GameState:_decideDirection()
 end
 
 function GameState:_move()
-	log('go, go!');
-	self.myTurn = false;
+	player.steps = player.steps-1;
+
+	local nf = player:getCurrentField().directions[player.direction];
+	player.field = nf;
+	player:update();
+	local field = board:getField(nf);
+
+	if(player.steps ~= 0) then
+		field:onPass();
+		if(#keys(field.directions) > 2 or not inList(keys(field.directions), player.direction)) then
+			self.nextState = 'decideDirection';
+			return;
+		end
+		self.nextState = 'move';
+	else
+		field:onLand();
+		player.direction = nil;
+		log('end turn')
+		self.myTurn = false;
+	end
 end
 
 return GameState;

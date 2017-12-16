@@ -1,4 +1,5 @@
 class = require('lua_lib/class')
+require('lua_lib/functions')
 
 Player = class(function(self, character)
 		log('Loading player '..character)
@@ -29,10 +30,22 @@ function Player:getCurrentField()
 	return board:getField(self.field);
 end
 
+function Player:opositeDirection(dir)
+	if(dir == 'left') then return 'right';end
+	if(dir == 'right') then return 'left';end
+	if(dir == 'up') then return 'down';end
+	if(dir == 'down') then return 'up';end
+end
+
 function Player:getPossibleDirections()
 	local f = board:getField(self.field);
-	-- TODO
-	return {'left', 'right', 'up'};
+
+	if(self.direction) then
+		return without(keys(f.directions),
+						self:opositeDirection(self.direction));
+	else
+		return keys(f.directions);
+	end
 end
 
 function Player:update()
@@ -46,3 +59,4 @@ function Player:update()
 end
 
 return Player
+

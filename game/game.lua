@@ -6,6 +6,8 @@ var_dump = require('lua_lib/var_dump')
 
 
 function setup()
+	math.randomseed(os.time());
+
 	scene:getSkybox():init("game/map/skybox.png");
 
 	local m = scene:getMap();

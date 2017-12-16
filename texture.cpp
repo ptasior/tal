@@ -32,19 +32,7 @@ void Texture::init(const char *path, Shader *shader)
 	mName = path;
 	mShader = shader;
 	SDL_Surface* res_texture;
-	if(mName.substr(0, 7) != "letter-") // Regualr image
-	{
-		res_texture = IMG_Load(path);
-
-		if(!res_texture)
-			Log(Log::DIE) << "Texture: IMG_Load: " << SDL_GetError();
-
-		if(res_texture->format->BytesPerPixel != 4)
-			Log(Log::DIE) << "Texture: Image does not have alpha channel: " << path;
-
-		res_texture = flip(res_texture, SDL_FLIP_VERTICAL);
-	}
-	else // A letter
+	if(mName.substr(0, 7) == "letter-") // A letter
 	{
 		// TODO mutex
 		static TTF_Font* font = TTF_OpenFont("game/assets/Hack.ttf", SIZE-4);
@@ -67,6 +55,41 @@ void Texture::init(const char *path, Shader *shader)
 		SDL_FreeSurface(rt);
 
 		// TTF_CloseFont(font);
+	}
+	else if(mName.substr(0, 5) == "text-") // A letter
+	{
+		// TODO mutex
+		static TTF_Font* font = TTF_OpenFont("game/assets/Hack.ttf", SIZE-4);
+
+		if(!font)
+			Log(Log::DIE) << "Texture: Cannot initaialise specific font " << TTF_GetError();
+		SDL_Color textColor = {255, 255, 255, 255}; // white
+		SDL_Surface *rt  = TTF_RenderText_Blended(font, mName.substr(5).c_str(), textColor);
+		if(!rt)
+			Log(Log::DIE) << "Texture: Error in TTF_RenderText_Blended: " << SDL_GetError();
+
+		res_texture = SDL_CreateRGBSurface(SDL_SWSURFACE, SIZE, SIZE,
+				32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff
+			);
+
+		SDL_Rect rectS = {0, 0, rt->w, rt->h};
+		SDL_Rect rectD = {0, 0, SIZE, SIZE};
+		SDL_BlitScaled(rt, &rectS, res_texture, &rectD);
+		SDL_FreeSurface(rt);
+
+		res_texture = flip(res_texture, SDL_FLIP_VERTICAL);
+	}
+	else // Regular image
+	{
+		res_texture = IMG_Load(path);
+
+		if(!res_texture)
+			Log(Log::DIE) << "Texture: IMG_Load: " << SDL_GetError();
+
+		if(res_texture->format->BytesPerPixel != 4)
+			Log(Log::DIE) << "Texture: Image does not have alpha channel: " << path;
+
+		res_texture = flip(res_texture, SDL_FLIP_VERTICAL);
 	}
 
 	glGenTextures(1, &mTextureId);
