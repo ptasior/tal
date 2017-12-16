@@ -3,6 +3,7 @@ class = require('lua_lib/class')
 Field = class(function(self, name)
 		self:loadField(name);
 		self.pos_y = scene:getMap():getAltitude(self.pos_x, self.pos_z);
+		self.landAction = Action('field-'..name..'-land');
 	end)
 
 function Field:loadField(name)
@@ -17,8 +18,10 @@ function Field:onPass()
 end
 
 function Field:onLand()
-	log('landing '..self.name);
 	journal:add('You are in: '..self.name)
+	if(self.landAction:doesApply()) then
+		self.landAction:execute();
+	end
 end
 
 -------------------------------------------------------------------------------

@@ -1,29 +1,33 @@
-class = require('lua_lib/class')
-
-Board = class(function(self, path)
-		local f = require('game/board/'..path)
-		self:apply(f)
-		self.path = path
-
-		self.action = nil; -- Action aplied to all players
+Action = class(function(self, name)
+		if(self:fileExists(name)) then
+			log('Loading action: '..name);
+			self:load(name);
+		else
+			log("Empty action: "..name);
+			self.applyFnc = function() return false; end;
+			self.executeFnc = function() end;
+		end
+		self.name = name;
 	end)
 
-function Board:apply(field)
-	for k,v in pairs(field) do
-		self[k] = v
-	end
+function Action:fileExists(name)
+	local list = require('game/actions/list');
+	return inList(list, name);
 end
 
-function Board.loadFrom(path)
-	local tiles = require(path)
-
-	local board = {}
-	for i,field in ipairs(tiles) do
-		board[#board+1] = Board(field)
+function Action:load(name)
+	local c = require('game/actions/'..name);
+	for k,v in pairs(c) do
+		self[k] = v;
 	end
-
-	return board
+end
+function Action:doesApply()
+	return self.applyFnc(self);
 end
 
-return Board
+function Action:execute()
+	return self.executeFnc(self);
+end
+
+return Action
 

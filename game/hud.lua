@@ -51,16 +51,16 @@ function Hud:setupPlayer()
 	self.player.field = Label.new("Field");
 	bg:addLabel(self.player.field);
 
-	self.player.strength = Label.new("strength");
+	self.player.strength = Label.new("Strength");
 	bg:addLabel(self.player.strength);
 
-	self.player.craft = Label.new("craft");
+	self.player.craft = Label.new("Craft");
 	bg:addLabel(self.player.craft);
 
-	self.player.lives = Label.new("lives");
+	self.player.lives = Label.new("Lives");
 	bg:addLabel(self.player.lives);
 
-	self.player.gold = Label.new("gold");
+	self.player.gold = Label.new("Gold");
 	bg:addLabel(self.player.gold);
 
 	self.player.objects = Button.new("Objects");
@@ -76,7 +76,7 @@ end
 
 function Hud:setupJournal()
 	self.journal.bg = {};
-	self.journal.bg.w = 200;
+	self.journal.bg.w = 400;
 	self.journal.linesCount = 15;
 	self.journal.bg.h = self.journal.linesCount*18;
 

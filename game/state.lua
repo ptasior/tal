@@ -4,16 +4,18 @@ class = require('lua_lib/class')
 
 local states = {
 	wait = {'preMove'},
-	preMove = {'castDice'},
-	castDice = {'decideDirection'},
+	preMove =  {'decideDirection'},
 	decideDirection = {'move'},
-	move = {'wait'},
-	battle = {'wait'},
+	move = {'fieldAction'},
+	fieldAction = {'endTurn'},
+	fieldDice = {'endTurn'},
+	battle = {'endTurn'},
+	endTurn = {'wait'},
 }
 
 GameState = class(function(self)
 		self.state = 'wait';
-		self.nextState = nil;
+		self.nextStateVar = nil;
 		self.waitUserInput = false;
 		self.myTurn = false;
 	end)
@@ -25,33 +27,43 @@ function GameState:process()
 
 	print('Processing '..self.state);
 
-	self.nextState = states[self.state][1];
+	self.nextStateVar = states[self.state][1];
 	self['_'..self.state](self);
-	self.state = self.nextState;
+	self.state = self.nextStateVar;
 end
 
 function GameState:isMyTurn()
 	return self.myTurn;
 end
 
+function GameState:nextState(state)
+	if(not hasKey(states, state)) then
+		log('State not found: '..state);
+	end
+	self.nextStateVar = state;
+end
+
 function GameState:_wait()
 	if(not self:isMyTurn()) then
-		self.nextState = 'wait';
+		self:nextState('wait');
 		return;
 	end
 end
 
 function GameState:_preMove()
+	if(player.waitTurn) then
+		journal:add("Skipping turn");
+		player.waitTurn = player.waitTurn -1;
+		self:nextState("endTurn");
+	end
+
 	if(board.action) then
 		board.action:perform();
 	end
 	-- abilities
-end
 
-function GameState:_castDice()
 	local r = Dice:cast();
 	player.steps = r;
-	GuiHelpers:message('You\'ve casted '..r, nil);
 end
 
 function GameState:_decideDirection()
@@ -73,17 +85,26 @@ function GameState:_move()
 
 	if(player.steps ~= 0) then
 		field:onPass();
-		if(#keys(field.directions) > 2 or not inList(keys(field.directions), player.direction)) then
-			self.nextState = 'decideDirection';
+		if(#keys(field.directions) > 2 or not hasKey(field.directions, player.direction)) then
+			self:nextState('decideDirection');
 			return;
 		end
-		self.nextState = 'move';
+			self:nextState('move');
 	else
-		field:onLand();
 		player.direction = nil;
-		log('end turn')
-		self.myTurn = false;
 	end
+end
+
+function GameState:_fieldAction()
+	player:getCurrentField():onLand();
+end
+
+function GameState:_battle()
+	journal:add('battle');
+end
+
+function GameState:_endTurn()
+	self.myTurn = false;
 end
 
 return GameState;

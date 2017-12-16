@@ -20,11 +20,15 @@ function without(array, elem)
 end
 
 function inList(array, elem)
-	for i = 0, #array do
+	for i = 1, #array do
 		if(array[i] == elem) then
 			return true;
 		end
 	end
 	return false;
+end
+
+function hasKey(array, elem)
+	return inList(keys(array), elem);
 end
 

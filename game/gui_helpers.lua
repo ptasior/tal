@@ -29,7 +29,7 @@ function GuiHelpers:askQuestion(label, options, handler)
 	gameState.waitUserInput = true;
 
 	local bx = ButtonBox.new("Question");
-	bx:setRect(200, 300, 320, 100);
+	bx:setRect(200, 300, 380, 100);
 
 	bx:addLabel(Label.new(label));
 
