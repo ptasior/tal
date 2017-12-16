@@ -126,6 +126,7 @@ void Lua::applyWidgetInheritance(const char *type)
 			"setLayout", &Widget::setLayout,
 			"setOverflow", &Widget::setOverflow,
 			"setCenter", &Widget::setCenter,
+			"setStretch", &Widget::setStretch,
 			"setColor", &Widget::setColor,
 
 			"onClickLua", &Widget::onClickLua,
@@ -184,5 +185,10 @@ void Lua::wireframe()
 void Lua::setLoopResolution(unsigned int res)
 {
 	getInstance()->mLoopResolution = res;
+}
+
+void Lua::resizeWindow()
+{
+	state["resizeWindow"]();
 }
 

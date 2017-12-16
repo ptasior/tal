@@ -16,6 +16,7 @@ public:
 
 	void setup();
 	void loop();
+	void resizeWindow();
 	static Lua* getInstance();
 
 private:

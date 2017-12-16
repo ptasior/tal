@@ -195,12 +195,14 @@ void Widget::setupChild(Widget* w, int pos)
 					if(mLayoutType == ltVertical)
 					{
 						w->setWidth(mWidth-2*mPaddingHoris);
-						w->setHeight((mHeight-2*mPaddingVert -(allEl-1)*mSpacing)/(allEl));
+						if(mStretch)
+							w->setHeight((mHeight-2*mPaddingVert -(allEl-1)*mSpacing)/(allEl));
 					}
 					if(mLayoutType == ltHorizontal)
 					{
 						w->setHeight(mHeight-2*mPaddingVert);
-						w->setWidth((mWidth-2*mPaddingHoris -(allEl-1)*mSpacing)/(allEl));
+						if(mStretch)
+							w->setWidth((mWidth-2*mPaddingHoris -(allEl-1)*mSpacing)/(allEl));
 					}
 					break;
 		case opClip:
@@ -380,6 +382,11 @@ void Widget::setOverflow(int p)
 void Widget::setCenter(bool c)
 {
 	mCenter = c;
+}
+
+void Widget::setStretch(bool s)
+{
+	mStretch = s;
 }
 
 void Widget::setVisible(bool v)

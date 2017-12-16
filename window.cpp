@@ -215,6 +215,8 @@ void Window::onResize(int width, int height)
 
 	mCamera->setSceneSize(mScreenWidth, mScreenHeight);
 	mGui->setSceneSize(mScreenWidth, mScreenHeight);
+
+	Lua::getInstance()->resizeWindow();
 }
 
 void Window::onClick(int x, int y)

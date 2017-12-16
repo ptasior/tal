@@ -2,6 +2,7 @@ Board = require('game/board')
 GameState = require('game/state')
 Player = require('game/player')
 GuiHelpers = require('game/gui_helpers')
+Hud = require('game/hud')
 var_dump = require('lua_lib/var_dump')
 
 
@@ -15,10 +16,9 @@ function setup()
 	m:init("game/map/map.png", "game/map/grass.png");
 
 	board = Board();
-
 	gameState = GameState();
-
 	player = Player.randomPlayer();
+	hud = Hud();
 
 	-- Temporarily
 	setLoopResolution(100);
@@ -30,7 +30,12 @@ function setup()
 	log('Lua setup done');
 end
 
+function resizeWindow()
+	hud:update();
+end
+
 function loop()
 	gameState:process();
+	hud:update();
 end
 

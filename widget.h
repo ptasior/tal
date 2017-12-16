@@ -36,6 +36,7 @@ public:
 	virtual void setLayout(int t);
 	virtual void setColor(int r, int g, int b, int a);
 	virtual void setCenter(bool c);
+	virtual void setStretch(bool s);
 	virtual void setVisible(bool v);
 	virtual bool isVisible();
 
@@ -86,6 +87,7 @@ protected:
 	unsigned int mSpacing = 2;
 	bool mVisible = true;
 	bool mCenter = false;
+	bool mStretch = true;
 
 	LayoutType mLayoutType = ltHorizontal;
 	OverflowPolicy mOverflow = opNone;

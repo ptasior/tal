@@ -9,7 +9,6 @@ local states = {
 	decideDirection = {'move'},
 	move = {'wait'},
 	battle = {'wait'},
-
 }
 
 GameState = class(function(self)
