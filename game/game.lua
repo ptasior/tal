@@ -15,7 +15,10 @@ function setup()
 
 	local m = scene:getMap();
 	m:setRect(0, 0, 2, 2, -1, 0);
-	m:init("game/map/map.png", "game/map/grass.png");
+	m:init("game/map/map.png");
+	m:addTexture("game/map/grass.png");
+	m:addTexture("game/map/rocks.png");
+	-- m:addTexture("game/map/paths.png");
 
 	journal = Journal();
 	board = Board();

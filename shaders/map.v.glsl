@@ -8,6 +8,7 @@ varying float f_alpha;
 
 uniform mat4 position;
 uniform mat4 mvp;
+varying float f_z;
 
 void main(void)
 {
@@ -18,5 +19,6 @@ void main(void)
 		f_alpha = 0.0;
 	else
 		f_alpha = 1.0;
+	f_z = -1.0*coord3d.y;
 }
 

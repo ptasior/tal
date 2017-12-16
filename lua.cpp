@@ -51,6 +51,7 @@ void Lua::initScene(Scene *scene)
 
 	state["Map"].SetClass<Map>(
 			"init", &Map::init,
+			"addTexture", &Map::addTexture,
 			"setRect", &Map::setRect,
 			"getAltitude", &Map::getAltitude
 		);

@@ -29,7 +29,7 @@ Map::~Map()
 	glDeleteBuffers(1, &iboElements);
 }
 
-void Map::init(const std::string path, const std::string texture)
+void Map::init(const std::string path)
 {
 	// TODO Optimize it. But then, it's run only once at start, so probably later...
 
@@ -176,9 +176,15 @@ void Map::init(const std::string path, const std::string texture)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboElements);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces.size()*sizeof(GLushort), faces.data(), GL_STATIC_DRAW);
 
-	mTexture = Texture::getTexture(texture.c_str(), mShader.get());
-
 	mShader->setUniform("position", {glm::value_ptr(mPosition)});
+}
+
+void Map::addTexture(const std::string path)
+{
+	int cnt = mTextures.size();
+	std::string name = "texture"+std::to_string(cnt);
+	auto tex = Texture::getTexture(path.c_str(), mShader.get(), name.c_str(), cnt);
+	mTextures.push_back(tex);
 }
 
 void Map::setPosition(const glm::mat4 &position)
@@ -227,7 +233,8 @@ void Map::paint()
 		0                  // offset of first element
 	);
 
-	mTexture->apply();
+	for(auto t : mTextures)
+		t->apply();
 
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboElements);
 	int size;

@@ -20,8 +20,9 @@ public:
 
 	void setClamp();
 	void setRepeat();
+	void setName(std::string name, int id);
 
-	static std::shared_ptr<Texture> getTexture(const char* path, Shader *s);
+	static std::shared_ptr<Texture> getTexture(const char* path, Shader *s, const char* name="mytexture", int id=0);
 	static void unbind();
 
 	// Input surface is deleted
@@ -31,6 +32,8 @@ private:
 	Texture();
 	GLuint mTextureId;
 	GLint mUniformTexture;
+	std::string mGlslName;
+	int mGlslId;
 
 	std::string mName;
 	static std::mutex mMutex;

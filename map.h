@@ -13,7 +13,8 @@ class Map
 {
 public:
 	~Map();
-	virtual void init(const std::string path, const std::string texture);
+	virtual void init(const std::string path);
+	virtual void addTexture(const std::string path);
 	virtual void setRect(double l, double t, double r, double b, double d, double u);
 	virtual void setPosition(const glm::mat4 &position);
 	virtual void paint();
@@ -21,7 +22,7 @@ public:
 
 protected:
 	std::shared_ptr<Shader> mShader;
-	std::shared_ptr<Texture> mTexture;
+	std::vector<std::shared_ptr<Texture>> mTextures;
 
 	GLuint vboVert;
 	GLuint vboTex;

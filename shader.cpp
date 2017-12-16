@@ -103,7 +103,7 @@ GLuint Shader::loadShader(const char * file, GLenum type)
 		"#  else                             \n"
 		"     precision mediump float;       \n"
 		"#  endif                            \n"
-		"#endif                              \n\n\n";
+		"#endif                              \n\n\n\n";
 
 	const GLchar* sources[] = {
 		precision,

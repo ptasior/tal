@@ -112,7 +112,7 @@ void Texture::init(const char *path, Shader *shader)
 
 	SDL_FreeSurface(res_texture);
 
-	mShader->setUniform("mytexture", Shader::Value{0});
+	mShader->setUniform(mGlslName.c_str(), Shader::Value{.int_val=mGlslId});
 }
 
 void Texture::setClamp()
@@ -131,9 +131,9 @@ void Texture::setRepeat()
 
 void Texture::apply()
 {
-	glActiveTexture(GL_TEXTURE0);
+	glActiveTexture(GL_TEXTURE0+mGlslId);
 
-	mShader->setUniform("mytexture", Shader::Value{0});
+	mShader->setUniform(mGlslName.c_str(), Shader::Value{.int_val=mGlslId});
 	glBindTexture(GL_TEXTURE_2D, mTextureId);
 }
 
@@ -142,13 +142,13 @@ void Texture::unbind()
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-std::shared_ptr<Texture> Texture::getTexture(const char* path, Shader *s)
-{
+std::shared_ptr<Texture> Texture::getTexture(const char* path, Shader *s, const char* name, int id){
 	// TODO Is it ok that texture may be reused with another shader???
 	std::lock_guard<std::mutex> lock(mMutex);
 	if(!mList.count(path))
 	{
 		mList[path].reset(new Texture);
+		mList[path]->setName(name, id);
 		mList[path]->init(path, s);
 	}
 
@@ -229,5 +229,11 @@ SDL_Surface* Texture::flip(SDL_Surface *surface, int flags)
 
 	//Return flipped surface
 	return flipped;
+}
+
+void Texture::setName(std::string name, int id)
+{
+	mGlslName = name;
+	mGlslId = id;
 }
 
