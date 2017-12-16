@@ -18,6 +18,7 @@ end
 
 function Field:onLand()
 	log('landing '..self.name);
+	journal:add('You are in: '..self.name)
 end
 
 -------------------------------------------------------------------------------

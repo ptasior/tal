@@ -125,6 +125,8 @@ void Widget::removeForeignWidget(Widget* w)
 		Log() << "Widget: Cannot find foreign widget to remove";
 	else
 		mForeignWidgets.erase(f, mForeignWidgets.end());
+
+	Gui::mFocused = nullptr;
 }
 
 void Widget::removeOwnedWidget(Widget* w)
@@ -138,6 +140,8 @@ void Widget::removeOwnedWidget(Widget* w)
 		Log() << "Widget: Cannot find widget to remove";
 	else
 		mWidgets.erase(f, mWidgets.end());
+
+	Gui::mFocused = nullptr;
 }
 
 void Widget::setupChildren()

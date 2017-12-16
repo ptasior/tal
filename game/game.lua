@@ -1,6 +1,7 @@
 Board = require('game/board')
 GameState = require('game/state')
 Player = require('game/player')
+Journal = require('game/journal')
 GuiHelpers = require('game/gui_helpers')
 Hud = require('game/hud')
 var_dump = require('lua_lib/var_dump')
@@ -15,6 +16,7 @@ function setup()
 	m:setRect(0, 0, 2, 2, -1, 0);
 	m:init("game/map/map.png", "game/map/grass.png");
 
+	journal = Journal();
 	board = Board();
 	gameState = GameState();
 	player = Player.randomPlayer();
