@@ -2,6 +2,9 @@ class = require('lua_lib/class')
 
 Field = class(function(self, name)
 		self:loadField(name);
+		self.name = name
+		self.pos_x = (self.pos_x/252)*2
+		self.pos_z = (self.pos_z/252)*2
 		self.pos_y = scene:getMap():getAltitude(self.pos_x, self.pos_z);
 		self.landAction = Action('field-'..name..'-land');
 	end)
@@ -69,7 +72,7 @@ function Board:drawField(f)
 	mat:scale(0.05);
 
 	local s = Sprite.new();
-	s:init("text-"..f.name, "triangle");
+	s:init("text-"..f.label, "triangle");
 	s:setPosition(mat:val());
 	scene.addSprite(s);
 end

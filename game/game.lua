@@ -14,11 +14,11 @@ function setup()
 	scene:getSkybox():init("game/map/skybox.png");
 
 	local m = scene:getMap();
-	m:setRect(0, 0, 2, 2, -1, 0);
+	m:setRect(0, 0, 2, 2, -0.5, 0);
 	m:init("game/map/map.png");
 	m:addTexture("game/map/grass.png");
 	m:addTexture("game/map/rocks.png");
-	-- m:addTexture("game/map/paths.png");
+	m:addTexture("game/map/paths.png");
 
 	journal = Journal();
 	board = Board();

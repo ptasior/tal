@@ -7,8 +7,7 @@ Dice = class(function(self)
 function Dice:cast()
 	self.result = math.ceil(math.random()*6);
 	journal:add('Casted: '..self.result);
-	return 4;
-	-- return self.result;
+	return self.result;
 end
 
 return Dice;

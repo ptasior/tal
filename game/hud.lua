@@ -10,7 +10,8 @@ function Hud:update()
 
 	self.player.character:setText('Character: '..player.character);
 	self.player.alignment:setText('Alignment: '..player.alignment);
-	self.player.field:setText('Location: '..player.field);
+	local f = board:getField(player.field).label;
+	self.player.field:setText('Location: '..f);
 
 	self.player.strength:setText('Strength: '..player.strength);
 	self.player.craft:setText('Craft: '..player.craft);
