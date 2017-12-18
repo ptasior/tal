@@ -1,5 +1,5 @@
 return {
-	label = 'forest',
+	label = 'fields',
 	pos_x = 93,
 	pos_z = 28,
 	directions = {

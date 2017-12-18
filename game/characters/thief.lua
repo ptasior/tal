@@ -5,6 +5,5 @@ return {
 	strength = 2,
 	craft = 4,
 	gold = 0,
-	lives = 2,
 }
 

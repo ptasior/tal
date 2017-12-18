@@ -1,5 +1,3 @@
-class = require('lua_lib/class')
-
 GuiHelpers = class(function(self)
 	end)
 

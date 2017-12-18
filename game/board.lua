@@ -1,5 +1,3 @@
-class = require('lua_lib/class')
-
 Field = class(function(self, name)
 		self:loadField(name);
 		self.name = name
@@ -7,6 +5,9 @@ Field = class(function(self, name)
 		self.pos_z = (self.pos_z/252)*2
 		self.pos_y = scene:getMap():getAltitude(self.pos_x, self.pos_z);
 		self.landAction = Action('field-'..name..'-land');
+
+		self.objects = {};
+		self.followers = {};
 
 		self:draw();
 	end)
@@ -80,6 +81,13 @@ function Board:getField(name)
 		return nil;
 	end
 	return self.fields[name];
+end
+
+function Board:opositeDirection(dir)
+	if(dir == 'cw') then return 'ccw';end
+	if(dir == 'ccw') then return 'cw';end
+	if(dir == 'up') then return 'down';end
+	if(dir == 'down') then return 'up';end
 end
 
 return Board

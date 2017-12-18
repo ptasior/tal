@@ -1,11 +1,16 @@
+class = require('lua_lib/class')
+var_dump = require('lua_lib/var_dump')
+require('lua_lib/functions')
+
 Board = require('game/board')
 GameState = require('game/state')
 Player = require('game/player')
+OtherPlayers = require('game/other_players')
 Journal = require('game/journal')
 Action = require('game/action')
 GuiHelpers = require('game/gui_helpers')
 Hud = require('game/hud')
-var_dump = require('lua_lib/var_dump')
+Dice = require('game/dice')
 
 
 function setup()
@@ -24,6 +29,7 @@ function setup()
 	board = Board();
 	gameState = GameState();
 	player = Player.randomPlayer();
+	other_players = OtherPlayers();
 	hud = Hud();
 
 	-- Temporarily

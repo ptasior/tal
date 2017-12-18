@@ -1,7 +1,3 @@
-Dice = require('game/dice')
-GuiHelpers = require('game/gui_helpers')
-class = require('lua_lib/class')
-
 local states = {
 	wait = {'preMove'},
 	preMove =  {'decideDirection'},

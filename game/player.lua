@@ -1,6 +1,3 @@
-class = require('lua_lib/class')
-require('lua_lib/functions')
-
 Player = class(function(self, character)
 		log('Loading player '..character)
 		self.fileName = character;
@@ -12,6 +9,14 @@ Player = class(function(self, character)
 		self.model:init('game/models/'..self.fileName..'.obj');
 		scene.addModel(self.model);
 
+		self.initialCraft = self.craft;
+		self.lives = 4;
+
+		self.defeatedEnemies = {};
+		self.spells = {};
+		self.objects = {};
+		self.followers = {};
+
 		self:update();
 	end)
 
@@ -22,19 +27,16 @@ function Player:load(path)
 	end
 end
 
+randomPlayerCnt = 0; -- TODO Global, fix me
+
 function Player:randomPlayer()
-	return Player('thief');
+	randomPlayerCnt = randomPlayerCnt + 1;
+	local list = require('game/characters/list')
+	return Player(list[randomPlayerCnt]);
 end
 
 function Player:getCurrentField()
 	return board:getField(self.field);
-end
-
-function Player:opositeDirection(dir)
-	if(dir == 'left') then return 'right';end
-	if(dir == 'right') then return 'left';end
-	if(dir == 'up') then return 'down';end
-	if(dir == 'down') then return 'up';end
 end
 
 function Player:getPossibleDirections()
@@ -42,7 +44,7 @@ function Player:getPossibleDirections()
 
 	if(self.direction) then
 		return without(keys(f.directions),
-						self:opositeDirection(self.direction));
+						Board.opositeDirection(self.direction));
 	else
 		return keys(f.directions);
 	end

@@ -1,5 +1,3 @@
-class = require('lua_lib/class')
-
 Dice = class(function(self)
 		self.result = nil;
 	end)

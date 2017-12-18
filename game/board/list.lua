@@ -14,7 +14,7 @@ return {
 '1-21-plains',
 '1-22-woods',
 '1-23-fields',
-'1-2-forest',
+'1-2-fields',
 '1-3-hills',
 '1-4-plains',
 '1-5-woods',
