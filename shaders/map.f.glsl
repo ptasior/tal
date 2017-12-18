@@ -29,11 +29,11 @@ void main(void)
 	outCol[3] = 1.0;
 
 	vec4 color = vec4(1.0) * cosTheta;
-	if(f_coords.y <= -0.5) // Remove Alpha
-		color[3] = 0.0;
-	else
-		color[3] = 1.0;
 
+	if(f_coords.y <= -0.5) // Remove Alpha
+		discard;
+
+	color[3] = 1.0;
 	gl_FragColor = outCol * color;
 }
 
