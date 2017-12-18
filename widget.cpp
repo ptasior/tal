@@ -17,6 +17,11 @@ Widget::Widget(std::string texture)
 	mSprite->init(texture.c_str(), "gui");
 }
 
+Widget::~Widget()
+{
+	if(mLuaOwned) removeSelf();
+}
+
 void Widget::updatePosition()
 {
 	// Update children
@@ -110,7 +115,9 @@ void Widget::addOwnedWidget(std::shared_ptr<Widget> w)
 
 void Widget::addForeignWidget(Widget* w)
 {
+	w->mLuaOwned = true;
 	mForeignWidgets.push_back(w);
+
 	setupChildren();
 }
 
@@ -122,7 +129,7 @@ void Widget::removeForeignWidget(Widget* w)
 				[&w](Widget *i){return i == w;}
 			);
 	if(f == mForeignWidgets.end())
-		Log() << "Widget: Cannot find foreign widget to remove";
+		Log() << "Widget: Cannot find foreign widget to remove: " << (long)w;
 	else
 		mForeignWidgets.erase(f, mForeignWidgets.end());
 
@@ -401,5 +408,12 @@ void Widget::setVisible(bool v)
 bool Widget::isVisible()
 {
 	return mVisible;
+}
+
+void Widget::removeSelf()
+{
+	if(!mLuaOwned)
+		Log(Log::DIE) << "Widget: Removing widget that is not owned by Lua";
+	mParent->removeForeignWidget(this);
 }
 

@@ -13,6 +13,7 @@ class Widget
 {
 public:
 	Widget(std::string texture="");
+	~Widget();
 
 	enum LayoutType {ltNone, ltHorizontal, ltVertical};
 	enum OverflowPolicy {opNone, opResize, opClip};
@@ -55,6 +56,7 @@ public:
 
 	virtual void focus();
 	virtual void unfocus();
+	virtual void removeSelf();
 
 protected:
 	virtual void setupChild(Widget *w, int pos);
@@ -75,6 +77,7 @@ protected:
 	std::vector<std::shared_ptr<Widget>> mWidgets;
 	std::shared_ptr<GuiSprite> mSprite;
 	Widget* mParent;
+	bool mLuaOwned = false;
 
 	unsigned int mTopOffset = 0;
 	unsigned int mLeftOffset = 0;
