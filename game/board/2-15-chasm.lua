@@ -1,5 +1,6 @@
 return {
 	label = 'chasm',
+	realm = "middle",
 	pos_x = 71,
 	pos_z = 135,
 	directions = {

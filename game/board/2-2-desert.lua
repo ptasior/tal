@@ -1,5 +1,6 @@
 return {
 	label = 'desert',
+	realm = "middle",
 	pos_x = 101,
 	pos_z = 80,
 	directions = {

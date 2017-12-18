@@ -1,5 +1,6 @@
 return {
 	label = 'hills',
+	realm = "middle",
 	pos_x = 101,
 	pos_z = 178,
 	directions = {

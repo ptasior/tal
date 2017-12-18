@@ -1,5 +1,6 @@
 return {
 	label = 'forest',
+	realm = "outer",
 	pos_x = 234,
 	pos_z = 152,
 	directions = {

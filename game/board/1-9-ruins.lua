@@ -1,5 +1,6 @@
 return {
 	label = 'ruins',
+	realm = "outer",
 	pos_x = 240,
 	pos_z = 83,
 	directions = {

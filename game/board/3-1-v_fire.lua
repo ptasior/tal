@@ -1,5 +1,6 @@
 return {
 	label = 'valley of fire',
+	realm = "inner",
 	pos_x = 119,
 	pos_z = 109,
 	directions = {

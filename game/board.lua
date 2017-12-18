@@ -44,13 +44,23 @@ function Field:draw()
 	scene.addSprite(self.obj.label);
 end
 
+function Field:getPlayers()
+	ret = {};
+	for i,v in ipairs(other_players.players) do
+		if(v.field == self.name) then
+			ret[#ret+1] = v;
+		end
+	end
+	return ret;
+end
+
 
 function Field:onPass()
-	log('passing '..self.name);
+	log('passing '..self.label);
 end
 
 function Field:onLand()
-	journal:add('You are in: '..self.name)
+	journal:add('You are in: '..self.label)
 	if(self.landAction:doesApply()) then
 		self.landAction:execute();
 	end

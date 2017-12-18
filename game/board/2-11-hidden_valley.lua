@@ -1,5 +1,6 @@
 return {
 	label = 'hiden valley',
+	realm = "middle",
 	pos_x = 127,
 	pos_z = 182,
 	directions = {

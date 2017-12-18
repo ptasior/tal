@@ -1,5 +1,6 @@
 return {
 	label = 'werewolf den',
+	realm = "inner",
 	pos_x = 134,
 	pos_z = 98,
 	directions = {

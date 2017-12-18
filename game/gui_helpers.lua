@@ -50,6 +50,7 @@ function GuiHelpers:randomButton(label, handler)
 	b:setRect(50, 50, 80, 30);
 	b:onClickLua(handler)
 	gui.rootWidget():addButton(b);
+	return b;
 end
 
 

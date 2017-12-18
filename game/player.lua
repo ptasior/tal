@@ -50,6 +50,18 @@ function Player:getPossibleDirections()
 	end
 end
 
+function Player:looseLife()
+	self.lives = self.lives -1;
+	if(self.lives == 0) then
+		journal:add("You've lost all of your lives");
+		if(#board:getField('4-crown'):getPlayers() == 0) then
+			player = Player.randomPlayer();
+			journal:add("You are now "..player.name);
+			self:nextState("endTurn");
+		end
+	end
+end
+
 function Player:update()
 	local field = self:getCurrentField();
 

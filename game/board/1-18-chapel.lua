@@ -1,5 +1,6 @@
 return {
 	label = 'chapel',
+	realm = "outer",
 	pos_x = 43,
 	pos_z = 180,
 	directions = {

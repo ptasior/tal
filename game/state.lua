@@ -56,10 +56,26 @@ function GameState:_preMove()
 	if(board.action) then
 		board.action:perform();
 	end
-	-- abilities
 
-	local r = Dice:cast();
-	player.steps = r;
+	if(player:getCurrentField().realm == "crown") then
+		-- select player
+		-- local r = Dice:cast();
+		-- if(r >= 4)
+		--  other_players:player(selected):looselife();
+		-- self:nextState("endTurn");
+		-- return;
+		-- TODO Not sure what happens when there is > player here
+	end
+	-- abilities
+	-- cast spells
+
+	if(inList({"outer", "middle"}, player:getCurrentField().realm)) then
+		local r = Dice:cast();
+		player.steps = r;
+	elseif(player:getCurrentField().realm == "inner") then
+		player.steps = 1;
+	end
+
 end
 
 function GameState:_decideDirection()
@@ -96,10 +112,12 @@ function GameState:_fieldAction()
 end
 
 function GameState:_battle()
-	journal:add('battle');
+	battle:preparePlayer()
+	battle:fight()
 end
 
 function GameState:_endTurn()
+	battle:clear()
 	self.myTurn = false;
 end
 

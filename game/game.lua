@@ -11,6 +11,7 @@ Action = require('game/action')
 GuiHelpers = require('game/gui_helpers')
 Hud = require('game/hud')
 Dice = require('game/dice')
+Battle = require('game/battle')
 
 
 function setup()
@@ -31,11 +32,12 @@ function setup()
 	player = Player.randomPlayer();
 	other_players = OtherPlayers();
 	hud = Hud();
+	battle = Battle();
 
 	-- Temporarily
 	setLoopResolution(100);
 
-	GuiHelpers:randomButton('My turn', function()
+	gg_btn = GuiHelpers:randomButton('My turn', function()
 			gameState.myTurn=true;
 		end);
 

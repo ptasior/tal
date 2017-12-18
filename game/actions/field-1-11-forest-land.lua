@@ -5,6 +5,8 @@ return {
 		local r = Dice:cast();
 		if(r == 1) then
 			journal:add("You are attacked by a brigade of strength 4");
+			battle.enemy.name = "brigade";
+			battle.enemy.strength = 4;
 			gameState:nextState('battle');
 		elseif(r==2 or r==3) then
 			journal:add("You are lost for 1 turn");

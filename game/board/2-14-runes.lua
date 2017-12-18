@@ -1,5 +1,6 @@
 return {
 	label = 'runes',
+	realm = "middle",
 	pos_x = 72,
 	pos_z = 150,
 	directions = {

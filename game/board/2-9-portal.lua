@@ -1,5 +1,6 @@
 return {
 	label = 'portal',
+	realm = "middle",
 	pos_x = 165,
 	pos_z = 170,
 	directions = {

@@ -1,5 +1,6 @@
 return {
 	label = 'tavern',
+	realm = "outer",
 	pos_x = 210,
 	pos_z = 50,
 	directions = {

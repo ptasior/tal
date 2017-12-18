@@ -1,5 +1,6 @@
 return {
 	label = 'oasis',
+	realm = "middle",
 	pos_x = 140,
 	pos_z = 75,
 	directions = {

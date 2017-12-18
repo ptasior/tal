@@ -1,5 +1,6 @@
 return {
 	label = 'fields',
+	realm = "outer",
 	pos_x = 213,
 	pos_z = 72,
 	directions = {

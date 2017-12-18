@@ -1,5 +1,6 @@
 return {
 	label = 'sentinel',
+	realm = "outer",
 	pos_x = 98,
 	pos_z = 201,
 	directions = {

@@ -1,5 +1,6 @@
 return {
 	label = 'dice with death',
+	realm = "inner",
 	pos_x = 148,
 	pos_z = 103,
 	directions = {

@@ -1,5 +1,6 @@
 return {
 	label = 'castle',
+	realm = "middle",
 	pos_x = 194,
 	pos_z = 154,
 	directions = {

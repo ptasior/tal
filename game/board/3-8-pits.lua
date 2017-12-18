@@ -1,5 +1,6 @@
 return {
 	label = 'pits',
+	realm = "inner",
 	pos_x = 111,
 	pos_z = 118,
 	directions = {

@@ -1,5 +1,6 @@
 return {
 	label = 'mines',
+	realm = "inner",
 	pos_x = 139,
 	pos_z = 146,
 	directions = {

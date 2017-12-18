@@ -1,5 +1,6 @@
 return {
 	label = 'temple',
+	realm = "middle",
 	pos_x = 179,
 	pos_z = 82,
 	directions = {

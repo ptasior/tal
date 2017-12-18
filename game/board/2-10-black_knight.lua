@@ -1,5 +1,6 @@
 return {
 	label = 'black knight',
+	realm = "middle",
 	pos_x = 154,
 	pos_z = 185,
 	directions = {
