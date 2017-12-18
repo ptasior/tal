@@ -18,9 +18,9 @@ public:
 	bool onEvent(SDL_Event &event);
 	void onLoop();
 	void onPaint();
-	void onClick(int x, int y);
-	void onDrag(int x, int y);
-	void onDrop(int x, int y);
+	bool onClick(int x, int y);
+	bool onDrag(int x, int y);
+	bool onDrop(int x, int y);
 	void onResize(int width, int height);
 
 	void loop();

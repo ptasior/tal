@@ -5,7 +5,23 @@ class RotatingCamera : public Camera
 {
 public:
 	void init();
-	void apply();
+	void update();
+
+	void setCenter(const glm::vec3 &c);
+	glm::vec3 getCenter();
+
+	bool processEvents(const Uint8 *state);
+	bool onEvent(SDL_Event &event);
+
+private:
+	glm::vec3 mCenter;
+
+	bool mCaptureMouse = false;
+	double mRotX;
+	double mRotY;
+	double mDistance;
+	int mLastMX;
+	int mLastMY;
 };
 
  

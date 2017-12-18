@@ -35,6 +35,11 @@ void Camera::setPostRot(const glm::mat4& v)
 	mPostRot = v;
 }
 
+void Camera::setCameraPos(const glm::vec3& v)
+{
+	mCameraPos = v;
+}
+
 glm::mat4 Camera::getModel()
 {
 	return mModel;
@@ -58,6 +63,11 @@ glm::mat4 Camera::getPreRot()
 glm::mat4 Camera::getPostRot()
 {
 	return mPostRot;
+}
+
+glm::vec3 Camera::getCameraPos()
+{
+	return mCameraPos;
 }
 
 
@@ -100,3 +110,7 @@ bool Camera::processEvents(const Uint8 *state)
 	return false;
 }
 
+bool Camera::onEvent(SDL_Event &event)
+{
+	return false;
+}

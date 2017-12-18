@@ -64,8 +64,8 @@ Window::Window()
 
 	mNet = std::make_shared<Net>();
 
-	// mCamera = std::make_shared<RotatingCamera>();
-	mCamera = std::make_shared<FpsCamera>();
+	mCamera = std::make_shared<RotatingCamera>();
+	// mCamera = std::make_shared<FpsCamera>();
 	mCamera->init();
 	mCamera->setSceneSize(mScreenWidth, mScreenHeight);
 
@@ -137,18 +137,22 @@ bool Window::onEvent(SDL_Event &event)
 			}
 			break;
 		case SDL_MOUSEBUTTONDOWN:
-			onClick(event.button.x, event.button.y);
+			if(onClick(event.button.x, event.button.y))
+				return true;
 			mDragging = true;
 			return true;
 		case SDL_MOUSEMOTION:
 			if(mDragging)
-				onDrag(event.button.x, event.button.y);
-			return mDragging;
+				return onDrag(event.button.x, event.button.y);
+			return false;
 		case SDL_MOUSEBUTTONUP:
 			if(mDragging)
-				onDrop(event.button.x, event.button.y);
-			mDragging = false;
-			return true;
+			{
+				bool ret = onDrop(event.button.x, event.button.y);
+				mDragging = false;
+				return ret;
+			}
+			return false;
 		case SDL_TEXTINPUT:
 			if(mGui->textInput(event.text.text))
 				return true;
@@ -175,7 +179,10 @@ void Window::onLoop()
 	Time::registerNextFrame();
 
 	if(SDL_PollEvent(&event))
-		onEvent(event);
+	{
+		!onEvent(event) && // If event was handled in Gui, do not pass it to the camera
+			mCamera->onEvent(event);
+	}
 
 	if(!mGui->grabsFocus())
 		processEvents();
@@ -219,18 +226,18 @@ void Window::onResize(int width, int height)
 	Lua::getInstance()->resizeWindow();
 }
 
-void Window::onClick(int x, int y)
+bool Window::onClick(int x, int y)
 {
-	mGui->click(x, y);
+	return mGui->click(x, y);
 }
 
-void Window::onDrag(int x, int y)
+bool Window::onDrag(int x, int y)
 {
-	mGui->drag(x, y);
+	return mGui->drag(x, y);
 }
 
-void Window::onDrop(int x, int y)
+bool Window::onDrop(int x, int y)
 {
-	mGui->drop(x, y);
+	return mGui->drop(x, y);
 }
 

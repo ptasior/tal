@@ -109,9 +109,9 @@ class Gui
 public:
 	void init();
 	void paint();
-	void click(int x, int y);
-	void drag(int x, int y);
-	void drop(int x, int y);
+	bool click(int x, int y);
+	bool drag(int x, int y);
+	bool drop(int x, int y);
 
 	void setSceneSize(int w, int h);
 	int getSceneWidth();

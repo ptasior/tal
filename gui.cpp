@@ -125,6 +125,7 @@ public:
 
 		mLastX = x;
 		mLastY = y;
+		Widget::doFocus();
 
 		return true;
 	}
@@ -133,6 +134,8 @@ public:
 	{
 		mLastX = 0;
 		mLastY = 0;
+		Widget::doUnfocus();
+
 		return true;
 	}
 
@@ -318,22 +321,22 @@ void Gui::setSceneSize(int w, int h)
 	Shader::getShader("gui")->setUniform("mvp", {glm::value_ptr(mMvp)});
 }
 
-void Gui::click(int x, int y)
+bool Gui::click(int x, int y)
 {
 	// TODO Mutex?
 	if(mFocused)
 		mFocused->unfocus();
-	mRoot->click(x, y);
+	return mRoot->click(x, y);
 }
 
-void Gui::drag(int x, int y)
+bool Gui::drag(int x, int y)
 {
-	mRoot->drag(x, y);
+	return mRoot->drag(x, y);
 }
 
-void Gui::drop(int x, int y)
+bool Gui::drop(int x, int y)
 {
-	mRoot->drop(x, y);
+	return mRoot->drop(x, y);
 }
 
 Widget& Gui::rootWidget()
