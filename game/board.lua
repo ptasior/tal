@@ -7,6 +7,8 @@ Field = class(function(self, name)
 		self.pos_z = (self.pos_z/252)*2
 		self.pos_y = scene:getMap():getAltitude(self.pos_x, self.pos_z);
 		self.landAction = Action('field-'..name..'-land');
+
+		self:draw();
 	end)
 
 function Field:loadField(name)
@@ -15,6 +17,32 @@ function Field:loadField(name)
 		self[k] = v;
 	end
 end
+
+function Field:draw()
+	self.obj = {}
+	local pos = Glm_Vec3.new(self.pos_x, self.pos_y+0.0001, self.pos_z)
+
+	local mat = Matrix.new();
+	mat:translate(pos);
+	mat:scale(0.05);
+	mat:rotate(Glm_Vec3.new(-90, 0, 0));
+
+	self.obj.field = Sprite.new();
+	self.obj.field:init("game/gfx/field.png", "triangle");
+	self.obj.field:setPosition(mat:val());
+	scene.addSprite(self.obj.field);
+
+	local mat = Matrix.new();
+	mat:translate(pos);
+	mat:translate(Glm_Vec3.new(0, 0.05, 0));
+
+	self.obj.label = Sprite.new();
+	self.obj.label:setSize(0.03, 0.01);
+	self.obj.label:init("text-"..self.label, "sprite");
+	self.obj.label:setPosition(mat:val());
+	scene.addSprite(self.obj.label);
+end
+
 
 function Field:onPass()
 	log('passing '..self.name);
@@ -31,7 +59,6 @@ end
 
 Board = class(function(self)
 		self:loadFields();
-		self:drawFields();
 
 		self.action = nil; -- Action aplied to all players
 	end)
@@ -44,37 +71,6 @@ function Board:loadFields()
 		local f = Field(field);
 		self.fields[f.name] = f;
 	end
-end
-
-function Board:drawFields()
-	for k,v in pairs(self.fields) do
-		self:drawField(v);
-	end
-end
-
-function Board:drawField(f)
-	local pos = Glm_Vec3.new(f.pos_x, f.pos_y+0.0001, f.pos_z)
-	local posLab = Glm_Vec3.new(f.pos_x, f.pos_y+0.01, f.pos_z)
-
-	local mat = Matrix.new();
-	mat:translate(pos);
-	mat:scale(0.05);
-	mat:rotate(Glm_Vec3.new(-90, 0, 0));
-
-	local s = Sprite.new();
-	s:init("game/gfx/field.png", "triangle");
-	s:setPosition(mat:val());
-	scene.addSprite(s);
-
-	local mat = Matrix.new();
-	mat:translate(pos);
-	mat:translate(Glm_Vec3.new(0, 0.05, 0));
-
-	local s = Sprite.new();
-	s:setSize(0.05, 0.02);
-	s:init("text-"..f.label, "sprite");
-	s:setPosition(mat:val());
-	scene.addSprite(s);
 end
 
 function Board:getField(name)
