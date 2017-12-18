@@ -97,13 +97,14 @@ GLuint Shader::loadShader(const char * file, GLenum type)
 	auto ptr = lines.c_str();
 
 	const char* precision =
+		"#version 130                        \n"
 		"#ifdef GL_ES                        \n"
 		"#  ifdef GL_FRAGMENT_PRECISION_HIGH \n"
 		"     precision highp float;         \n"
 		"#  else                             \n"
 		"     precision mediump float;       \n"
 		"#  endif                            \n"
-		"#endif                              \n\n\n\n";
+		"#endif                              \n\n\n";
 
 	const GLchar* sources[] = {
 		precision,
@@ -242,5 +243,10 @@ GLuint Shader::attrib(const char* name)
 #endif
 
 	return std::get<0>(mAttribs[name]);
+}
+
+const std::string& Shader::getName() const
+{
+	return mName;
 }
 

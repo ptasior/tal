@@ -15,6 +15,7 @@ public:
 
 private:
 	glm::vec3 mCenter;
+	glm::mat4 mSPrerot;
 
 	bool mCaptureMouse = false;
 	double mRotX;

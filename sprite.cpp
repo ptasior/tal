@@ -20,10 +20,10 @@ Sprite::~Sprite()
 void Sprite::init(std::string path, std::string shaderName)
 {
 	GLfloat vertices[] = {
-		-1.0, -1.0,  0.0,
-		 1.0, -1.0,  0.0,
-		 1.0,  1.0,  0.0,
-		-1.0,  1.0,  0.0
+		-mWidth, -mHeight,  0.0,
+		 mWidth, -mHeight,  0.0,
+		 mWidth,  mHeight,  0.0,
+		-mWidth,  mHeight,  0.0
 	};
 
 	GLfloat texcoords[] = {
@@ -64,6 +64,12 @@ void Sprite::setPosition(const glm::mat4 &position)
 {
 	mPosition = position;
 	mShader->setUniform("position", {glm::value_ptr(mPosition)});
+}
+
+void Sprite::setSize(double w, double h)
+{
+	mWidth = (float)w;
+	mHeight = (float)h;
 }
 
 void Sprite::paint()

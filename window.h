@@ -12,7 +12,7 @@ class Window
 {
 public:
 	Window();
-	virtual ~Window();
+	~Window();
 
 	void processEvents();
 	bool onEvent(SDL_Event &event);
@@ -22,6 +22,10 @@ public:
 	bool onDrag(int x, int y);
 	bool onDrop(int x, int y);
 	void onResize(int width, int height);
+
+	Camera* getCamera();
+	Scene* getScene();
+	Gui* getGui();
 
 	void loop();
 

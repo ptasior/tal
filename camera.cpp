@@ -87,6 +87,7 @@ void Camera::init()
 	Shader::getShader("map")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
 	Shader::getShader("model")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
 	Shader::getShader("triangle")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
+	Shader::getShader("sprite")->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
 }
 
 void Camera::setSceneSize(int w, int h)

@@ -23,6 +23,7 @@ public:
 
 	void setUniform(const char* name, Value v);
 	GLuint attrib(const char* name);
+	const std::string &getName() const;
 
 	void use();
 	void setOnChange(std::function<void(void)> fnc);

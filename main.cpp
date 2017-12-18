@@ -5,24 +5,25 @@
 #include <emscripten.h>
 #endif
 
+Window *global_window;
+
 #ifdef __EMSCRIPTEN__
-Window *ptr_w; // Ugly but works
 void main_loop()
 {
-    ptr_w->onLoop();
+    global_window->onLoop();
 }
 #endif
 
-int main( int argc, char* args[] )
+int main(int argc, char* args[])
 {
-    Window w;
+	Window w;
+	global_window = &w;
 
     #ifdef __EMSCRIPTEN__
-        ptr_w = &w;
         Log() << "Running Emscripten loop";
         emscripten_set_main_loop(main_loop, 0, true);
     #else
-        w.loop();
+        global_window->loop();
     #endif
 
     return 0;

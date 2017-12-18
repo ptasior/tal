@@ -241,3 +241,18 @@ bool Window::onDrop(int x, int y)
 	return mGui->drop(x, y);
 }
 
+Camera* Window::getCamera()
+{
+	return mCamera.get();
+}
+
+Scene* Window::getScene()
+{
+	return mScene.get();
+}
+
+Gui* Window::getGui()
+{
+	return mGui.get();
+}
+

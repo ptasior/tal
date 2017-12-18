@@ -69,10 +69,10 @@ function Board:drawField(f)
 	local mat = Matrix.new();
 	mat:translate(pos);
 	mat:translate(Glm_Vec3.new(0, 0.05, 0));
-	mat:scale(0.05);
 
 	local s = Sprite.new();
-	s:init("text-"..f.label, "triangle");
+	s:setSize(0.05, 0.02);
+	s:init("text-"..f.label, "sprite");
 	s:setPosition(mat:val());
 	scene.addSprite(s);
 end

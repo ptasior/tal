@@ -11,8 +11,9 @@ class Sprite
 public:
 	virtual ~Sprite();
 	virtual void init(std::string path, std::string shaderName);
-	// void init(const char *path, const char *shaderName);
 	virtual void setPosition(const glm::mat4 &position);
+	// Must be called before init()
+	virtual void setSize(double w, double h);
 	virtual void paint();
 
 protected:
@@ -27,5 +28,9 @@ protected:
 	GLuint attribute_texcoord;
 
 	glm::mat4 mPosition;
+	glm::mat4 mRot;
+
+	float mWidth=1;
+	float mHeight=1;
 };
 

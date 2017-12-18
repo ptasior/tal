@@ -64,7 +64,8 @@ void Lua::initScene(Scene *scene)
 
 	state["Sprite"].SetClass<Sprite>(
 			"init", &Sprite::init,
-			"setPosition", &Sprite::setPosition
+			"setPosition", &Sprite::setPosition,
+			"setSize", &Sprite::setSize
 		);
 
 	state["ModelObj"].SetClass<Model>(
