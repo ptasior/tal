@@ -53,7 +53,7 @@ function Player:update()
 
 	local mat = Matrix.new()
 	mat:translate(Glm_Vec3.new(field.pos_x, field.pos_y, field.pos_z));
-	mat:scale(0.05); -- TODO Change in the model
+	mat:scale(0.07); -- TODO Change in the model
 
 	self.model:setPosition(mat:val());
 end
