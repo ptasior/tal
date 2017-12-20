@@ -5,7 +5,11 @@ function GuiHelpers:message(label, handler)
 	local bx = ButtonBox.new("Message");
 	bx:setRect(200, 300, 320, 100);
 
-	bx:addLabel(Label.new(label));
+	local ml = MultiLine.new(label);
+	ml:resize();
+
+	bx:setRect(200, 300, 20+ml:getWidth(), 80+ ml:getHeight());
+	bx:addMultiLine(ml);
 
 	local l = Button.new('OK');
 	l:onClickLua(function()
@@ -22,18 +26,23 @@ function GuiHelpers:message(label, handler)
 	appWait();
 end
 
-function GuiHelpers:askQuestion(label, options, handler)
+function GuiHelpers:askQuestion(label, options)
 	local bx = ButtonBox.new("Question");
-	bx:setRect(200, 300, 380, 100);
 
-	bx:addLabel(Label.new(label));
+	local ml = MultiLine.new(label);
+	ml:resize();
+
+	bx:setRect(200, 300, 20+ml:getWidth(), 80+ ml:getHeight());
+	bx:addMultiLine(ml);
+
+	local ans = nil;
 
 	for i,o in ipairs(options) do
 		local l = Button.new(o);
 		l:onClickLua(function()
 				gui.rootWidget():removeButtonBox(bx);
 				bx = nil;
-				handler(o);
+				ans = o;
 				appContinue();
 			end)
 		bx:addBottomButton(l);
@@ -41,6 +50,45 @@ function GuiHelpers:askQuestion(label, options, handler)
 
 	gui.rootWidget():addButtonBox(bx);
 	appWait();
+
+	return ans;
+end
+
+function GuiHelpers:selectFrom(label, choices, answers)
+	local bx = ButtonBox.new("Select");
+
+	local ml = MultiLine.new(label);
+	ml:resize();
+
+	bx:setRect(200, 300, 20+ml:getWidth(), 80+ ml:getHeight());
+	bx:addMultiLine(ml);
+
+
+	for i,o in ipairs(choices) do
+		local l = Button.new(o);
+		l:onClickLua(function()
+			end)
+		bx:addButton(l);
+	end
+
+
+	local ans = nil;
+
+	for i,o in ipairs(answers) do
+		local l = Button.new(o);
+		l:onClickLua(function()
+				gui.rootWidget():removeButtonBox(bx);
+				bx = nil;
+				ans = o;
+				appContinue();
+			end)
+		bx:addBottomButton(l);
+	end
+
+	gui.rootWidget():addButtonBox(bx);
+	appWait();
+
+	return ans, {};
 end
 
 randomButton_t = 50;

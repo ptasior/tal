@@ -35,7 +35,7 @@ function setup()
 	battle = Battle();
 
 	-- Temporarily
-	setLoopResolution(100);
+	setLoopResolution(500);
 
 	gg_btn = GuiHelpers:randomButton('My turn', function()
 			gameState.myTurn=true;

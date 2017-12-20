@@ -258,6 +258,16 @@ int Widget::getTop()
 	return mTopOffset + mTop;
 }
 
+int Widget::getWidth()
+{
+	return mWidth;
+}
+
+int Widget::getHeight()
+{
+	return mHeight;
+}
+
 void Widget::paint()
 {
 	if(!mVisible)

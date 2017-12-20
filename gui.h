@@ -10,6 +10,22 @@
 
 class Button;
 class Console;
+class Label;
+
+class MultiLine : public Widget
+{
+public:
+	MultiLine(std::string text);
+	virtual void setText(std::string text);
+	virtual void resize();
+	virtual Label* label(int l);
+	virtual int linesCount();
+
+private:
+	std::vector<std::shared_ptr<Label>> mLabels;
+	std::vector<std::string> mLines;
+};
+
 
 
 class Label : public Widget
@@ -54,9 +70,10 @@ public:
 	Box(std::string title);
 	virtual void setupChildren();
 
-	virtual void removeForeignWidget(Widget* w);
 	virtual void addForeignWidget(Widget* w);
 	virtual void addOwnedWidget(std::shared_ptr<Widget> w);
+	virtual void removeForeignWidget(Widget* w);
+	virtual void removeOwnedWidget(Widget* w);
 
 protected:
 	std::shared_ptr<Label> mLabel;

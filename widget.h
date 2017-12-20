@@ -33,6 +33,8 @@ public:
 	virtual std::tuple<int, int, int, int> getRect();
 	virtual int getLeft();
 	virtual int getTop();
+	virtual int getWidth();
+	virtual int getHeight();
 
 	virtual void setLayout(int t);
 	virtual void setColor(int r, int g, int b, int a);

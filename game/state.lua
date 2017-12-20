@@ -74,12 +74,13 @@ function GameState:_preMove()
 end
 
 function GameState:_move()
-	GuiHelpers:askQuestion(
-		'Which direction do you want to go?',
-		player:getPossibleDirections(), function(answer)
-			player.direction = answer;
-			log('chosen direction: '..answer);
-		end)
+	local ans = GuiHelpers:askQuestion(
+			'Which direction do you want to go?',
+			player:getPossibleDirections()
+		);
+
+	player.direction = ans;
+	log('chosen direction: '..ans);
 
 	while(player.steps > 0) do
 		local nf = player:getCurrentField().directions[player.direction];
@@ -97,12 +98,13 @@ function GameState:_move()
 
 		if(player.steps > 0) then -- Check again if onPass did not change anything
 			if(#keys(field.directions) > 2 or not hasKey(field.directions, player.direction)) then
-				GuiHelpers:askQuestion(
-					'Which direction do you want to go?',
-					player:getPossibleDirections(), function(answer)
-						player.direction = answer;
-						log('chosen direction: '..answer);
-					end)
+				local ans = GuiHelpers:askQuestion(
+						'Which direction do you want to go?',
+						player:getPossibleDirections()
+					);
+
+				player.direction = ans;
+				log('chosen direction: '..ans);
 			end
 		end
 	end
@@ -114,12 +116,13 @@ function GameState:_fieldAction()
 end
 
 function GameState:_battle()
-	battle:preparePlayer()
-	battle:fight()
+	GuiHelpers:message("Battle", "A battle is about to begin");
+	battle:preparePlayer();
+	battle:fight();
 end
 
 function GameState:_endTurn()
-	battle:clear()
+	battle:clear();
 	self.myTurn = false;
 end
 

@@ -98,6 +98,14 @@ void Lua::initGui(Gui *gui)
 			"showFps", &Gui::showFps
 		);
 
+	applyWidgetInheritance("MultiLine");
+	state["MultiLine"].SetClass<MultiLine, std::string>(
+					"setText", &MultiLine::setText,
+					"resize", &MultiLine::resize,
+					"label", &MultiLine::label,
+					"linesCount", &MultiLine::linesCount
+				);
+
 	applyWidgetInheritance("Label");
 	state["Label"].SetClass<Label, std::string>("setText", &Label::setText);
 
@@ -136,8 +144,14 @@ void Lua::applyWidgetInheritance(const char *type)
 
 			"onClickLua", &Widget::onClickLua,
 
+			"getTop", &Widget::getTop,
+			"getLeft", &Widget::getLeft,
+			"getWidth", &Widget::getWidth,
+			"getHeight", &Widget::getHeight,
+
 			"addWidget", &Widget::addWidget<Widget>,
 			"addLabel", &Widget::addWidget<Label>,
+			"addMultiLine", &Widget::addWidget<MultiLine>,
 			"addEdit", &Widget::addWidget<Edit>,
 			"addButton", &Widget::addWidget<Button>,
 			"addBox", &Widget::addWidget<Box>,
@@ -145,6 +159,7 @@ void Lua::applyWidgetInheritance(const char *type)
 
 			"removeWidget", &Widget::removeWidget<Widget>,
 			"removeLabel", &Widget::removeWidget<Label>,
+			"removeMultiLine", &Widget::removeWidget<MultiLine>,
 			"removeEdit", &Widget::removeWidget<Edit>,
 			"removeButton", &Widget::removeWidget<Button>,
 			"removeBox", &Widget::removeWidget<Box>,

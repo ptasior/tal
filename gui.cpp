@@ -10,6 +10,67 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
 
+
+MultiLine::MultiLine(std::string text)
+{
+	mLayoutType = ltVertical;
+	mOverflow = opClip;
+	mStretch = false;
+	mSpacing = 0;
+	mPaddingVert = 0;
+	mPaddingHoris = 0;
+
+	setColor(0,0,0,0);
+
+	setText(text);
+}
+
+void MultiLine::setText(std::string text)
+{
+	mLines.clear();
+	mLabels.clear();
+
+	if(text.empty()) return;
+
+	std::string tmp;
+	for(unsigned int i = 0; i < text.length(); i++)
+		if(text[i] != '\n')
+			tmp += text[i];
+		else
+		{
+			mLines.push_back(tmp);
+			tmp.clear();
+		}
+	mLines.push_back(tmp);
+
+	for(auto l : mLines)
+	{
+		auto lbl = std::make_shared<Label>(l);
+		mLabels.push_back(lbl);
+		addOwnedWidget(lbl);
+	}
+}
+
+void MultiLine::resize()
+{
+	int maxlen = 0;
+	for(auto l : mLines)
+		maxlen = std::max(maxlen, (int)l.length());
+
+	setSize(maxlen*10, mLabels.size()*15);
+}
+
+Label* MultiLine::label(int l)
+{
+	return mLabels[l].get();
+}
+
+int MultiLine::linesCount()
+{
+	return mLabels.size();
+}
+
+//------------------------------------------------------------------------------
 Label::Label(std::string text):
 	Widget("")
 {
@@ -190,6 +251,11 @@ void Box::addOwnedWidget(std::shared_ptr<Widget> w)
 void Box::removeForeignWidget(Widget* w)
 {
 	mContent->removeForeignWidget(w);
+}
+
+void Box::removeOwnedWidget(Widget* w)
+{
+	mContent->removeOwnedWidget(w);
 }
 
 //------------------------------------------------------------------------------

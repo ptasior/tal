@@ -32,3 +32,10 @@ function hasKey(array, elem)
 	return inList(keys(array), elem);
 end
 
+function size(table)
+	local count = 0
+	for _ in pairs(table) do
+		count = count + 1
+	end
+	return count
+end

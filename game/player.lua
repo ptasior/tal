@@ -72,5 +72,14 @@ function Player:update()
 	self.model:setPosition(mat:val());
 end
 
+function Player:drawSpell()
+	-- TODO
+end
+
+function Player:turnIntoToad(turns)
+	self.isToadTurns = turns;
+	-- TODO
+end
+
 return Player
 

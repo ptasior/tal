@@ -1,10 +1,13 @@
 Field = class(function(self, name)
+		self.onPassFnc = nil;
+		self.onLandFnc = nil;
+		self.description = "No description";
+
 		self:loadField(name);
 		self.name = name
 		self.pos_x = (self.pos_x/252)*2
 		self.pos_z = (self.pos_z/252)*2
 		self.pos_y = scene:getMap():getAltitude(self.pos_x, self.pos_z);
-		self.landAction = Action('field-'..name..'-land');
 
 		self.objects = {};
 		self.followers = {};
@@ -56,13 +59,18 @@ end
 
 
 function Field:onPass()
-	log('passing '..self.label);
+	if(self.onPassFnc) then
+		self.onPassFnc();
+	else
+		log('passing '..self.label);
+	end
 end
 
 function Field:onLand()
 	journal:add('You are in: '..self.label)
-	if(self.landAction:doesApply()) then
-		self.landAction:execute();
+
+	if(self.onLandFnc) then
+		self.onLandFnc();
 	end
 end
 
