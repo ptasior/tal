@@ -2,8 +2,6 @@ GuiHelpers = class(function(self)
 	end)
 
 function GuiHelpers:message(label, handler)
-	gameState.waitUserInput = true;
-
 	local bx = ButtonBox.new("Message");
 	bx:setRect(200, 300, 320, 100);
 
@@ -12,11 +10,11 @@ function GuiHelpers:message(label, handler)
 	local l = Button.new('OK');
 	l:onClickLua(function()
 			gui.rootWidget():removeButtonBox(bx);
-			gameState.waitUserInput = false;
 			bx = nil;
 			if handler then
 				handler();
 			end
+			appContinue();
 		end)
 	bx:addBottomButton(l);
 
@@ -25,8 +23,6 @@ function GuiHelpers:message(label, handler)
 end
 
 function GuiHelpers:askQuestion(label, options, handler)
-	gameState.waitUserInput = true;
-
 	local bx = ButtonBox.new("Question");
 	bx:setRect(200, 300, 380, 100);
 
@@ -36,9 +32,9 @@ function GuiHelpers:askQuestion(label, options, handler)
 		local l = Button.new(o);
 		l:onClickLua(function()
 				gui.rootWidget():removeButtonBox(bx);
-				gameState.waitUserInput = false;
-				handler(o);
 				bx = nil;
+				handler(o);
+				appContinue();
 			end)
 		bx:addBottomButton(l);
 	end

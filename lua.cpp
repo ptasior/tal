@@ -7,6 +7,7 @@
 #include "skybox.h"
 #include "map.h"
 #include "matrix.h"
+#include "time.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -32,6 +33,7 @@ Lua::Lua():
 	state["wireframe"] = &Lua::wireframe;
 	state["setLoopResolution"] = &Lua::setLoopResolution;
 	state["setWait"] = &Lua::setWait;
+	state["setTimeout"] = &Lua::setTimeout;
 }
 
 void Lua::initScene(Scene *scene)
@@ -164,12 +166,19 @@ void Lua::setup()
 
 void Lua::loop()
 {
-	static unsigned int cnt = 0;
-	if(cnt++ % mLoopResolution)
+	static unsigned int time = Time::current();
+
+	if(time + mLoopResolution > Time::current())
 		return; // Don't call every frame
 
 	if(mWait == wsRefresh) // Run one frame
 		mWait = wsRun;
+
+	if(mWait == wsSleep && Time::current() > mTimeout)
+		mWait = wsRun;
+
+	time = Time::current();
+
 	if(mWait == wsRun)
 		state["loop"]();
 }
@@ -191,6 +200,11 @@ void Lua::wireframe()
 void Lua::setWait(int v)
 {
 	getInstance()->mWait = (WaitState)v;
+}
+
+void Lua::setTimeout(int v)
+{
+	getInstance()->mTimeout = Time::current() + v;
 }
 
 void Lua::setLoopResolution(unsigned int res)

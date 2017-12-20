@@ -1,7 +1,6 @@
 local states = {
 	wait = {'preMove'},
-	preMove =  {'decideDirection'},
-	decideDirection = {'move'},
+	preMove =  {'move'},
 	move = {'fieldAction'},
 	fieldAction = {'endTurn'},
 	fieldDice = {'endTurn'},
@@ -12,15 +11,10 @@ local states = {
 GameState = class(function(self)
 		self.state = 'wait';
 		self.nextStateVar = nil;
-		self.waitUserInput = false;
 		self.myTurn = false;
 	end)
 
 function GameState:process()
-	if(self.waitUserInput) then
-		return;
-	end
-
 	print('Processing '..self.state);
 
 	self.nextStateVar = states[self.state][1];
@@ -42,7 +36,8 @@ end
 function GameState:_wait()
 	if(not self:isMyTurn()) then
 		self:nextState('wait');
-		return;
+	else
+		-- Update state from network
 	end
 end
 
@@ -78,33 +73,40 @@ function GameState:_preMove()
 
 end
 
-function GameState:_decideDirection()
+function GameState:_move()
 	GuiHelpers:askQuestion(
 		'Which direction do you want to go?',
 		player:getPossibleDirections(), function(answer)
 			player.direction = answer;
 			log('chosen direction: '..answer);
 		end)
-end
 
-function GameState:_move()
-	player.steps = player.steps-1;
+	while(player.steps > 0) do
+		local nf = player:getCurrentField().directions[player.direction];
+		player.field = nf;
+		player:update();
+		appRefresh();
+		appSleep(500);
+		player.steps = player.steps-1;
 
-	local nf = player:getCurrentField().directions[player.direction];
-	player.field = nf;
-	player:update();
-	local field = board:getField(nf);
+		local field = board:getField(nf);
 
-	if(player.steps ~= 0) then
-		field:onPass();
-		if(#keys(field.directions) > 2 or not hasKey(field.directions, player.direction)) then
-			self:nextState('decideDirection');
-			return;
+		if(player.steps > 0) then
+			field:onPass();
 		end
-			self:nextState('move');
-	else
-		player.direction = nil;
+
+		if(player.steps > 0) then -- Check again if onPass did not change anything
+			if(#keys(field.directions) > 2 or not hasKey(field.directions, player.direction)) then
+				GuiHelpers:askQuestion(
+					'Which direction do you want to go?',
+					player:getPossibleDirections(), function(answer)
+						player.direction = answer;
+						log('chosen direction: '..answer);
+					end)
+			end
+		end
 	end
+	player.direction = nil;
 end
 
 function GameState:_fieldAction()

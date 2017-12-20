@@ -25,3 +25,7 @@ float Time::fps()
 	return mFps;
 }
 
+float Time::current()
+{
+	return mCurr;
+}

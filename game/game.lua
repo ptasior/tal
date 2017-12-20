@@ -67,6 +67,12 @@ function appWait()
 	coroutine.yield()
 end
 
+function appSleep(ms)
+	setTimeout(ms);
+	setWait(3); -- C++, wsSleep
+	coroutine.yield()
+end
+
 global_co = coroutine.create(function()
 		while(true) do
 			s, res = xpcall(co_loop, debug.traceback);
