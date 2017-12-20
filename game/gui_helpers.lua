@@ -21,6 +21,7 @@ function GuiHelpers:message(label, handler)
 	bx:addBottomButton(l);
 
 	gui.rootWidget():addButtonBox(bx);
+	appWait();
 end
 
 function GuiHelpers:askQuestion(label, options, handler)
@@ -43,13 +44,16 @@ function GuiHelpers:askQuestion(label, options, handler)
 	end
 
 	gui.rootWidget():addButtonBox(bx);
+	appWait();
 end
 
+randomButton_t = 50;
 function GuiHelpers:randomButton(label, handler)
 	local b = Button.new(label)
-	b:setRect(50, 50, 80, 30);
+	b:setRect(50, randomButton_t, 80, 30);
 	b:onClickLua(handler)
 	gui.rootWidget():addButton(b);
+	randomButton_t = randomButton_t + 35;
 	return b;
 end
 

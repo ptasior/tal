@@ -31,6 +31,7 @@ Lua::Lua():
 	state["log"] = &Lua::logFnc;
 	state["wireframe"] = &Lua::wireframe;
 	state["setLoopResolution"] = &Lua::setLoopResolution;
+	state["setWait"] = &Lua::setWait;
 }
 
 void Lua::initScene(Scene *scene)
@@ -167,7 +168,10 @@ void Lua::loop()
 	if(cnt++ % mLoopResolution)
 		return; // Don't call every frame
 
-	state["loop"]();
+	if(mWait == wsRefresh) // Run one frame
+		mWait = wsRun;
+	if(mWait == wsRun)
+		state["loop"]();
 }
 
 void Lua::execute(const char *cmd)
@@ -182,6 +186,11 @@ void Lua::wireframe()
 #ifndef __EMSCRIPTEN__
 	glPolygonMode(GL_FRONT_AND_BACK, wf?GL_LINE:GL_FILL);
 #endif
+}
+
+void Lua::setWait(int v)
+{
+	getInstance()->mWait = (WaitState)v;
 }
 
 void Lua::setLoopResolution(unsigned int res)

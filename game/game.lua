@@ -14,9 +14,9 @@ Dice = require('game/dice')
 Battle = require('game/battle')
 
 
+
 function setup()
 	math.randomseed(os.time());
-
 	scene:getSkybox():init("game/map/skybox.png");
 
 	local m = scene:getMap();
@@ -48,8 +48,36 @@ function resizeWindow()
 	hud:update();
 end
 
-function loop()
-	gameState:process();
+function co_loop()
+	gameState:process()
 	hud:update();
+end
+
+function appContinue()
+	setWait(0); -- C++, wsRun
+end
+
+function appRefresh()
+	setWait(2); -- C++, wsRefresh
+	coroutine.yield()
+end
+
+function appWait()
+	setWait(1); -- C++, wsWait
+	coroutine.yield()
+end
+
+global_co = coroutine.create(function()
+		while(true) do
+			s, res = xpcall(co_loop, debug.traceback);
+			if(not s) then
+				log(res);
+			end
+			coroutine.yield(); -- Give control to app to render next frame
+		end
+	end)
+
+function loop()
+	coroutine.resume(global_co);
 end
 

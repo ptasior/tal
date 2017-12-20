@@ -389,6 +389,7 @@ void Gui::message(std::string title, std::string msg)
 
 	auto btn = std::make_shared<Button>("OK");
 	btn->onClick([box, this](){
+			Lua::setWait(0);
 			mRoot->removeOwnedWidget(box.get());
 		});
 	box->addBottomButton(btn);

@@ -13,6 +13,7 @@ public:
 
 	// TODO Make it non static and provide Lua obj to script
 	static void setLoopResolution(unsigned int res);
+	static void setWait(int v);
 
 	void setup();
 	void loop();
@@ -20,6 +21,7 @@ public:
 	static Lua* getInstance();
 
 private:
+	enum WaitState {wsRun, wsWait, wsRefresh};
 	Lua();
 	void applyWidgetInheritance(const char *type);
 
@@ -29,6 +31,7 @@ private:
 	Gui *mGui;
 	Scene *mScene;
 	unsigned int mLoopResolution = 10;
+	WaitState mWait = wsRun;
 
 	sel::State state;
 };
