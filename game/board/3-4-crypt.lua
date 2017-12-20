@@ -4,8 +4,8 @@ return {
 	pos_x = 165,
 	pos_z = 114,
 	directions = {
-		cw = "3-3-d_death",
-		ccw = "3-5-p_peril"
+		ccw = "3-3-d_death",
+		cw = "3-5-p_peril"
 	}
 }
 

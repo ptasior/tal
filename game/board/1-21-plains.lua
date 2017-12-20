@@ -4,8 +4,8 @@ return {
 	pos_x = 22,
 	pos_z = 112,
 	directions = {
-		cw = "1-20-crags",
-		ccw = "1-22-woods"
+		ccw = "1-20-crags",
+		cw = "1-22-woods"
 	}
 }
 
