@@ -110,13 +110,16 @@ void Lua::initGui(Gui *gui)
 	state["Label"].SetClass<Label, std::string>("setText", &Label::setText);
 
 	applyWidgetInheritance("Edit");
-	state["Edit"].SetClass<Edit, std::string>();//"setText", &Button::setText);
+	state["Edit"].SetClass<Edit, std::string>();
 
 	applyWidgetInheritance("Button");
 	state["Button"].SetClass<Button, std::string>();//"setText", &Button::setText);
 
 	applyWidgetInheritance("Box");
-	state["Box"].SetClass<Box, std::string>();//"setText", &Button::setText);
+	state["Box"].SetClass<Box, std::string>();
+
+	applyWidgetInheritance("Scroll");
+	state["Scroll"].SetClass<Scroll>();
 
 	applyWidgetInheritance("ButtonBox");
 	state["ButtonBox"].SetClass<ButtonBox, std::string>(
@@ -156,6 +159,7 @@ void Lua::applyWidgetInheritance(const char *type)
 			"addButton", &Widget::addWidget<Button>,
 			"addBox", &Widget::addWidget<Box>,
 			"addButtonBox", &Widget::addWidget<ButtonBox>,
+			"addScroll", &Widget::addWidget<Scroll>,
 
 			"removeWidget", &Widget::removeWidget<Widget>,
 			"removeLabel", &Widget::removeWidget<Label>,

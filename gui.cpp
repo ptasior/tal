@@ -13,6 +13,142 @@
 const unsigned int Label::WIDTH = 8;
 const unsigned int Label::HEIGHT = 14;
 
+class ScrollContent : public Widget
+{
+public:
+	ScrollContent():
+		Widget("")
+	{}
+
+	void setupChildren()
+	{
+		int cnt = mSkipWidgets;
+
+		for(; cnt < mForeignWidgets.size(); cnt++)
+			setupChild(mForeignWidgets[cnt], cnt-mSkipWidgets);
+
+		for(; cnt < mWidgets.size(); cnt++)
+			setupChild(mWidgets[cnt].get(), cnt-mSkipWidgets);
+	}
+
+	void setupChild(Widget* w, int pos)
+	{
+		Widget::setupChild(w,pos);
+
+		int cnt = 0;
+		for(auto w : mForeignWidgets)
+		{
+			if(cnt++ < mSkipWidgets)
+				w->setVisible(false);
+			else if(w->getTop() + w->getHeight() > getTop() + mHeight - mPaddingVert*2)
+				w->setVisible(false);
+			else
+				w->setVisible(true);
+		}
+
+		for(auto w : mWidgets)
+		{
+			if(cnt++ < mSkipWidgets)
+				w->setVisible(false);
+			else if(w->getTop() + w->getHeight() > getTop() + mHeight - mPaddingVert*2)
+				w->setVisible(false);
+			else
+				w->setVisible(true);
+		}
+	}
+
+	void up()
+	{
+		mSkipWidgets = std::max(--mSkipWidgets, 0);
+		setupChildren();
+	}
+
+	void down()
+	{
+		mSkipWidgets = std::min(++mSkipWidgets, (int)(mWidgets.size() + mForeignWidgets.size())-1);
+		setupChildren();
+	}
+
+	int mSkipWidgets = 0;
+};
+
+Scroll::Scroll():
+	 Widget("")
+{
+	mLayoutType = ltNone;
+	mPaddingHoris = 15;
+	mPaddingVert = 15;
+	mStretch = false;
+	mSprite->setColor(150,150,150,200);
+
+	mButtonUp = std::make_shared<Button>(std::string("/\\"));
+	mButtonUp->onClick([this](){onUp();});
+	mButtonUp->setColor(50,50,50,200);
+	mButtonUp->setPadding(3, 2);
+
+	mButtonDown = std::make_shared<Button>(std::string("\\/"));
+	mButtonDown->onClick([this](){onDown();});
+	mButtonDown->setColor(50,50,50,200);
+	mButtonDown->setPadding(3, 2);
+
+
+	mContent = std::make_shared<ScrollContent>();
+	mContent->setColor(0,0,0,0);
+	mContent->setLayout(ltVertical);
+	mContent->setOverflow(opResize);
+	mContent->setStretch(false);
+
+	Widget::addOwnedWidget(mButtonUp);
+	Widget::addOwnedWidget(mContent);
+	Widget::addOwnedWidget(mButtonDown);
+
+	setupChildren();
+}
+
+void Scroll::setupChildren()
+{
+	if(mButtonUp)
+		mButtonUp->setRect(0, 0, mWidth, 23);
+	if(mButtonDown)
+		mButtonDown->setRect(0, mHeight-20, mWidth, 23);
+	if(mContent)
+		mContent->setRect(0, 20, mWidth, mHeight-40);
+
+	Widget::setupChildren();
+}
+
+void Scroll::addForeignWidget(Widget* w)
+{
+	mContent->addForeignWidget(w);
+}
+
+void Scroll::addOwnedWidget(std::shared_ptr<Widget> w)
+{
+	mContent->addOwnedWidget(w);
+}
+
+void Scroll::removeForeignWidget(Widget* w)
+{
+	mContent->removeForeignWidget(w);
+}
+
+void Scroll::removeOwnedWidget(Widget* w)
+{
+	mContent->removeOwnedWidget(w);
+}
+
+void Scroll::onUp()
+{
+	static_cast<ScrollContent*>(mContent.get())->up();
+}
+
+void Scroll::onDown()
+{
+	static_cast<ScrollContent*>(mContent.get())->down();
+}
+
+
+//------------------------------------------------------------------------------
 MultiLine::MultiLine(std::string text)
 {
 	mLayoutType = ltVertical;
@@ -219,7 +355,7 @@ Box::Box(std::string title):
 	mLabel = std::make_shared<BoxLabelDrag>(title, this);
 	mLabel->setColor(50,50,50,200);
 	mLabel->setPadding(3, 2);
-	mLabel->setText(title);
+	// mLabel->setText(title);
 
 	Widget::addOwnedWidget(mLabel);
 

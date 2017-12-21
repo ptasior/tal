@@ -41,9 +41,35 @@ function setup()
 			gameState.myTurn=true;
 		end);
 
-	mat = Matrix.new()
+	mat = Matrix.new();
 	-- mat:translate(Glm_Vec3.new(0.0, 0.5, -2))
-	mat:scaleVec(Glm_Vec3.new(0.5, 0.5, 0.5))
+	mat:scaleVec(Glm_Vec3.new(0.5, 0.5, 0.5));
+
+
+	ss = Scroll.new();
+	ss:setRect(100,100,110,101)
+	gui.rootWidget():addScroll(ss);
+	aa = Label.new("aaaaa")
+	aa:setColor(0,0,0,255)
+	ss:addLabel(aa)
+	aa = Label.new("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
+	aa:setColor(0,0,0,255)
+	ss:addLabel(aa)
+	aa = Label.new("ccccc")
+	aa:setColor(0,0,0,255)
+	ss:addLabel(aa)
+	aa = Label.new("ddddd")
+	aa:setColor(0,0,0,255)
+	ss:addLabel(aa)
+	aa = Label.new("eeeee")
+	aa:setColor(0,0,0,255)
+	ss:addLabel(aa)
+	aa = Label.new("fffff")
+	aa:setColor(0,0,0,255)
+	ss:addLabel(aa)
+	aa = Label.new("ggggg")
+	aa:setColor(0,0,0,255)
+	ss:addLabel(aa)
 
 	log('Lua setup done');
 end
@@ -53,7 +79,7 @@ function resizeWindow()
 end
 
 function co_loop()
-	gameState:process()
+	gameState:process();
 	hud:update();
 end
 
@@ -63,18 +89,18 @@ end
 
 function appRefresh()
 	setWait(2); -- C++, wsRefresh
-	coroutine.yield()
+	coroutine.yield();
 end
 
 function appWait()
 	setWait(1); -- C++, wsWait
-	coroutine.yield()
+	coroutine.yield();
 end
 
 function appSleep(ms)
 	setTimeout(ms);
 	setWait(3); -- C++, wsSleep
-	coroutine.yield()
+	coroutine.yield();
 end
 
 global_co = coroutine.create(function()

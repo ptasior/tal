@@ -12,6 +12,29 @@ class Button;
 class Console;
 class Label;
 
+class Scroll : public Widget
+{
+public:
+	Scroll();
+
+	virtual void addForeignWidget(Widget* w);
+	virtual void addOwnedWidget(std::shared_ptr<Widget> w);
+	virtual void removeForeignWidget(Widget* w);
+	virtual void removeOwnedWidget(Widget* w);
+
+protected:
+	virtual void setupChildren();
+
+	void onUp();
+	void onDown();
+
+	std::shared_ptr<Button> mButtonUp;
+	std::shared_ptr<Button> mButtonDown;
+	std::shared_ptr<Widget> mContent;
+};
+
+
+
 class MultiLine : public Widget
 {
 public:
