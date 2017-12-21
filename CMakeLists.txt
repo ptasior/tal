@@ -19,11 +19,11 @@ set(SOURCE_FILES
 		net.cpp
 		shader.cpp
 		sprite.cpp
-		gui_sprite.cpp
+		sprite_gui.cpp
 		texture.cpp
 		camera.cpp
-		rotating_camera.cpp
-		fps_camera.cpp
+		camera_rotating.cpp
+		camera_fps.cpp
 		scene.cpp
 		gui.cpp
 		widget.cpp

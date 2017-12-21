@@ -1,4 +1,4 @@
-#include "gui_sprite.h"
+#include "sprite_gui.h"
 #include "log.h"
 #include "shader.h"
 #include "texture.h"
