@@ -84,6 +84,13 @@ Log& Log::operator << (int val)
     return *this;
 }
 
+Log& Log::operator << (char val)
+{
+    char tmp[] = {val, '\0'};
+    write(tmp);
+    return *this;
+}
+
 
 void Log::write(const char* str)
 {

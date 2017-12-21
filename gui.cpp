@@ -10,6 +10,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
 
+const unsigned int Label::WIDTH = 8;
+const unsigned int Label::HEIGHT = 14;
 
 MultiLine::MultiLine(std::string text)
 {
@@ -57,7 +59,7 @@ void MultiLine::resize()
 	for(auto l : mLines)
 		maxlen = std::max(maxlen, (int)l.length());
 
-	setSize(maxlen*10, mLabels.size()*15);
+	setSize(maxlen*Label::WIDTH, mLabels.size()*Label::HEIGHT);
 }
 
 Label* MultiLine::label(int l)
@@ -99,12 +101,12 @@ void Label::setText(std::string text)
 	{
 		id[7] = text[i];
 		w = std::make_shared<Widget>(id);
-		w->setSize(10, 15);
+		w->setSize(Label::WIDTH, Label::HEIGHT);
 		w->setColor(mColor.x, mColor.y, mColor.z, mColor.w);
 		addOwnedWidget(w);
 	}
 	if(!mWidth && !mHeight)
-		setSize(10*len+mSpacing*len+2*mPaddingHoris, 15+2*mPaddingVert);
+		setSize(Label::WIDTH*len+mSpacing*len+2*mPaddingHoris, Label::HEIGHT+2*mPaddingVert);
 }
 
 std::string& Label::getText()
@@ -472,7 +474,7 @@ void Gui::showFps()
 	{
 		mFps = std::make_shared<Label>("");
 		mFps->setTextColor(255, 0,0, 200);
-		mFps->setRect(0,0, 100, 15);
+		mFps->setRect(0,0, Label::WIDTH*10, Label::HEIGHT);
 		mRoot->addOwnedWidget(mFps);
 	}
 	else

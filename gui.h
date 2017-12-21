@@ -36,6 +36,9 @@ public:
 	virtual std::string& getText();
 	virtual void setTextColor(int r, int g, int b, int a);
 
+	static const unsigned int WIDTH;
+	static const unsigned int HEIGHT;
+
 private:
 	glm::vec4 mColor;
 	std::string mText;

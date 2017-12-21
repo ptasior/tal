@@ -12,7 +12,7 @@ class Texture
 {
 public:
 	// TODO Add destructor
-	~Texture();
+	virtual ~Texture();
 
 	// When repeat == false, clamping is enabled
 	void init(const char *path, Shader *shader);
@@ -20,6 +20,8 @@ public:
 
 	void setClamp();
 	void setRepeat();
+
+	// For multi texturing
 	void setName(std::string name, int id);
 
 	static std::shared_ptr<Texture> getTexture(const char* path, Shader *s, const char* name="mytexture", int id=0);

@@ -41,6 +41,10 @@ function setup()
 			gameState.myTurn=true;
 		end);
 
+	mat = Matrix.new()
+	-- mat:translate(Glm_Vec3.new(0.0, 0.5, -2))
+	mat:scaleVec(Glm_Vec3.new(0.5, 0.5, 0.5))
+
 	log('Lua setup done');
 end
 

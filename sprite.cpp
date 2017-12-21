@@ -26,11 +26,29 @@ void Sprite::init(std::string path, std::string shaderName)
 		-mWidth,  mHeight,  0.0
 	};
 
+	float t=0, l=0, w=1, h=1;
+	if(path.substr(0, 7) == "letter-") // A letter
+	{
+		const int SIZE = 16;
+		char let = path[7];
+
+		t = 1.0 - (1.0*((let/SIZE)+1)) / SIZE;
+		l = (1.0*(let%SIZE)) / SIZE;
+		w = 1.0 / SIZE;
+		h = 1.0 / SIZE;
+
+		const float CROP = 1.0/(SIZE*16);
+		t += CROP;
+		l += CROP*2;
+		w -= CROP*4;
+		h -= CROP*2;
+	}
+
 	GLfloat texcoords[] = {
-		0.0, 0.0,
-		1.0, 0.0,
-		1.0, 1.0,
-		0.0, 1.0,
+		l,   t,
+		l+w, t,
+		l+w, t+h,
+		l,   t+h,
 	};
 
 	GLushort elements[] = {
@@ -56,7 +74,11 @@ void Sprite::init(std::string path, std::string shaderName)
 	attribute_texcoord = mShader->attrib("texcoord");
 
 
-	if(!path.empty())
+	if(path.empty()) return;
+
+	if(path.substr(0, 7) == "letter-") // A letter
+		mTexture = Texture::getTexture("game/assets/font.png", mShader.get());
+	else
 		mTexture = Texture::getTexture(path.c_str(), mShader.get());
 }
 

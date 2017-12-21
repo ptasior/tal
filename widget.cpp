@@ -44,6 +44,7 @@ void Widget::updatePosition()
 
 	glm::vec3 posv = glm::vec3(mLeft+mLeftOffset+0.5*mWidth, mTop+mTopOffset+0.5*mHeight, 0.0);
 	glm::mat4 pos = glm::translate(glm::mat4(1.0f), posv);
+	pos = glm::rotate(pos, (float)M_PI, glm::vec3(1.0, 0, 0)); // Rotate upside down because of glOrtho
 	pos = glm::scale(pos, glm::vec3(0.5*mWidth, 0.5*mHeight, 0));
 	mSprite->setPosition(pos);
 }

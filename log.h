@@ -16,6 +16,7 @@ public:
     Log& operator << (long val);
     Log& operator << (unsigned int val);
     Log& operator << (int val);
+    Log& operator << (char val);
 
 	void flush();
 

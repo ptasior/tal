@@ -7,6 +7,7 @@
 #else
 	#include <SDL2/SDL_ttf.h>
 #endif
+#include <assert.h>
 
 
 std::mutex Texture::mMutex;
@@ -34,27 +35,26 @@ void Texture::init(const char *path, Shader *shader)
 	SDL_Surface* res_texture;
 	if(mName.substr(0, 7) == "letter-") // A letter
 	{
+		assert(false);
 		// TODO mutex
-		static TTF_Font* font = TTF_OpenFont("game/assets/Hack.ttf", SIZE-4);
-
-		if(!font)
-			Log(Log::DIE) << "Texture: Cannot initaialise specific font " << TTF_GetError();
-		SDL_Color textColor = {255, 255, 255, 255}; // white
-
-		SDL_Surface *rt  = TTF_RenderText_Blended(font, mName.substr(7).c_str(), textColor);
-		if(!rt)
-			Log(Log::DIE) << "Texture: Error in TTF_RenderText_Blended: " << SDL_GetError();
-
-		res_texture = SDL_CreateRGBSurface(SDL_SWSURFACE, SIZE, SIZE,
-				32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff
-			);
-
-		SDL_Rect rectS = {5, 5, SIZE-20, SIZE};
-		SDL_Rect rectD = {0, 0, SIZE, SIZE};
-		SDL_BlitScaled(rt, &rectS, res_texture, &rectD);
-		SDL_FreeSurface(rt);
-
-		// TTF_CloseFont(font);
+		// static TTF_Font* font = TTF_OpenFont("game/assets/Hack.ttf", SIZE-4);
+        //
+		// if(!font)
+		// 	Log(Log::DIE) << "Texture: Cannot initaialise specific font " << TTF_GetError();
+		// SDL_Color textColor = {255, 255, 255, 255}; // white
+        //
+		// SDL_Surface *rt  = TTF_RenderText_Blended(font, mName.substr(7).c_str(), textColor);
+		// if(!rt)
+		// 	Log(Log::DIE) << "Texture: Error in TTF_RenderText_Blended: " << SDL_GetError();
+        //
+		// res_texture = SDL_CreateRGBSurface(SDL_SWSURFACE, SIZE, SIZE,
+		// 		32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff
+		// 	);
+        //
+		// SDL_Rect rectS = {5, 5, SIZE-20, SIZE};
+		// SDL_Rect rectD = {0, 0, SIZE, SIZE};
+		// SDL_BlitScaled(rt, &rectS, res_texture, &rectD);
+		// SDL_FreeSurface(rt);
 	}
 	else if(mName.substr(0, 5) == "text-") // A letter
 	{
@@ -63,6 +63,12 @@ void Texture::init(const char *path, Shader *shader)
 
 		if(!font)
 			Log(Log::DIE) << "Texture: Cannot initaialise specific font " << TTF_GetError();
+		// TTF_SetFontOutline(font, 1);
+		// TTF_SetFontHinting(font, TTF_HINTING_MONO);
+		TTF_SetFontHinting(font, TTF_HINTING_LIGHT);
+		// TTF_SetFontHinting(font, TTF_HINTING_NONE);
+
+
 		SDL_Color textColor = {255, 255, 255, 255}; // white
 		SDL_Surface *rt  = TTF_RenderText_Blended(font, mName.substr(5).c_str(), textColor);
 		if(!rt)
@@ -77,7 +83,6 @@ void Texture::init(const char *path, Shader *shader)
 		SDL_BlitScaled(rt, &rectS, res_texture, &rectD);
 		SDL_FreeSurface(rt);
 
-		res_texture = flip(res_texture, SDL_FLIP_VERTICAL);
 	}
 	else // Regular image
 	{
@@ -88,9 +93,9 @@ void Texture::init(const char *path, Shader *shader)
 
 		if(res_texture->format->BytesPerPixel != 4)
 			Log(Log::DIE) << "Texture: Image does not have alpha channel: " << path;
-
-		res_texture = flip(res_texture, SDL_FLIP_VERTICAL);
 	}
+
+	res_texture = flip(res_texture, SDL_FLIP_VERTICAL);
 
 	glGenTextures(1, &mTextureId);
 	glBindTexture(GL_TEXTURE_2D, mTextureId);
@@ -142,7 +147,8 @@ void Texture::unbind()
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-std::shared_ptr<Texture> Texture::getTexture(const char* path, Shader *s, const char* name, int id){
+std::shared_ptr<Texture> Texture::getTexture(const char* path, Shader *s, const char* name, int id)
+{
 	// TODO Is it ok that texture may be reused with another shader???
 	std::lock_guard<std::mutex> lock(mMutex);
 	if(!mList.count(path))
