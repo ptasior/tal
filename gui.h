@@ -11,6 +11,23 @@
 class Button;
 class Console;
 class Label;
+class GuiSprite;
+
+class Checkbox : public Widget
+{
+public:
+	Checkbox(bool s);
+	void setChecked(bool s);
+	bool isChecked();
+
+private:
+	void update();
+
+	bool mChecked;
+	std::shared_ptr<GuiSprite> mCheckedSprite;
+	std::shared_ptr<GuiSprite> mUnCheckedSprite;
+};
+
 
 class Scroll : public Widget
 {

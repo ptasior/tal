@@ -13,6 +13,40 @@
 const unsigned int Label::WIDTH = 8;
 const unsigned int Label::HEIGHT = 14;
 
+
+Checkbox::Checkbox(bool s):
+	Widget("")
+{
+	mCheckedSprite = std::make_shared<GuiSprite>();
+	mCheckedSprite->init("letter-V", "gui");
+	mUnCheckedSprite = std::make_shared<GuiSprite>();
+	mUnCheckedSprite->init("letter-X", "gui");
+
+	mChecked = s;
+	mOnClick = [this](){mChecked = !mChecked; update();};
+
+	update();
+}
+
+void Checkbox::update()
+{
+	if(mChecked) mSprite = mCheckedSprite;
+	else mSprite = mUnCheckedSprite;
+	updatePosition();
+}
+
+void Checkbox::setChecked(bool s)
+{
+	mChecked = s;
+	update();
+}
+
+bool Checkbox::isChecked()
+{
+	return mChecked;
+}
+
+//------------------------------------------------------------------------------
 class ScrollContent : public Widget
 {
 public:

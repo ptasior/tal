@@ -75,7 +75,7 @@ if("${JS}")
 
 # -----------------------------------------------------------------------------
 else()
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -pedantic")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -Wall -pedantic -ftemplate-depth=2000")
 	add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
 	# This has to be clled after add_executable as it requires defined target

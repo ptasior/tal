@@ -121,6 +121,12 @@ void Lua::initGui(Gui *gui)
 	applyWidgetInheritance("Scroll");
 	state["Scroll"].SetClass<Scroll>();
 
+	applyWidgetInheritance("Checkbox");
+	state["Checkbox"].SetClass<Checkbox, bool>(
+					"setChecked", &Checkbox::setChecked,
+					"isChecked", &Checkbox::isChecked
+				);
+
 	applyWidgetInheritance("ButtonBox");
 	state["ButtonBox"].SetClass<ButtonBox, std::string>(
 			"addBottomButton", &ButtonBox::addForeignBottomButton
@@ -160,14 +166,16 @@ void Lua::applyWidgetInheritance(const char *type)
 			"addBox", &Widget::addWidget<Box>,
 			"addButtonBox", &Widget::addWidget<ButtonBox>,
 			"addScroll", &Widget::addWidget<Scroll>,
+			"addCheckbox", &Widget::addWidget<Checkbox>,
 
 			"removeWidget", &Widget::removeWidget<Widget>,
 			"removeLabel", &Widget::removeWidget<Label>,
 			"removeMultiLine", &Widget::removeWidget<MultiLine>,
 			"removeEdit", &Widget::removeWidget<Edit>,
 			"removeButton", &Widget::removeWidget<Button>,
-			"removeBox", &Widget::removeWidget<Box>,
-			"removeButtonBox", &Widget::removeWidget<ButtonBox>
+			"removeBox", &Widget::removeWidget<Box>
+			// "removeButtonBox", &Widget::removeWidget<ButtonBox>,
+			// "removeScroll", &Widget::removeWidget<Scroll>
 		);
 }
 

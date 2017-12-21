@@ -50,26 +50,24 @@ function setup()
 	ss:setRect(100,100,110,101)
 	gui.rootWidget():addScroll(ss);
 	aa = Label.new("aaaaa")
-	aa:setColor(0,0,0,255)
 	ss:addLabel(aa)
 	aa = Label.new("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb")
-	aa:setColor(0,0,0,255)
 	ss:addLabel(aa)
 	aa = Label.new("ccccc")
-	aa:setColor(0,0,0,255)
 	ss:addLabel(aa)
 	aa = Label.new("ddddd")
-	aa:setColor(0,0,0,255)
 	ss:addLabel(aa)
 	aa = Label.new("eeeee")
-	aa:setColor(0,0,0,255)
 	ss:addLabel(aa)
 	aa = Label.new("fffff")
-	aa:setColor(0,0,0,255)
 	ss:addLabel(aa)
 	aa = Label.new("ggggg")
-	aa:setColor(0,0,0,255)
 	ss:addLabel(aa)
+
+
+	ss = Checkbox.new();
+	ss:setRect(300,100,20,20)
+	gui.rootWidget():addCheckbox(ss);
 
 	log('Lua setup done');
 end
