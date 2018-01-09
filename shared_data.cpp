@@ -4,8 +4,8 @@
 #include "log.h"
 #include <assert.h>
 
-std::vector<std::string> SharedData::mChanges;
-bool SharedData::mOffline = false;
+std::queue<std::string> SharedData::mChanges;
+bool SharedData::mOnline = true;
 SharedData SharedData::mRoot;
 
 SharedData::SharedData()
@@ -25,7 +25,7 @@ SharedData& SharedData::operator[](const char* key)
 
 void SharedData::operator=(const std::string& v)
 {
-	if(mOffline)
+	if(!mOnline)
 		mValue = v; // If offline, wait till comes back from server to keep the order
 	else
 	{
@@ -37,7 +37,7 @@ void SharedData::operator=(const std::string& v)
 			p = p->mParent;
 		}
 
-		mChanges.push_back(line);
+		mChanges.push(line);
 	}
 }
 
@@ -58,7 +58,7 @@ SharedData::operator int()
 
 void SharedData::applyChange(std::string line)
 {
-	assert(!mOffline);
+	assert(mOnline);
 
 	Log() << "SharedData: Applying line: " << line;
 
@@ -76,14 +76,15 @@ void SharedData::applyChange(std::string line)
 	p->mValue = line;
 }
 
-std::vector<std::string>& SharedData::getChanges()
+std::queue<std::string>& SharedData::getChanges()
 {
 	return mChanges;
 }
 
-void SharedData::init()
+void SharedData::setOnline(bool v)
 {
-	mOffline = global_window->getConfig()->get("offline") == "true";
+	Log() << "SharedData: Online: " << v;
+	mOnline = v;
 }
 
 SharedData& SharedData::root()

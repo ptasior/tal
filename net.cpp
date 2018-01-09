@@ -1,8 +1,11 @@
 #include "net.h"
 #include "log.h"
+#include "shared_data.h"
 #include <SDL_net.h>
 #include <assert.h>
 #include <errno.h>
+
+const int BUFFSIZE = 2048;
 
 Net::Net()
 {
@@ -29,6 +32,7 @@ void Net::connect()
 
     SDLNet_TCP_AddSocket(mSocketSet, mSock);
 
+	SharedData::setOnline(true);
     Log() << "Net: connected";
 }
 
@@ -40,33 +44,30 @@ void Net::disconnect()
     Log() << "Net: disconnected";
 }
 
-void Net::send(const std::string & msg)
-{
-    mSendMessage = msg;
-}
-
 void Net::loop()
 {
     if(!mSock) return; //connect();
 
-    char recvbuf[1024] = {0};
+    char recvbuf[BUFFSIZE] = {0};
 
     if(SDLNet_CheckSockets(mSocketSet, 0) && SDLNet_SocketReady(mSock))
-        if(SDLNet_TCP_Recv(mSock, recvbuf, 1024))
+        if(SDLNet_TCP_Recv(mSock, recvbuf, BUFFSIZE))
         {
             Log() << "Net: received: " << recvbuf;
-            mMessages.push_back(std::string(recvbuf));
+			SharedData::applyChange(recvbuf);
         }
 
     // If nothing to send, return
-    if(mSendMessage.empty())
+    if(SharedData::getChanges().empty())
         return;
+	std::string line = SharedData::getChanges().front();
+	SharedData::getChanges().pop();
 
     int actual = 0;
-    int len = mSendMessage.size();
-    assert(len < 1024); // Remote buffer size
+    int len = line.size();
+    assert(len < BUFFSIZE); // Remote buffer size
 
-    if((actual = SDLNet_TCP_Send(mSock, (void *)mSendMessage.c_str(), len)) != len)
+    if((actual = SDLNet_TCP_Send(mSock, (void *)line.c_str(), len)) != len)
     {
         Log() << "Net: SDLNet_TCP_Send: count: "
               << actual << "/" << len
@@ -90,8 +91,7 @@ void Net::loop()
     }
     else
     {
-        Log() << "Net: message sent: " << mSendMessage;
-        mSendMessage = "";
+        Log() << "Net: message sent: " << line;
     }
 }
 

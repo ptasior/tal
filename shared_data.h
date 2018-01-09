@@ -1,10 +1,11 @@
 #pragma once
 #include <map>
-#include <vector>
+#include <queue>
+#include <string>
 
 /* @example
  *
- * 	SharedData::init();
+ * 	SharedData::setOnline(true);
  * 	SharedData::root()["players"]["count"] = 5;
  * 	SharedData::root()["players"]["visible"] = "yes";
  *
@@ -31,9 +32,9 @@ public:
 	void print(int idn = 0);
 
 	static void applyChange(std::string line);
-	static void init();
+	static void setOnline(bool v);
 	static SharedData& root();
-	std::vector<std::string>& getChanges();
+	static std::queue<std::string>& getChanges();
 
 private:
 	std::map<std::string, SharedData> mBranches;
@@ -41,8 +42,8 @@ private:
 	std::string mKey;
 	std::string mValue;
 
-	static std::vector<std::string> mChanges;
-	static bool mOffline;
+	static std::queue<std::string> mChanges;
+	static bool mOnline;
 	static SharedData mRoot;
 };
 
