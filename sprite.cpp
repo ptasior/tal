@@ -2,6 +2,8 @@
 #include "log.h"
 #include "shader.h"
 #include "texture.h"
+#include "window.h"
+#include "config.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -77,7 +79,7 @@ void Sprite::init(std::string path, std::string shaderName)
 	if(path.empty()) return;
 
 	if(path.substr(0, 7) == "letter-") // A letter
-		mTexture = Texture::getTexture("game/assets/font.png", mShader.get());
+		mTexture = Texture::getTexture(global_window->getConfig()->get("fontTexture").c_str(), mShader.get());
 	else
 		mTexture = Texture::getTexture(path.c_str(), mShader.get());
 }

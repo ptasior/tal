@@ -18,6 +18,7 @@ int main(int argc, char* args[])
 {
 	Window w;
 	global_window = &w;
+	w.init();
 
     #ifdef __EMSCRIPTEN__
         Log() << "Running Emscripten loop";

@@ -8,6 +8,7 @@
 #include "gui.h"
 #include "lua.h"
 #include "time.h"
+#include "config.h"
 
 #ifdef __EMSCRIPTEN__
 	#include <SDL_ttf.h>
@@ -16,6 +17,9 @@
 #endif
 
 Window::Window()
+{}
+
+void Window::init()
 {
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
@@ -61,6 +65,8 @@ Window::Window()
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 #endif
+
+	mConfig = std::make_shared<Config>();
 
 	mNet = std::make_shared<Net>();
 
@@ -254,5 +260,10 @@ Scene* Window::getScene()
 Gui* Window::getGui()
 {
 	return mGui.get();
+}
+
+Config* Window::getConfig()
+{
+	return mConfig.get();
 }
 

@@ -8,6 +8,8 @@
 #include "map.h"
 #include "matrix.h"
 #include "time.h"
+#include "window.h"
+#include "config.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -186,7 +188,7 @@ void Lua::setup()
 			Log() << "Lua exception: " << msg;
 		});
 
-	state.Load("game/game.lua");
+	state.Load(global_window->getConfig()->get("gameFile").c_str());
 
 	state["setup"]();
 }

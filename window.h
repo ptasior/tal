@@ -7,6 +7,7 @@ class Scene;
 class Camera;
 class Net;
 class Gui;
+class Config;
 
 class Window
 {
@@ -14,6 +15,7 @@ public:
 	Window();
 	~Window();
 
+	void init();
 	void processEvents();
 	bool onEvent(SDL_Event &event);
 	void onLoop();
@@ -26,6 +28,7 @@ public:
 	Camera* getCamera();
 	Scene* getScene();
 	Gui* getGui();
+	Config* getConfig();
 
 	void loop();
 
@@ -44,5 +47,8 @@ private:
 	std::shared_ptr<Camera> mCamera;
 	std::shared_ptr<Scene> mScene;
 	std::shared_ptr<Gui> mGui;
+	std::shared_ptr<Config> mConfig;
 };
+
+extern Window *global_window;
 

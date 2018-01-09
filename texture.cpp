@@ -1,6 +1,8 @@
 #include "texture.h"
 #include "shader.h"
 #include "log.h"
+#include "window.h"
+#include "config.h"
 #include <SDL2/SDL_image.h>
 #ifdef __EMSCRIPTEN__
 	#include <SDL_ttf.h>
@@ -26,6 +28,7 @@ Texture::~Texture()
 {
 	glDeleteTextures(1, &mTextureId);
 }
+extern int global_int;
 
 void Texture::init(const char *path, Shader *shader)
 {
@@ -40,8 +43,9 @@ void Texture::init(const char *path, Shader *shader)
 	else if(mName.substr(0, 5) == "text-") // A letter
 	{
 		// TODO mutex
-		static TTF_Font* font = TTF_OpenFont("game/assets/WizardsMagic.ttf", SIZE);
-		static TTF_Font* fontOutline = TTF_OpenFont("game/assets/WizardsMagic.ttf", SIZE);
+		auto fontName = global_window->getConfig()->get("font");
+		static TTF_Font* font = TTF_OpenFont(fontName.c_str(), SIZE);
+		static TTF_Font* fontOutline = TTF_OpenFont(fontName.c_str(), SIZE);
 
 		if(!font)
 			Log(Log::DIE) << "Texture: Cannot initaialise specific font " << TTF_GetError();

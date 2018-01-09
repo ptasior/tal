@@ -34,6 +34,7 @@ set(SOURCE_FILES
 		skybox.cpp
 		matrix.cpp
 		time.cpp
+		config.cpp
 	)
 
 
@@ -41,6 +42,7 @@ add_custom_target(symlinks ALL
 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/game .
 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/shaders .
 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/lua_lib .
+		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/config.lua .
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	)
 
