@@ -41,7 +41,7 @@ function Field:draw()
 	mat:translate(Glm_Vec3.new(0, 0.05, 0));
 
 	self.obj.label = Sprite.new();
-	self.obj.label:setSize(0.03, 0.01);
+	self.obj.label:setSize(0.007*string.len(self.label), 0.007);
 	self.obj.label:init("text-"..self.label, "sprite");
 	self.obj.label:setPosition(mat:val());
 	scene.addSprite(self.obj.label);

@@ -47,7 +47,7 @@ function setup()
 
 
 	ss = Scroll.new();
-	ss:setRect(100,100,110,101)
+	ss:setRect(100,100,110,104)
 	gui.rootWidget():addScroll(ss);
 	aa = Label.new("aaaaa")
 	ss:addLabel(aa)

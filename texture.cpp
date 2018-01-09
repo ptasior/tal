@@ -16,7 +16,7 @@ std::map<std::string, std::shared_ptr<Texture>> Texture::mList;
 Uint32 get_pixel32(SDL_Surface *surface, int x, int y);
 void put_pixel32(SDL_Surface *surface, int x, int y, Uint32 pixel);
 
-const int SIZE = 64;
+const int SIZE = 250;
 
 Texture::Texture()
 {
@@ -36,30 +36,12 @@ void Texture::init(const char *path, Shader *shader)
 	if(mName.substr(0, 7) == "letter-") // A letter
 	{
 		assert(false);
-		// TODO mutex
-		// static TTF_Font* font = TTF_OpenFont("game/assets/Hack.ttf", SIZE-4);
-        //
-		// if(!font)
-		// 	Log(Log::DIE) << "Texture: Cannot initaialise specific font " << TTF_GetError();
-		// SDL_Color textColor = {255, 255, 255, 255}; // white
-        //
-		// SDL_Surface *rt  = TTF_RenderText_Blended(font, mName.substr(7).c_str(), textColor);
-		// if(!rt)
-		// 	Log(Log::DIE) << "Texture: Error in TTF_RenderText_Blended: " << SDL_GetError();
-        //
-		// res_texture = SDL_CreateRGBSurface(SDL_SWSURFACE, SIZE, SIZE,
-		// 		32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff
-		// 	);
-        //
-		// SDL_Rect rectS = {5, 5, SIZE-20, SIZE};
-		// SDL_Rect rectD = {0, 0, SIZE, SIZE};
-		// SDL_BlitScaled(rt, &rectS, res_texture, &rectD);
-		// SDL_FreeSurface(rt);
 	}
 	else if(mName.substr(0, 5) == "text-") // A letter
 	{
 		// TODO mutex
-		static TTF_Font* font = TTF_OpenFont("game/assets/Hack.ttf", SIZE-4);
+		static TTF_Font* font = TTF_OpenFont("game/assets/WizardsMagic.ttf", SIZE);
+		static TTF_Font* fontOutline = TTF_OpenFont("game/assets/WizardsMagic.ttf", SIZE);
 
 		if(!font)
 			Log(Log::DIE) << "Texture: Cannot initaialise specific font " << TTF_GetError();
@@ -68,20 +50,38 @@ void Texture::init(const char *path, Shader *shader)
 		TTF_SetFontHinting(font, TTF_HINTING_LIGHT);
 		// TTF_SetFontHinting(font, TTF_HINTING_NONE);
 
+		const int OUTLINE_SIZE = 3;
 
-		SDL_Color textColor = {255, 255, 255, 255}; // white
-		SDL_Surface *rt  = TTF_RenderText_Blended(font, mName.substr(5).c_str(), textColor);
-		if(!rt)
+		TTF_SetFontKerning(font, 1);
+		TTF_SetFontKerning(fontOutline, 1);
+		TTF_SetFontOutline(fontOutline, OUTLINE_SIZE);
+
+
+		SDL_Color white = {255, 255, 255, 255}; // white
+		SDL_Color black = {255, 255, 255, 128}; // white
+		// SDL_Color black = {0, 0, 0, 255};
+
+		SDL_Surface *bg  = TTF_RenderText_Blended(fontOutline, mName.substr(5).c_str(), black);
+		SDL_Surface *fg  = TTF_RenderText_Blended(font, mName.substr(5).c_str(), white);
+
+		if(!fg | !bg)
 			Log(Log::DIE) << "Texture: Error in TTF_RenderText_Blended: " << SDL_GetError();
+
+		SDL_Rect rect = {OUTLINE_SIZE, OUTLINE_SIZE, fg->w, fg->h}; 
+
+		SDL_SetSurfaceBlendMode(fg, SDL_BLENDMODE_BLEND);
+		SDL_BlitSurface(fg, NULL, bg, &rect);
+		SDL_FreeSurface(fg);
+
 
 		res_texture = SDL_CreateRGBSurface(SDL_SWSURFACE, SIZE, SIZE,
 				32, 0xff000000, 0x00ff0000, 0x0000ff00, 0x000000ff
 			);
 
-		SDL_Rect rectS = {0, 0, rt->w, rt->h};
+		SDL_Rect rectS = {0, 0, bg->w, bg->h};
 		SDL_Rect rectD = {0, 0, SIZE, SIZE};
-		SDL_BlitScaled(rt, &rectS, res_texture, &rectD);
-		SDL_FreeSurface(rt);
+		SDL_BlitScaled(bg, &rectS, res_texture, &rectD);
+		SDL_FreeSurface(bg);
 
 	}
 	else // Regular image

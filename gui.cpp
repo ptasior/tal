@@ -10,17 +10,17 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
 
-const unsigned int Label::WIDTH = 8;
-const unsigned int Label::HEIGHT = 14;
+const unsigned int Label::WIDTH = 9;
+const unsigned int Label::HEIGHT = 15;
 
 
 Checkbox::Checkbox(bool s):
 	Widget("")
 {
 	mCheckedSprite = std::make_shared<GuiSprite>();
-	mCheckedSprite->init("letter-V", "gui");
+	mCheckedSprite->init("letter-\13", "gui");
 	mUnCheckedSprite = std::make_shared<GuiSprite>();
-	mUnCheckedSprite->init("letter-X", "gui");
+	mUnCheckedSprite->init("letter-\12", "gui");
 
 	mChecked = s;
 	mOnClick = [this](){mChecked = !mChecked; update();};
@@ -115,12 +115,12 @@ Scroll::Scroll():
 	mStretch = false;
 	mSprite->setColor(150,150,150,200);
 
-	mButtonUp = std::make_shared<Button>(std::string("/\\"));
+	mButtonUp = std::make_shared<Button>(std::string("\1"));
 	mButtonUp->onClick([this](){onUp();});
 	mButtonUp->setColor(50,50,50,200);
 	mButtonUp->setPadding(3, 2);
 
-	mButtonDown = std::make_shared<Button>(std::string("\\/"));
+	mButtonDown = std::make_shared<Button>(std::string("\2"));
 	mButtonDown->onClick([this](){onDown();});
 	mButtonDown->setColor(50,50,50,200);
 	mButtonDown->setPadding(3, 2);

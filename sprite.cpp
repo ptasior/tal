@@ -37,7 +37,7 @@ void Sprite::init(std::string path, std::string shaderName)
 		w = 1.0 / SIZE;
 		h = 1.0 / SIZE;
 
-		const float CROP = 1.0/(SIZE*16);
+		const float CROP = 0;//1.0/(SIZE*16);
 		t += CROP;
 		l += CROP*2;
 		w -= CROP*4;
