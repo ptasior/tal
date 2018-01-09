@@ -10,7 +10,7 @@ Window *global_window;
 #ifdef __EMSCRIPTEN__
 void main_loop()
 {
-    global_window->onLoop();
+	global_window->onLoop();
 }
 #endif
 
@@ -20,13 +20,13 @@ int main(int argc, char* args[])
 	global_window = &w;
 	w.init();
 
-    #ifdef __EMSCRIPTEN__
-        Log() << "Running Emscripten loop";
-        emscripten_set_main_loop(main_loop, 0, true);
-    #else
-        global_window->loop();
-    #endif
+	#ifdef __EMSCRIPTEN__
+		Log() << "Running Emscripten loop";
+		emscripten_set_main_loop(main_loop, 0, true);
+	#else
+		global_window->loop();
+	#endif
 
-    return 0;
+	return 0;
 }
 

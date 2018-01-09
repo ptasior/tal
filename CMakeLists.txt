@@ -35,6 +35,7 @@ set(SOURCE_FILES
 		matrix.cpp
 		time.cpp
 		config.cpp
+		shared_data.cpp
 	)
 
 
