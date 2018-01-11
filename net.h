@@ -6,17 +6,17 @@
 class Net
 {
 public:
-    Net();
-    ~Net();
+	Net();
+	~Net();
 
-    void connect();
-    void disconnect();
+	void connect();
+	void disconnect();
 
-    void loop();
+	void loop();
 
 private:
-    IPaddress mIp;
-    TCPsocket mSock = nullptr;
-    SDLNet_SocketSet mSocketSet = nullptr;
+	IPaddress mIp;
+	TCPsocket mSock = nullptr;
+	SDLNet_SocketSet mSocketSet = nullptr;
 };
 
