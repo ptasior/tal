@@ -68,12 +68,12 @@ def client_loop(conn, addr):
     myNo = init(conn, addr)
 
     while True:
-        data = conn.recv(2048)
-        if len(data) == 0: break # Disconnected
+        datar = conn.recv(2048)
+        if len(datar) == 0: break # Disconnected
 
-        print("Recv from:", addr, ", data: ", data, " len:", len(data))
+        print("Recv from:", addr, ", data: ", datar, " len:", len(datar))
 
-        broadcast(data)
+        broadcast(datar.decode())
 
     conn.shutdown(1)
     conn.close()

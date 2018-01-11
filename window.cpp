@@ -74,6 +74,10 @@ void Window::init()
 
 	mNet = std::make_shared<Net>();
 
+	// TODO How to make sure we have received self registration before entering Lua?
+	if(mConfig->get("offline") == "false")
+		mNet->connect();
+
 	mCamera = std::make_shared<RotatingCamera>();
 	// mCamera = std::make_shared<FpsCamera>();
 	mCamera->init();
@@ -87,13 +91,9 @@ void Window::init()
 	mGui->init();
 	mGui->setSceneSize(mScreenWidth, mScreenHeight);
 
-
 	Lua::getInstance()->initGui(mGui.get());
 	Lua::getInstance()->initScene(mScene.get());
 	Lua::getInstance()->setup();
-
-	if(mConfig->get("offline") == "false")
-		mNet->connect();
 
 	Log() << "Window: Initialisation succesed";
 }
