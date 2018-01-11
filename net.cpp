@@ -1,6 +1,7 @@
 #include "net.h"
 #include "log.h"
 #include "shared_data.h"
+#include "config.h"
 #include <SDL_net.h>
 #include <assert.h>
 #include <errno.h>
@@ -21,11 +22,19 @@ void Net::connect()
 {
 	if(mSock) return;
 
-	if(SDLNet_ResolveHost(&mIp, "10.0.0.2", 1234) < 0)
-		Log(Log::DIE) << "Net: SDLNet_ResolveHost:" << SDLNet_GetError();
+	std::string addr = global_config->get("serverAddr");
+	int port = std::stoi(global_config->get("serverPort"));
+	if(SDLNet_ResolveHost(&mIp, addr.c_str(), port) < 0)
+		Log(Log::DIE) << "Net: SDLNet_ResolveHost ("
+					<< addr << ":"
+					<< port << "): "
+					<< SDLNet_GetError();
 
 	if(!(mSock = SDLNet_TCP_Open(&mIp)))
-		Log(Log::DIE) << "Net: SDLNet_TCP_Open:" << SDLNet_GetError();
+		Log(Log::DIE) << "Net: SDLNet_TCP_Open ("
+					<< addr << ":"
+					<< port << "): "
+					<< SDLNet_GetError();
 
 	if((mSocketSet = SDLNet_AllocSocketSet(1)) == NULL)
 		Log(Log::DIE) << "Net: Failed to allocate the socket set: " << SDLNet_GetError();

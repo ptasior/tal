@@ -1,7 +1,6 @@
 #include "texture.h"
 #include "shader.h"
 #include "log.h"
-#include "window.h"
 #include "config.h"
 #include <SDL2/SDL_image.h>
 #ifdef __EMSCRIPTEN__
@@ -43,7 +42,7 @@ void Texture::init(const char *path, Shader *shader)
 	else if(mName.substr(0, 5) == "text-") // A letter
 	{
 		// TODO mutex
-		auto fontName = global_window->getConfig()->get("font");
+		auto fontName = global_config->get("font");
 		static TTF_Font* font = TTF_OpenFont(fontName.c_str(), SIZE);
 		static TTF_Font* fontOutline = TTF_OpenFont(fontName.c_str(), SIZE);
 

@@ -34,7 +34,7 @@ public:
 	std::string get();
 	void set(std::string s);
 
-	void print(int idn = 0);
+	void print();
 
 	static void applyChange(std::string line);
 	static void setOnline(bool v);
@@ -44,6 +44,7 @@ public:
 private:
 	SharedData* i_at(const std::string& key);
 	void i_set(const std::string& v);
+	void print_i(int idn = 0);
 
 
 	std::map<std::string, SharedData> mBranches;

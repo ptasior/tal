@@ -12,3 +12,5 @@ protected:
 	sel::State mState;
 };
 
+extern Config* global_config;
+

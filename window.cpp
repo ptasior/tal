@@ -9,12 +9,15 @@
 #include "lua.h"
 #include "time.h"
 #include "config.h"
+#include "shared_data.h"
 
 #ifdef __EMSCRIPTEN__
 	#include <SDL_ttf.h>
 #else
 	#include <SDL2/SDL_ttf.h>
 #endif
+
+Config* global_config = nullptr;
 
 Window::Window()
 {}
@@ -67,6 +70,7 @@ void Window::init()
 #endif
 
 	mConfig = std::make_shared<Config>();
+	global_config = mConfig.get();
 
 	mNet = std::make_shared<Net>();
 
@@ -87,6 +91,9 @@ void Window::init()
 	Lua::getInstance()->initGui(mGui.get());
 	Lua::getInstance()->initScene(mScene.get());
 	Lua::getInstance()->setup();
+
+	if(mConfig->get("offline") == "false")
+		mNet->connect();
 
 	Log() << "Window: Initialisation succesed";
 }

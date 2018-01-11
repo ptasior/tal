@@ -41,6 +41,14 @@ function setup()
 			gameState.myTurn=true;
 		end);
 
+	tt_btn = GuiHelpers:randomButton('Net', function()
+			sharedData.at('test'):at("rq"):set('qq');
+		end);
+
+	pp_btn = GuiHelpers:randomButton('Print', function()
+			sharedData.print();
+		end);
+
 	mat = Matrix.new();
 	-- mat:translate(Glm_Vec3.new(0.0, 0.5, -2))
 	mat:scaleVec(Glm_Vec3.new(0.5, 0.5, 0.5));

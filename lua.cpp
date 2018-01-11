@@ -8,7 +8,6 @@
 #include "map.h"
 #include "matrix.h"
 #include "time.h"
-#include "window.h"
 #include "config.h"
 #include "shared_data.h"
 
@@ -201,7 +200,7 @@ void Lua::setup()
 			Log() << "Lua exception: " << msg;
 		});
 
-	state.Load(global_window->getConfig()->get("gameFile").c_str());
+	state.Load(global_config->get("gameFile").c_str());
 
 	state["setup"]();
 }

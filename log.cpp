@@ -10,13 +10,21 @@ const char *Log::endl = "\n";
 
 Log::Log(Action a):
 	mAction(a)
-{}
+{
+	if(mAction == DIE)
+	{
+		write("---Fatal-error--------------------------");
+		write(Log::endl);
+	}
+}
 
 Log::~Log()
 {
 	write(Log::endl);
 	if(mAction == DIE)
 	{
+		write("----------------------------------------");
+		write(Log::endl);
 		#ifdef __EMSCRIPTEN__
 		emscripten_cancel_main_loop();
 		#endif
@@ -94,7 +102,7 @@ Log& Log::operator << (char val)
 
 void Log::write(const char* str)
 {
-	if(mAction == ERR)
+	if(mAction == ERR || mAction == DIE)
 		std::cerr << str;
 	else
 		std::cout << str;
@@ -104,3 +112,4 @@ void Log::flush()
 {
 	std::cout << std::flush;
 }
+

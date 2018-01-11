@@ -49,19 +49,26 @@ SharedData& SharedData::root()
 	return mRoot;
 }
 
-void SharedData::print(int idn)
+void SharedData::print()
+{
+	print_i(0);
+}
+
+void SharedData::print_i(int idn)
 {
 	if(idn)
 	{
-		auto l = std::string(idn, ' ') + mKey;
+		auto l = std::string(idn, ' ') + "- " + mKey;
 		if(!mValue.empty())
 			l += " = " + mValue;
 
 		Log() << l;
 	}
+	else
+		Log() << "-";
 
 	for(auto b : mBranches)
-		b.second.print(idn+1);
+		b.second.print_i(idn+1);
 }
 
 SharedData* SharedData::i_at(const std::string& key)
