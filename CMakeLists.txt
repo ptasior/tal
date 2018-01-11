@@ -28,6 +28,8 @@ set(SOURCE_FILES
 		gui.cpp
 		widget.cpp
 		lua.cpp
+		lua_scene.cpp
+		lua_gui.cpp
 		model.cpp
 		model_obj.cpp
 		map.cpp
