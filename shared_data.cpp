@@ -5,55 +5,12 @@
 #include <assert.h>
 
 std::queue<std::string> SharedData::mChanges;
-bool SharedData::mOnline = true;
+bool SharedData::mOnline = false;
 SharedData SharedData::mRoot;
 
 SharedData::SharedData()
 {
 
-}
-
-SharedData& SharedData::operator[](const char* key)
-{
-	if(!mBranches.count(key))
-	{
-		mBranches[key].mKey = key;
-		mBranches[key].mParent = this;
-	}
-	return mBranches[key];
-}
-
-void SharedData::operator=(const std::string& v)
-{
-	if(!mOnline)
-		mValue = v; // If offline, wait till comes back from server to keep the order
-	else
-	{
-		std::string line = mKey + "\1" + v;
-		auto p = mParent;
-		while(p->mParent)
-		{
-			line = p->mKey + "\1" + line;
-			p = p->mParent;
-		}
-
-		mChanges.push(line);
-	}
-}
-
-void SharedData::operator=(int v)
-{
-	this->operator=(std::to_string(v));
-}
-
-SharedData::operator std::string()
-{
-	return mValue;
-}
-
-SharedData::operator int()
-{
-	return std::stoi(mValue);
 }
 
 void SharedData::applyChange(std::string line)
@@ -105,5 +62,73 @@ void SharedData::print(int idn)
 
 	for(auto b : mBranches)
 		b.second.print(idn+1);
+}
+
+SharedData* SharedData::i_at(const std::string& key)
+{
+	if(!mBranches.count(key))
+	{
+		mBranches[key].mKey = key;
+		mBranches[key].mParent = this;
+	}
+	return &mBranches[key];
+}
+
+void SharedData::i_set(const std::string& v)
+{
+	if(!mOnline)
+		mValue = v; // If offline, wait till comes back from server to keep the order
+	else
+	{
+		std::string line = mKey + "\1" + v;
+		auto p = mParent;
+		while(p->mParent)
+		{
+			line = p->mKey + "\1" + line;
+			p = p->mParent;
+		}
+
+		mChanges.push(line);
+	}
+}
+
+SharedData* SharedData::at(std::string key)
+{
+	return i_at(key.c_str());
+}
+
+std::string SharedData::get()
+{
+	return mValue;
+}
+
+void SharedData::set(std::string s)
+{
+	i_set(s);
+}
+
+SharedData& SharedData::operator[](const char* key)
+{
+	return *i_at(key);
+}
+
+void SharedData::operator=(const std::string& v)
+{
+	i_set(v);
+}
+
+void SharedData::operator=(int v)
+{
+	i_set(std::to_string(v));
+}
+
+SharedData::operator std::string()
+{
+	return mValue;
+}
+
+SharedData::operator int()
+{
+	return std::stoi(mValue);
 }
 

@@ -10,6 +10,7 @@
 #include "time.h"
 #include "window.h"
 #include "config.h"
+#include "shared_data.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -36,6 +37,18 @@ Lua::Lua():
 	state["setLoopResolution"] = &Lua::setLoopResolution;
 	state["setWait"] = &Lua::setWait;
 	state["setTimeout"] = &Lua::setTimeout;
+
+	state["sharedData"].SetObj<SharedData>(SharedData::root(),
+			"at", &SharedData::at,
+			"print", &SharedData::print
+		);
+
+	state["SharedData"].SetClass<SharedData>(
+			"at", &SharedData::at,
+			"get", &SharedData::get,
+			"set", &SharedData::set
+		);
+
 }
 
 void Lua::initScene(Scene *scene)

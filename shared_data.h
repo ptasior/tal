@@ -29,6 +29,11 @@ public:
 	void operator=(int v);
 	operator std::string();
 	operator int();
+
+	SharedData* at(std::string key);
+	std::string get();
+	void set(std::string s);
+
 	void print(int idn = 0);
 
 	static void applyChange(std::string line);
@@ -37,6 +42,10 @@ public:
 	static std::queue<std::string>& getChanges();
 
 private:
+	SharedData* i_at(const std::string& key);
+	void i_set(const std::string& v);
+
+
 	std::map<std::string, SharedData> mBranches;
 	SharedData *mParent = nullptr;
 	std::string mKey;
