@@ -25,13 +25,13 @@ void Net::connect()
 	std::string addr = global_config->get("serverAddr");
 	int port = std::stoi(global_config->get("serverPort"));
 	if(SDLNet_ResolveHost(&mIp, addr.c_str(), port) < 0)
-		Log(Log::DIE) << "Net: SDLNet_ResolveHost ("
+		Log(Log::DIE) << "Net: resolve host ("
 					<< addr << ":"
 					<< port << "): "
 					<< SDLNet_GetError();
 
 	if(!(mSock = SDLNet_TCP_Open(&mIp)))
-		Log(Log::DIE) << "Net: SDLNet_TCP_Open ("
+		Log(Log::DIE) << "Net: open ("
 					<< addr << ":"
 					<< port << "): "
 					<< SDLNet_GetError();
@@ -57,28 +57,57 @@ void Net::loop()
 {
 	if(!mSock) return; //connect();
 
-	char recvbuf[BUFFSIZE] = {0};
+	char recvbuf[BUFFSIZE+1] = {0};
+	short lenr;
 
 	if(SDLNet_CheckSockets(mSocketSet, 0) && SDLNet_SocketReady(mSock))
-		if(SDLNet_TCP_Recv(mSock, recvbuf, BUFFSIZE))
+		if((lenr = SDLNet_TCP_Recv(mSock, recvbuf, BUFFSIZE)) > 0)
 		{
-			Log() << "Net: received: " << recvbuf;
-			SharedData::applyChange(recvbuf);
+			Log() << "Net: received: " << recvbuf << " len: " << lenr;
+			int b = 0, e = 0;
+			for(; e < lenr; e++)
+				if(recvbuf[e] == '\2')
+				{
+					Log() << "e found: " << e;
+					recvbuf[e] = '\0';
+					if(!mRemainingBuff.empty())
+					{
+						Log() << "applying with reminder: " << mRemainingBuff+(recvbuf+b);
+						SharedData::applyChange(mRemainingBuff+(recvbuf+b));
+						mRemainingBuff.clear();
+					}
+					else
+					{
+						Log() << "applying: " << recvbuf+b;
+						SharedData::applyChange(recvbuf+b);
+					}
+					b = e+1;
+				}
+				else
+					Log() << "." << e << " " << (int)(recvbuf[e]);
+
+			if(e < lenr)
+			{
+				recvbuf[e+1] = '\0'; // There is still space
+				mRemainingBuff = recvbuf;
+			}
 		}
+		else
+			Log() << "Net: Sever error, lenr = " << lenr;
 
 	// If nothing to send, return
 	if(SharedData::getChanges().empty())
 		return;
-	std::string line = SharedData::getChanges().front();
+	std::string line = SharedData::getChanges().front()+'\2';
 	SharedData::getChanges().pop();
 
 	int actual = 0;
-	int len = line.size();
-	assert(len < BUFFSIZE); // Remote buffer size
+	int len = line.size()-1; // -1 removes \0
+	// assert(len < BUFFSIZE); // Remote buffer size // Shouldn't be needed any more
 
 	if((actual = SDLNet_TCP_Send(mSock, (void *)line.c_str(), len)) != len)
 	{
-		Log() << "Net: SDLNet_TCP_Send: count: "
+		Log() << "Net: send: count: "
 			  << actual << "/" << len
 			  << " err: " << SDLNet_GetError();
 

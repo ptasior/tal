@@ -18,5 +18,6 @@ private:
 	IPaddress mIp;
 	TCPsocket mSock = nullptr;
 	SDLNet_SocketSet mSocketSet = nullptr;
+	std::string mRemainingBuff;
 };
 
