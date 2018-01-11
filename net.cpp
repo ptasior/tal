@@ -37,7 +37,7 @@ void Net::connect()
 					<< SDLNet_GetError();
 
 	if((mSocketSet = SDLNet_AllocSocketSet(1)) == NULL)
-		Log(Log::DIE) << "Net: Failed to allocate the socket set: " << SDLNet_GetError();
+		Log(Log::DIE) << "Net: failed to allocate the socket set: " << SDLNet_GetError();
 
 	SDLNet_TCP_AddSocket(mSocketSet, mSock);
 
@@ -68,23 +68,17 @@ void Net::loop()
 			for(; e < lenr; e++)
 				if(recvbuf[e] == '\2')
 				{
-					Log() << "e found: " << e;
 					recvbuf[e] = '\0';
 					if(!mRemainingBuff.empty())
 					{
-						Log() << "applying with reminder: " << mRemainingBuff+(recvbuf+b);
+						Log() << "Net: applying with reminder: " << mRemainingBuff+(recvbuf+b);
 						SharedData::applyChange(mRemainingBuff+(recvbuf+b));
 						mRemainingBuff.clear();
 					}
 					else
-					{
-						Log() << "applying: " << recvbuf+b;
 						SharedData::applyChange(recvbuf+b);
-					}
 					b = e+1;
 				}
-				else
-					Log() << "." << e << " " << (int)(recvbuf[e]);
 
 			if(e < lenr)
 			{
@@ -93,7 +87,7 @@ void Net::loop()
 			}
 		}
 		else
-			Log() << "Net: Sever error, lenr = " << lenr;
+			Log() << "Net: sever error, lenr = " << lenr;
 
 	// If nothing to send, return
 	if(SharedData::getChanges().empty())

@@ -201,6 +201,7 @@ void Lua::setup()
 		});
 
 	state.Load(global_config->get("gameFile").c_str());
+	state.Load("lua_lib/main.lua");
 
 	state["setup"]();
 }
@@ -221,7 +222,7 @@ void Lua::loop()
 	time = Time::current();
 
 	if(mWait == wsRun)
-		state["loop"]();
+		state["main_loop"]();
 }
 
 void Lua::execute(const char *cmd)
