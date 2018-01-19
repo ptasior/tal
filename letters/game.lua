@@ -2,7 +2,7 @@ class = require('lua_lib/class')
 var_dump = require('lua_lib/var_dump')
 require('lua_lib/functions')
 
-GuiHelpers = require('game/gui_helpers')
+GuiHelpers = require('letters/gui_helpers')
 
 players = {};
 meNo = ''
@@ -32,6 +32,8 @@ function activePlayers()
 	local ret = {};
 
 	local cliNo = sharedData.at('server'):at('clients'):get();
+	if(cliNo == '') then return {}; end
+
 	for i = 0,cliNo-1 do
 		local addr = sharedData.at('server'):at('clients'):at(i):at('addr'):get();
 		local name = sharedData.at('server'):at('clients'):at(i):at('name'):get();
@@ -44,6 +46,28 @@ function activePlayers()
 end
 
 
+-- Card name to number
+function cName(no)
+	local names = {"Guard", "Priest", "Baron", "Handmaid",
+					"Prince", "King", "Countess", "Princess"};
+	return names[tonumber(no)];
+end
+
+
+-- Card number to name
+function cNumber(name)
+	local names = {"Guard", "Priest", "Baron", "Handmaid",
+					"Prince", "King", "Countess", "Princess"};
+	
+	for i = 0,#names do
+		if(names[i] == name) then
+			return i;
+		end
+	end
+	return -1;
+end
+
+
 function startGame()
 	log('Start game');
 	local set = {8,7,6,5,5,4,4,3,3,2,2,1,1,1,1,1};
@@ -51,31 +75,59 @@ function startGame()
 
 	local ap = activePlayers();
 
-	for i = 0,#ap-1 do
+	for i = 1,#ap do
 		local head = table.remove(set,1);
-		-- sharedData.at('players'):at(ap[i]):at('cards'):set(head);
+		sharedData.at('players'):at(ap[i]):at('card'):set(head);
 	end
 
-	-------------------- BLOCKS HERE ---------------------------------
-	-- sharedData.at('deck'):set(set);
-	-- local turn = ap[math.random(#ap)-1];
-	-- sharedData.at('turn'):set(turn);
-	-- print('turn = '..turn);
+	sharedData.at('deck'):set(join('-', set));
+	local turn = ap[math.random(#ap)];
+	sharedData.at('turn'):set(turn);
+	log('turn = '..turn);
+end
+
+
+function perform(card)
+	log('Performing '..card)
 end
 
 
 function playTurn()
+	log('My Turn!')
+
 	-- Draw a card
 	local set = sharedData.at('deck'):get();
-	local head = table.remove(set,1);
-	sharedData.at('deck'):set(set);
+	set = split('-', set);
+	local drawn = table.remove(set,1);
+	log('drawn '..drawn)
+	sharedData.at('deck'):set(join('-', set));
 
 	-- Play a card
+	-- sharedData.at('players'):at(meName):at('protected'):set(false);
+	local hand = sharedData.at('players'):at(meName):at('card'):get();
+	local cards = {cName(drawn), cName(hand)};
+	local played = GuiHelpers:askQuestion( "Which card would you like to play?", cards);
+
+	log('played = '..played)
+	local left = without(cards, played);
+	log('left'..var_dump(left))
+	sharedData.at('players'):at(meName):at('card'):set(cNumber(left[1]));
+	perform(played);
 
 	-- Turn moves to the next player
-	-- if(#set > 0) then
-	-- else
-	-- end
+	local ap = activePlayers();
+	local pos = find(meName, ap)+1;
+	if(pos > #ap) then pos = 1; end -- Modulo with offset +1 is too complicated :(
+
+	log('mename= '..meName..' pos = '..pos..' vd = '..var_dump(ap))
+
+	sharedData.at('turn'):set(ap[pos]);
+	log('next turn = '..ap[pos]);
+
+	if(#set == 0) then
+		-- Check who win
+		GuiHelpers:message("end of the game");
+	end
 end
 
 
@@ -107,10 +159,11 @@ function initNet()
 	meNo = waitFor(sharedData.at('server'):at('me'):at('no'));
 	log('received Meno '..meNo)
 
-	meName = sharedData.at('server'):at('clients'):at(meNo):at('addr'):get();
+	meName = GuiHelpers:input("What is your name?");
+	meName = meName..' - '..waitFor(sharedData.at('server'):at('clients'):at(meNo):at('addr'));
 
 	-- TODO Make sure name is unique
-	sharedData.at('server'):at('clients'):at(meNo):at('name'):set('+aa'..meName);
+	sharedData.at('server'):at('clients'):at(meNo):at('name'):set(meName);
 end
 
 
@@ -133,18 +186,19 @@ function setup()
 	players['widget'] = {};
 
 	players['widget']['box'] = Box.new("Players");
-	players['widget']['box']:setRect(100,100,200,154);
+	players['widget']['box']:setRect(400,100,300,200);
 	gui.rootWidget():addBox(players['widget']['box']);
 
 	players['widget']['list'] = Scroll.new();
 	players['widget']['box']:addScroll(players['widget']['list']);
 
-	players['widget']['startbox'] = Box.new("Start");
-	players['widget']['startbox']:setRect(20,0,150,70);
-	gui.rootWidget():addBox(players['widget']['startbox']);
+	-- players['widget']['startbox'] = Box.new("Start");
+	-- players['widget']['startbox']:setRect(150,150,150,70);
+	-- gui.rootWidget():addBox(players['widget']['startbox']);
 
 	players['widget']['start'] = Button.new('Start the game');
-	players['widget']['startbox']:addButton(players['widget']['start']);
+	players['widget']['start']:setRect(400,100,300,20);
+	players['widget']['box']:addButton(players['widget']['start']);
 
 	players['widget']['start']:onClickLua(function()
 			startGame();
@@ -173,10 +227,15 @@ end
 
 function loop()
 	initNet();
-	updatePlayers();
 
-	if(sharedData.at('turn') == meName) then
+	if(sharedData.at('turn'):get() == meName) then
 		playTurn();
+	else
+		print('not my turn', sharedData.at('turn'):get(), meName);
 	end
+end
+
+function sharedDataUpdated(line)
+	updatePlayers();
 end
 

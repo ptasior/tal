@@ -14,6 +14,9 @@ connections = {}
 data = {'nodes':{}, 'value':''}
 
 
+# TODO Protect connections and data with mutex!!!
+
+
 def init(conn, addr):
     connections[addr] = conn
 
