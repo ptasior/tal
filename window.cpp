@@ -152,13 +152,17 @@ bool Window::onEvent(SDL_Event &event)
 		case SDL_MOUSEBUTTONDOWN:
 			if(onClick(event.button.x, event.button.y))
 				return true;
-			mDragging = true;
+			mButtonDown = true;
 			return true;
 		case SDL_MOUSEMOTION:
-			if(mDragging)
+			if(mButtonDown)
+			{
+				mDragging = true;
 				return onDrag(event.button.x, event.button.y);
+			}
 			return false;
 		case SDL_MOUSEBUTTONUP:
+			mButtonDown = false;
 			if(mDragging)
 			{
 				bool ret = onDrop(event.button.x, event.button.y);

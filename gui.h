@@ -73,7 +73,7 @@ class Label : public Widget
 public:
 	Label(std::string text);
 	virtual void setText(std::string text);
-	virtual std::string& getText();
+	virtual const std::string& getText();
 	virtual void setTextColor(int r, int g, int b, int a);
 
 	static const unsigned int WIDTH;
@@ -92,6 +92,7 @@ public:
 	Edit(std::string text);
 	virtual void addText(std::string t);
 	virtual void setText(std::string t);
+	virtual const std::string& getText();
 
 	virtual void focus();
 	virtual void unfocus();
@@ -160,6 +161,11 @@ class Button : public Widget
 {
 public:
 	Button(std::string label);
+	virtual void setText(std::string t);
+	virtual const std::string& getText();
+
+private:
+	std::shared_ptr<Label> mLabel;
 };
 
 

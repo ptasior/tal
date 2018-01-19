@@ -31,13 +31,21 @@ void Lua::initGui(Gui *gui)
 				);
 
 	applyWidgetInheritance("Label");
-	state["Label"].SetClass<Label, std::string>("setText", &Label::setText);
+	state["Label"].SetClass<Label, std::string>(
+					"setText", &Label::setText,
+					"getText", &Label::getText
+				);
 
 	applyWidgetInheritance("Edit");
-	state["Edit"].SetClass<Edit, std::string>();
+	state["Edit"].SetClass<Edit, std::string>(
+					"setText", &Edit::setText,
+					"getText", &Edit::getText
+				);
 
 	applyWidgetInheritance("Button");
-	state["Button"].SetClass<Button, std::string>();//"setText", &Button::setText);
+	state["Button"].SetClass<Button, std::string>(
+					"setText", &Button::setText
+				);
 
 	applyWidgetInheritance("Box");
 	state["Box"].SetClass<Box, std::string>();

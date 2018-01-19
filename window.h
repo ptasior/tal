@@ -37,6 +37,7 @@ private:
 	int mScreenHeight = 480;
 	bool mQuit = false;
 	bool mDragging = false;
+	bool mButtonDown = false;
 
 	SDL_Window* mWindow = nullptr;
 	SDL_Renderer *mRenderer = nullptr;

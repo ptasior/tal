@@ -13,6 +13,7 @@
 const unsigned int Label::WIDTH = 9;
 const unsigned int Label::HEIGHT = 15;
 
+Widget *Gui::mFocused = nullptr;
 
 Checkbox::Checkbox(bool s):
 	Widget("")
@@ -279,7 +280,7 @@ void Label::setText(std::string text)
 		setSize(Label::WIDTH*len+mSpacing*len+2*mPaddingHoris, Label::HEIGHT+2*mPaddingVert);
 }
 
-std::string& Label::getText()
+const std::string& Label::getText()
 {
 	return mText;
 }
@@ -327,6 +328,11 @@ void Edit::addText(std::string t)
 	}
 	else
 		Label::setText(text + t);
+}
+
+const std::string& Edit::getText()
+{
+	return Label::getText();
 }
 
 void Edit::setText(std::string t)
@@ -474,9 +480,19 @@ Button::Button(std::string label):
 	mOverflow = opNone;
 
 	mSprite->setColor(100,100,100,200);
-	auto l = std::make_shared<Label>(label);
+	mLabel = std::make_shared<Label>(label);
 	// l->setColor(100,0,0,200);
-	addOwnedWidget(l);
+	addOwnedWidget(mLabel);
+}
+
+const std::string& Button::getText()
+{
+	return mLabel->getText();
+}
+
+void Button::setText(std::string t)
+{
+	mLabel->setText(t);
 }
 
 //------------------------------------------------------------------------------
