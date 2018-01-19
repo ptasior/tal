@@ -1,6 +1,36 @@
 GuiHelpers = class(function(self)
 	end)
 
+function GuiHelpers:input(question)
+	local bx = ButtonBox.new("Question");
+	bx:setRect(200, 300, 320, 100);
+
+	local ml = MultiLine.new(question);
+	ml:resize();
+
+	local edit = Edit.new('');
+
+	bx:setRect(200, 300, 20+ml:getWidth(), 95+ ml:getHeight());
+	bx:addMultiLine(ml);
+	bx:addEdit(edit);
+
+	local text = '';
+
+	local l = Button.new('OK');
+	l:onClickLua(function()
+			gui.rootWidget():removeButtonBox(bx);
+			bx = nil;
+			text = edit:getText();
+			appContinue();
+		end)
+	bx:addBottomButton(l);
+
+	gui.rootWidget():addButtonBox(bx);
+	appWait();
+
+	return text
+end
+
 function GuiHelpers:message(label, handler)
 	local bx = ButtonBox.new("Message");
 	bx:setRect(200, 300, 320, 100);
