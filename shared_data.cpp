@@ -1,6 +1,5 @@
 #include "shared_data.h"
-#include "window.h"
-#include "config.h"
+#include "lua.h"
 #include "log.h"
 #include <assert.h>
 
@@ -31,6 +30,8 @@ void SharedData::applyChange(std::string line)
 	}
 	
 	p->mValue = line;
+
+	Lua::getInstance()->sharedDataUpdated(line);
 }
 
 std::queue<std::string>& SharedData::getChanges()

@@ -19,6 +19,7 @@ public:
 	void setup();
 	void loop();
 	void resizeWindow();
+	void sharedDataUpdated(const std::string &line);
 	static Lua* getInstance();
 
 private:

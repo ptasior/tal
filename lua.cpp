@@ -118,3 +118,8 @@ void Lua::resizeWindow()
 	state["resizeWindow"]();
 }
 
+void Lua::sharedDataUpdated(const std::string &line)
+{
+	state["sharedDataUpdated"](line);
+}
+
