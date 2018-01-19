@@ -1,3 +1,7 @@
+-- buffer for holding shared data changes between class handler and Lua loop
+--  Used for enabling yields when handling changes
+global_sharedDataBuffer = {};
+
 function appContinue()
 	setWait(0); -- C++, wsRun
 end
@@ -20,7 +24,14 @@ end
 
 global_co = coroutine.create(function()
 		while(true) do
-			s, res = xpcall(loop, debug.traceback);
+			s, res = xpcall(function()
+					for i=1,#global_sharedDataBuffer do
+						local l = table.remove(global_sharedDataBuffer,1);
+						newSharedData(l);
+					end
+					loop();
+				end, debug.traceback);
+
 			if(not s) then
 				log(res);
 			end
@@ -30,5 +41,10 @@ global_co = coroutine.create(function()
 
 function main_loop()
 	coroutine.resume(global_co);
+end
+
+-- To enable yield when handling shared data changes, push onto a list and process in loop
+function sharedDataUpdated(line)
+	global_sharedDataBuffer[#global_sharedDataBuffer+1] = line;
 end
 

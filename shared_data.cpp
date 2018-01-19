@@ -17,6 +17,7 @@ void SharedData::applyChange(std::string line)
 	assert(mOnline);
 
 	Log() << "SharedData: Applying line: " << line;
+	Lua::getInstance()->sharedDataUpdated(line);
 
 	size_t pos = 0;
 	std::string token;
@@ -30,8 +31,6 @@ void SharedData::applyChange(std::string line)
 	}
 	
 	p->mValue = line;
-
-	Lua::getInstance()->sharedDataUpdated(line);
 }
 
 std::queue<std::string>& SharedData::getChanges()

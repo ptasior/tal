@@ -72,3 +72,11 @@ function find(what, array)
 	return -1;
 end
 
+function startsWith(text, part)
+   return string.sub(text, 1, string.len(part)) == part;
+end
+
+function endsWith(text, part)
+   return part == '' or string.sub(text,-string.len(part)) == part;
+end
+
