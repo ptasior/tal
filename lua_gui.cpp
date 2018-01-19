@@ -51,7 +51,9 @@ void Lua::initGui(Gui *gui)
 	state["Box"].SetClass<Box, std::string>();
 
 	applyWidgetInheritance("Scroll");
-	state["Scroll"].SetClass<Scroll>();
+	state["Scroll"].SetClass<Scroll>(
+					"clear", &Scroll::clear
+				);
 
 	applyWidgetInheritance("Checkbox");
 	state["Checkbox"].SetClass<Checkbox, bool>(
@@ -77,6 +79,7 @@ void Lua::applyWidgetInheritance(const char *type)
 			"setPosition", &Widget::setPosition,
 			"setSize", &Widget::setSize,
 			"setRect", &Widget::setRect,
+			"setPadding", &Widget::setPadding,
 			"setLayout", &Widget::setLayout,
 			"setOverflow", &Widget::setOverflow,
 			"setCenter", &Widget::setCenter,

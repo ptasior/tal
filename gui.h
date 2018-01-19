@@ -38,6 +38,7 @@ public:
 	virtual void addOwnedWidget(std::shared_ptr<Widget> w);
 	virtual void removeForeignWidget(Widget* w);
 	virtual void removeOwnedWidget(Widget* w);
+	virtual void clear();
 
 protected:
 	virtual void setupChildren();
@@ -118,6 +119,12 @@ public:
 	virtual void addOwnedWidget(std::shared_ptr<Widget> w);
 	virtual void removeForeignWidget(Widget* w);
 	virtual void removeOwnedWidget(Widget* w);
+
+	virtual void setLayout(int t);
+	virtual void setOverflow(int p);
+	virtual void setCenter(bool c);
+	virtual void setStretch(bool s);
+	virtual void setPadding(unsigned int h, unsigned int v);
 
 protected:
 	std::shared_ptr<Label> mLabel;

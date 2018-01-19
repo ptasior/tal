@@ -68,7 +68,19 @@ function cNumber(name)
 end
 
 
+function hideButton()
+	if(not players['widget']['start']) then return; end
+
+	-- Hide startGame button
+	players['widget']['box']:removeButton(players['widget']['start']);
+	players['widget']['box']:setSize(306,220-36);
+	players['widget']['start'] = nil;
+end
+
 function startGame()
+	sharedData.at('gameStarted'):set('true')
+	hideButton();
+
 	log('Start game');
 	local set = {8,7,6,5,5,4,4,3,3,2,2,1,1,1,1,1};
 	set = shuffle(set);
@@ -141,10 +153,7 @@ function updatePlayers()
 		log('Update players');
 
 		players['active'] = j_ap;
-
-		players['widget']['box']:removeScroll(players['widget']['list']);
-		players['widget']['list'] = Scroll.new();
-		players['widget']['box']:addScroll(players['widget']['list']);
+		players['widget']['list']:clear();
 
 		for i = 1,#ap do
 			players['widget']['list']:addLabel(Label.new(ap[i]));
@@ -172,32 +181,32 @@ function setup()
 
 	-- Temporarily
 	setLoopResolution(500);
-
-	tt_btn = GuiHelpers:randomButton('Net', function()
-			sharedData.at('test'):at("rq"):set('qq');
-		end);
-
-	pp_btn = GuiHelpers:randomButton('Print', function()
-			sharedData.print();
-		end);
-
+    --
+	-- tt_btn = GuiHelpers:randomButton('Net', function()
+	-- 		sharedData.at('test'):at("rq"):set('qq');
+	-- 	end);
+    --
+	-- pp_btn = GuiHelpers:randomButton('Print', function()
+	-- 		sharedData.print();
+	-- 	end);
+    --
 
 	players['count'] = 0;
 	players['widget'] = {};
 
 	players['widget']['box'] = Box.new("Players");
-	players['widget']['box']:setRect(400,100,300,200);
+	players['widget']['box']:setRect(40,40,306,220);
+	players['widget']['box']:setLayout(0);
+	players['widget']['box']:setCenter(false);
+	players['widget']['box']:setPadding(3,3);
 	gui.rootWidget():addBox(players['widget']['box']);
 
 	players['widget']['list'] = Scroll.new();
+	players['widget']['list']:setRect(3,6,300,150);
 	players['widget']['box']:addScroll(players['widget']['list']);
 
-	-- players['widget']['startbox'] = Box.new("Start");
-	-- players['widget']['startbox']:setRect(150,150,150,70);
-	-- gui.rootWidget():addBox(players['widget']['startbox']);
-
 	players['widget']['start'] = Button.new('Start the game');
-	players['widget']['start']:setRect(400,100,300,20);
+	players['widget']['start']:setRect(3,162,300,33);
 	players['widget']['box']:addButton(players['widget']['start']);
 
 	players['widget']['start']:onClickLua(function()
@@ -237,5 +246,8 @@ end
 
 function sharedDataUpdated(line)
 	updatePlayers();
+	if(sharedData.at('gameStarted'):get() == 'true') then
+		hideButton();
+	end
 end
 

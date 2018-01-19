@@ -104,6 +104,12 @@ public:
 		setupChildren();
 	}
 
+	void clear()
+	{
+		mForeignWidgets.clear();
+		mWidgets.clear();
+	}
+
 	int mSkipWidgets = 0;
 };
 
@@ -181,6 +187,12 @@ void Scroll::onDown()
 {
 	static_cast<ScrollContent*>(mContent.get())->down();
 }
+
+void Scroll::clear()
+{
+	static_cast<ScrollContent*>(mContent.get())->clear();
+}
+
 
 
 //------------------------------------------------------------------------------
@@ -434,6 +446,31 @@ void Box::removeForeignWidget(Widget* w)
 void Box::removeOwnedWidget(Widget* w)
 {
 	mContent->removeOwnedWidget(w);
+}
+
+void Box::setLayout(int t)
+{
+	mContent->setLayout(t);
+}
+
+void Box::setOverflow(int p)
+{
+	mContent->setOverflow(p);
+}
+
+void Box::setCenter(bool c)
+{
+	mContent->setCenter(c);
+}
+
+void Box::setStretch(bool s)
+{
+	mContent->setStretch(s);
+}
+
+void Box::setPadding(unsigned int h, unsigned int v)
+{
+	mContent->setPadding(h, v);
 }
 
 //------------------------------------------------------------------------------
