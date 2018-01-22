@@ -8,6 +8,7 @@ class Camera;
 class Net;
 class Gui;
 class Config;
+class SharedData;
 
 class Window
 {
@@ -49,6 +50,7 @@ private:
 	std::shared_ptr<Scene> mScene;
 	std::shared_ptr<Gui> mGui;
 	std::shared_ptr<Config> mConfig;
+	std::shared_ptr<SharedData> mSharedData;
 };
 
 extern Window *global_window;

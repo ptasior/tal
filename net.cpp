@@ -41,7 +41,7 @@ void Net::connect()
 
 	SDLNet_TCP_AddSocket(mSocketSet, mSock);
 
-	SharedData::setOnline(true);
+	global_sharedData->setOnline(true);
 	Log() << "Net: connected";
 }
 
@@ -72,11 +72,11 @@ void Net::loop()
 					if(!mRemainingBuff.empty())
 					{
 						Log() << "Net: applying with reminder: " << mRemainingBuff+(recvbuf+b);
-						SharedData::applyChange(mRemainingBuff+(recvbuf+b));
+						global_sharedData->applyChange(mRemainingBuff+(recvbuf+b));
 						mRemainingBuff.clear();
 					}
 					else
-						SharedData::applyChange(recvbuf+b);
+						global_sharedData->applyChange(recvbuf+b);
 					b = e+1;
 				}
 
@@ -90,10 +90,10 @@ void Net::loop()
 			Log() << "Net: sever error, lenr = " << lenr;
 
 	// If nothing to send, return
-	if(SharedData::getChanges().empty())
+	if(global_sharedData->getChanges().empty())
 		return;
-	std::string line = SharedData::getChanges().front()+'\2';
-	SharedData::getChanges().pop();
+	std::string line = global_sharedData->getChanges().front()+'\2';
+	global_sharedData->getChanges().pop();
 
 	int actual = 0;
 	int len = line.size()-1; // -1 removes \0

@@ -6,12 +6,12 @@ Players = class(function(self)
 function Players:getActive()
 	self.players = {};
 
-	local cliNo = sharedData.at('server'):at('clients'):get();
+	local cliNo = sharedData.root():at('server'):at('clients'):get();
 	if(cliNo == '') then return {}; end
 
 	for i = 0,cliNo-1 do
-		local addr = sharedData.at('server'):at('clients'):at(i):at('addr'):get();
-		local name = sharedData.at('server'):at('clients'):at(i):at('name'):get();
+		local addr = sharedData.root():at('server'):at('clients'):at(i):at('addr'):get();
+		local name = sharedData.root():at('server'):at('clients'):at(i):at('name'):get();
 		if(addr ~= '') then
 			self.players[#self.players+1] = name;
 		end
@@ -93,12 +93,12 @@ end
 
 
 function Players:get(name)
-	return sharedData.at('players'):at(name);
+	return sharedData.root():at('players'):at(name);
 end
 
 
 function Players:me()
-	return sharedData.at('players'):at(self.meName);
+	return sharedData.root():at('players'):at(self.meName);
 end
 
 

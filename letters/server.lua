@@ -3,7 +3,7 @@ Server = class(function(self)
 
 
 function Server:newGame()
-	sharedData.at('gameStarted'):set('true');
+	sharedData.root():at('gameStarted'):set('true');
 	self.gameStarted = true;
 end
 
@@ -21,13 +21,13 @@ end
 
 
 function Server:logIn()
-	self.meNo = sharedData.at('server'):at('me'):at('no'):get();
+	self.meNo = sharedData.root():at('server'):at('me'):at('no'):get();
 	self.meName = GuiHelpers:input("What is your nickname?");
-	self.meName = self.meName..' - '..sharedData.at('server'):at('me'):at('addr'):get();
+	self.meName = self.meName..' - '..sharedData.root():at('server'):at('me'):at('addr'):get();
 
-	sharedData.at('server'):at('clients'):at(self.meNo):at('name'):set(self.meName);
+	sharedData.root():at('server'):at('clients'):at(self.meNo):at('name'):set(self.meName);
 
-	if(sharedData.at('gameStarted'):get() == 'true') then
+	if(sharedData.root():at('gameStarted'):get() == 'true') then
 		GuiHelpers:message('The game is on', 'The game is on, you cannot join it now.');
 	end
 end

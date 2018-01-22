@@ -18,6 +18,7 @@
 #endif
 
 Config* global_config = nullptr;
+SharedData* global_sharedData = nullptr;
 
 Window::Window()
 {}
@@ -71,6 +72,9 @@ void Window::init()
 
 	mConfig = std::make_shared<Config>();
 	global_config = mConfig.get();
+
+	mSharedData = std::make_shared<SharedData>();
+	global_sharedData = mSharedData.get();
 
 	mNet = std::make_shared<Net>();
 

@@ -37,15 +37,17 @@ Lua::Lua():
 	state["setWait"] = &Lua::setWait;
 	state["setTimeout"] = &Lua::setTimeout;
 
-	state["sharedData"].SetObj<SharedData>(SharedData::root(),
-			"at", &SharedData::at,
+	state["sharedData"].SetObj<SharedData>(*global_sharedData,
+			"root", &SharedData::root,
 			"print", &SharedData::print
+			// "startTransaction", &SharedData::startTransaction,
+			// "finishTransaction", &SharedData::finishTransaction
 		);
 
-	state["SharedData"].SetClass<SharedData>(
-			"at", &SharedData::at,
-			"get", &SharedData::get,
-			"set", &SharedData::set
+	state["DataNode"].SetClass<DataNode>(
+			"at", &DataNode::at,
+			"get", &DataNode::get,
+			"set", &DataNode::set
 		);
 
 }

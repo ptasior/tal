@@ -3,15 +3,6 @@
 #include "log.h"
 #include <assert.h>
 
-std::queue<std::string> SharedData::mChanges;
-bool SharedData::mOnline = false;
-SharedData SharedData::mRoot;
-
-SharedData::SharedData()
-{
-
-}
-
 void SharedData::applyChange(std::string line)
 {
 	assert(mOnline);
@@ -22,7 +13,7 @@ void SharedData::applyChange(std::string line)
 	size_t pos = 0;
 	std::string token;
 
-	SharedData* p = &root();
+	DataNode* p = &root();
 	while ((pos = line.find('\1')) != std::string::npos) {
 		token = line.substr(0, pos);
 		line.erase(0, pos + 1);
@@ -44,17 +35,36 @@ void SharedData::setOnline(bool v)
 	mOnline = v;
 }
 
-SharedData& SharedData::root()
+DataNode& SharedData::root()
 {
 	return mRoot;
 }
 
+
+// void SharedData::startTransaction()
+// {
+// 	
+// }
+//
+// void SharedData::finishTransaction()
+// {
+// 	
+// }
+//
 void SharedData::print()
 {
-	print_i(0);
+	mRoot.print(0);
 }
 
-void SharedData::print_i(int idn)
+void SharedData::addChange(const std::string& line)
+{
+	mChanges.push(line);
+}
+
+
+//-----------------------------------------------------------------------------
+
+void DataNode::print(int idn)
 {
 	if(idn)
 	{
@@ -68,10 +78,10 @@ void SharedData::print_i(int idn)
 		Log() << "-";
 
 	for(auto b : mBranches)
-		b.second.print_i(idn+1);
+		b.second.print(idn+1);
 }
 
-SharedData* SharedData::i_at(const std::string& key)
+DataNode* DataNode::at(std::string key)
 {
 	if(!mBranches.count(key))
 	{
@@ -81,9 +91,9 @@ SharedData* SharedData::i_at(const std::string& key)
 	return &mBranches[key];
 }
 
-void SharedData::i_set(const std::string& v)
+void DataNode::set(std::string v)
 {
-	if(!mOnline)
+	if(!global_sharedData->mOnline)
 		mValue = v; // If offline, wait till comes back from server to keep the order
 	else
 	{
@@ -95,47 +105,38 @@ void SharedData::i_set(const std::string& v)
 			p = p->mParent;
 		}
 
-		mChanges.push(line);
+		global_sharedData->addChange(line);
 	}
 }
 
-SharedData* SharedData::at(std::string key)
-{
-	return i_at(key.c_str());
-}
-
-std::string SharedData::get()
+std::string DataNode::get()
 {
 	return mValue;
 }
 
-void SharedData::set(std::string s)
+DataNode& DataNode::operator[](const char* key)
 {
-	i_set(s);
+	return *at(key);
 }
 
-SharedData& SharedData::operator[](const char* key)
+void DataNode::operator=(const std::string& v)
 {
-	return *i_at(key);
+	set(v);
 }
 
-void SharedData::operator=(const std::string& v)
+void DataNode::operator=(int v)
 {
-	i_set(v);
+	set(std::to_string(v));
 }
 
-void SharedData::operator=(int v)
-{
-	i_set(std::to_string(v));
-}
-
-SharedData::operator std::string()
+DataNode::operator std::string()
 {
 	return mValue;
 }
 
-SharedData::operator int()
+DataNode::operator int()
 {
 	return std::stoi(mValue);
 }
+
 

@@ -25,7 +25,7 @@ function startGame()
 					"Prince", "King", "Countess", "Princess"};
 	local set = {8,7,6,5,5,4,4,3,3,2,2,1,1,1,1,1};
 
-	cards = Cards(sharedData.at('deck'));
+	cards = Cards(sharedData.root():at('deck'));
 	cards:set(set, names);
 
 
@@ -38,7 +38,7 @@ function startGame()
 
 	cards.save();
 	local turn = ap[math.random(#ap)];
-	sharedData.at('turn'):set(turn);
+	sharedData.root():at('turn'):set(turn);
 	log('turn = '..turn);
 end
 
@@ -70,7 +70,7 @@ function playTurn()
 
 	-- Next player's turn
 	local nxt = players.nextPlayer();
-	sharedData.at('turn'):set(nxt);
+	sharedData.root():at('turn'):set(nxt);
 	log('next turn = '..nxt);
 
 	if(#cards.deck == 0) then
@@ -123,11 +123,11 @@ function loop()
 end
 
 function isMyTurn()
-	if(sharedData.at('turn'):get() == server.meName) then
+	if(sharedData.root():at('turn'):get() == server.meName) then
 		return true;
 	end
 
-	print('not my turn - ', sharedData.at('turn'):get(), ' me: ', server.meName);
+	print('not my turn - ', sharedData.root():at('turn'):get(), ' me: ', server.meName);
 	return false;
 end
 

@@ -20,40 +20,60 @@
  * 	SharedData::root().print();
  */
 
-class SharedData
+class Net;
+
+class DataNode
 {
 public:
-	SharedData();
-	SharedData& operator[](const char* key);
+	DataNode& operator[](const char* key);
 	void operator=(const std::string& v);
 	void operator=(int v);
 	operator std::string();
 	operator int();
 
-	SharedData* at(std::string key);
+	void print(int idn = 0);
+	DataNode* at(std::string key);
 	std::string get();
 	void set(std::string s);
 
-	void print();
-
-	static void applyChange(std::string line);
-	static void setOnline(bool v);
-	static SharedData& root();
-	static std::queue<std::string>& getChanges();
 
 private:
-	SharedData* i_at(const std::string& key);
-	void i_set(const std::string& v);
-	void print_i(int idn = 0);
-
-
-	std::map<std::string, SharedData> mBranches;
-	SharedData *mParent = nullptr;
+	std::map<std::string, DataNode> mBranches;
+	DataNode *mParent = nullptr;
 	std::string mKey;
 	std::string mValue;
 
-	static std::queue<std::string> mChanges;
-	static bool mOnline;
-	static SharedData mRoot;
+	friend class SharedData;
 };
+
+class SharedData
+{
+public:
+	void print();
+	// void startTransaction();
+	// void finishTransaction();
+
+	void setOnline(bool v);
+	DataNode& root();
+
+private:
+	// Availalble from Net
+	void applyChange(std::string line);
+	std::queue<std::string>& getChanges();
+
+	// Available from DataNode
+	void addChange(const std::string& line);
+
+	// std::mutex mMutex;
+	// std::condition_variable mCv;
+
+	std::queue<std::string> mChanges;
+	bool mOnline;
+	DataNode mRoot;
+
+	friend class Net;
+	friend class DataNode;
+};
+
+extern SharedData *global_sharedData;
 
