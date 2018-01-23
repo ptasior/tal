@@ -84,41 +84,32 @@ function GuiHelpers:askQuestion(label, options)
 	return ans;
 end
 
-function GuiHelpers:selectFrom(label, choices, answers)
-	local bx = ButtonBox.new("Select");
+function GuiHelpers:selectFrom(label, choices)
+	local bx = Box.new("Select");
 
 	local ml = MultiLine.new(label);
 	ml:resize();
 
-	bx:setRect(200, 300, 20+ml:getWidth(), 80+ ml:getHeight());
+	bx:setRect(200, 300, 20+ml:getWidth(), 80+ ml:getHeight() + 20*#choices);
 	bx:addMultiLine(ml);
 
+	local ans = nil;
 
 	for i,o in ipairs(choices) do
 		local l = Button.new(o);
 		l:onClickLua(function()
-			end)
-		bx:addButton(l);
-	end
-
-
-	local ans = nil;
-
-	for i,o in ipairs(answers) do
-		local l = Button.new(o);
-		l:onClickLua(function()
-				gui.rootWidget():removeButtonBox(bx);
+				gui.rootWidget():removeBox(bx);
 				bx = nil;
 				ans = o;
 				appContinue();
 			end)
-		bx:addBottomButton(l);
+		bx:addButton(l);
 	end
 
-	gui.rootWidget():addButtonBox(bx);
+	gui.rootWidget():addBox(bx);
 	appWait();
 
-	return ans, {};
+	return ans;
 end
 
 randomButton_t = 50;

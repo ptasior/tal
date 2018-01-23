@@ -20,13 +20,13 @@ function Players:getActive()
 	return self.players;
 end
 
-
 function Players:update(line)
 	if(startsWith(line, 'gameStarted')) then
 		self:toggleStartButton();
 	end
 
 	if(startsWith(line, 'server\1clients\1')) then
+		log('updat')
 		self:updateWidget();
 	end
 end
@@ -49,7 +49,7 @@ function Players:showWidget(onNewGame)
 
 	self:toggleStartButton();
 
-	gui.rootWidget():addBox(players['widget']['box']);
+	gui.rootWidget():addBox(self.widget['box']);
 end
 
 
@@ -74,16 +74,8 @@ function Players:toggleStartButton()
 end
 
 
-function Players:checkPlayersChanged()
-	local tmp = var_dump(self.players);
-	self:getActive();
-
-	return tmp ~= var_dump(self.players);
-end
-
-
 function Players:updateWidget()
-	if(not self:checkPlayersChanged()) then return; end
+	self:getActive()
 
 	self.widget['list']:clear();
 	for i = 1,#self.players do

@@ -90,13 +90,7 @@ function setup()
 	players = Players();
 	players:showWidget(startGame);
 
-	-- tt_btn = GuiHelpers:randomButton('Net', function()
-	-- 		sharedData.at('test'):at("rq"):set('qq');
-	-- 	end);
-
-	pp_btn = GuiHelpers:randomButton('Print', function()
-			sharedData.print();
-		end);
+	server:showWindow();
 
 	-- local cheatsheet = Box.new("Cheatsheet");
 	-- cheatsheet:setRect(100,100,420,224);

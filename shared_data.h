@@ -50,9 +50,6 @@ class SharedData
 {
 public:
 	void print();
-	// void startTransaction();
-	// void finishTransaction();
-
 	void setOnline(bool v);
 	DataNode& root();
 
@@ -64,8 +61,6 @@ private:
 	// Available from DataNode
 	void addChange(const std::string& line);
 
-	// std::mutex mMutex;
-	// std::condition_variable mCv;
 
 	std::queue<std::string> mChanges;
 	bool mOnline;

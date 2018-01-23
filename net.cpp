@@ -96,7 +96,7 @@ void Net::loop()
 	global_sharedData->getChanges().pop();
 
 	int actual = 0;
-	int len = line.size()-1; // -1 removes \0
+	int len = line.size(); // -1 removes \0
 	// assert(len < BUFFSIZE); // Remote buffer size // Shouldn't be needed any more
 
 	if((actual = SDLNet_TCP_Send(mSock, (void *)line.c_str(), len)) != len)

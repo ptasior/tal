@@ -40,8 +40,6 @@ Lua::Lua():
 	state["sharedData"].SetObj<SharedData>(*global_sharedData,
 			"root", &SharedData::root,
 			"print", &SharedData::print
-			// "startTransaction", &SharedData::startTransaction,
-			// "finishTransaction", &SharedData::finishTransaction
 		);
 
 	state["DataNode"].SetClass<DataNode>(

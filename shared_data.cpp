@@ -20,7 +20,7 @@ void SharedData::applyChange(std::string line)
 
 		p = &(p->operator[](token.c_str()));
 	}
-	
+
 	p->mValue = line;
 }
 
@@ -40,17 +40,6 @@ DataNode& SharedData::root()
 	return mRoot;
 }
 
-
-// void SharedData::startTransaction()
-// {
-// 	
-// }
-//
-// void SharedData::finishTransaction()
-// {
-// 	
-// }
-//
 void SharedData::print()
 {
 	mRoot.print(0);
@@ -60,7 +49,6 @@ void SharedData::addChange(const std::string& line)
 {
 	mChanges.push(line);
 }
-
 
 //-----------------------------------------------------------------------------
 
