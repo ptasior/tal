@@ -41,7 +41,7 @@ class SocketServer(object):
 
 
 
-    def threadId(self):
+    def myNo(self):
         return self.threadLocal.myNo
 
 
@@ -85,7 +85,7 @@ class SocketServer(object):
 
 
     def _send(self, idx, text):
-        logger.client('<' + text + '\n')
+        logger.client('< ' + text, idx)
         self.clients[idx]['conn'].send(bytes(text+'\2', 'ascii'))
 
 
@@ -114,7 +114,7 @@ class SocketServer(object):
 
 
     def _handleLine(self, line):
-        logger.client('>' + line + '\n')
+        logger.client('> ' + line)
 
         if(self.processCommand(line)):
             return

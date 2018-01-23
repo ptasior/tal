@@ -15,16 +15,21 @@ class Logger(object):
         print('*', message)
 
 
-    def client(self, message):
+    def client(self, message, idx=None):
         self._lock.acquire()
 
-        tid = self.server.threadId()
-        if(tid not in self.clientsLog):
-            self.clientsLog[tid] = []
+        if idx == None:
+            cid = self.server.myNo()
+            print('idx myno = ', cid)
+        else:
+            cid = idx
+            print('idx = ', cid)
+        if(cid not in self.clientsLog):
+            self.clientsLog[cid] = []
 
-        self.clientsLog[tid].append(message)
+        self.clientsLog[cid].append(message)
         self._lock.release()
-        print(tid, message)
+        print(cid, message)
 
     def setServer(self, server):
         self.server = server

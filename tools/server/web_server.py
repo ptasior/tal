@@ -1,4 +1,5 @@
 import bottle
+import app_globals
  
 def methodroute(route):
     def decorator(f):
@@ -21,11 +22,40 @@ class WebServer(object):
 
     def run(self):
         self._routeClass()
-        bottle.run(host='0.0.0.0', port=8080)
+        bottle.run(host='0.0.0.0', port=8080, debug=True)
 
 
     @methodroute('/')
     def index(self):
-        return "ok"
+        return bottle.template('index')
+
+
+    @methodroute('/network')
+    def network(self):
+        # TODO Mutex here
+        hide = bottle.request.query.get('hide')
+        if not hide or hide == '':
+            hide = []
+        else:
+            hide = hide.split(',')
+        return bottle.template('network',
+                    glob=app_globals.logger.globalLog,
+                    cli=app_globals.logger.clientsLog,
+                    hide=hide
+                )
+
+
+    @methodroute('/tree')
+    def tree(self):
+        txt = app_globals.tree.print()
+        txt = txt.replace('\n', '<br>')
+        txt = txt.replace(' ', '<span class="treeSpan">|</span>')
+        txt = txt.replace('=', ' = ')
+        return bottle.template('tree', tree=txt)
+
+
+    @methodroute('/maintenance')
+    def maintenance(self):
+        return bottle.template('base', base="Not implemented yet")
 
 

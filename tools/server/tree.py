@@ -21,19 +21,28 @@ class Tree(object):
         self._lock.release()
 
 
-    def print(self, br='\n'):
+    def print(self):
         ret = ''
 
         self._lock.acquire()
-        for l in self._list():
-            ret += l + br
+        for l in self._print('', '', self._treeData):
+            ret += l + '\n'
         self._lock.release()
 
         return ret
 
 
+    def _print(self, prefix, name, ptr):
+        if ptr['value'] != '':
+            yield prefix+name+'='+ptr['value']
+        else:
+            yield prefix+name
+
+        for n in ptr['nodes'].keys():
+            yield from self._print(prefix+' ', n, ptr['nodes'][n])
+
+
     def _write(self, l, v, ptr):
-        # TODOAssert if mutex locked
         if l:
             h = l[0]
             if h not in ptr['nodes'].keys():
@@ -43,7 +52,6 @@ class Tree(object):
 
 
     def _list(self, prefix, ptr):
-        # TODO Assert if mutex locked
         if prefix: p = prefix + '\1' # Skips empty root
         else: p = ''
 
