@@ -27,7 +27,7 @@ global_co = coroutine.create(function()
 			s, res = xpcall(function()
 					for i=1,#global_sharedDataBuffer do
 						local l = table.remove(global_sharedDataBuffer,1);
-						newSharedData(l);
+						sharedDataChange(l);
 					end
 					loop();
 				end, debug.traceback);

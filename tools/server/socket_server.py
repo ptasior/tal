@@ -121,9 +121,8 @@ class SocketServer(object):
 
         # If some other thread started a transaction, wait
         self.transaction.acquire()
-        self.transaction.release()
-
         self.broadcast(line)
+        self.transaction.release()
 
 
 

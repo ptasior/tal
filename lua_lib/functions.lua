@@ -80,3 +80,13 @@ function endsWith(text, part)
    return part == '' or string.sub(text,-string.len(part)) == part;
 end
 
+function map(table, handler)
+	local ret;
+
+	for k, v in pairs(table) do
+		ret[k] = handler(table[v]);
+	end
+
+	return ret;
+end
+

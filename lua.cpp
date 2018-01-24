@@ -45,9 +45,9 @@ Lua::Lua():
 	state["DataNode"].SetClass<DataNode>(
 			"at", &DataNode::at,
 			"get", &DataNode::get,
-			"set", &DataNode::set
+			"set", &DataNode::set,
+			"branches", &DataNode::branches
 		);
-
 }
 
 void Lua::setup()

@@ -1,84 +1,73 @@
 Server = class(function(self)
-		self.pendingTransactions = {}
+		self.pendingTransactions = {};
+		self.sw = sharedData.root():at('server');
+		self.onConnect = {};
+		self._connected = false;
 	end)
 
 
-function Server:newGame()
-	sharedData.root():at('gameStarted'):set('true');
-	self.gameStarted = true;
-end
-
-
-function Server:isGameStarted()
-	return self.gameStarted;
-end
-
-
 function Server:update(line)
+	-- On connection success
 	if(startsWith(line, 'server\1me\1no')) then
-		self:logIn()
+		self._connected = true;
+		self._meNo = self.sw:at('me'):at('no'):get();
+
+		for k,v in pairs(self.onConnect) do
+			v(); -- Call all handelrs
+		end
 	end
 
+	-- On transaction granted
 	if(startsWith(line, 'server\1me\1transaction\1true')) then
-		self:executeTransactions()
+		print('Transaction granted')
+		-- Execute all handlers
+		for k,v in pairs(self.pendingTransactions) do
+			v();
+		end
+		self.sw:at('transaction'):set('stop');
 	end
 end
 
 
-function Server:executeTransactions()
-	-- Execute all handlers
-	for _, h in ipairs(self.pendingTransactions) do
-		h();
-	end
-	sharedData.root():at('server'):at('transaction'):set('stop');
+function Server:addOnConnect(handler)
+	if(self._connected) then error('Already connected'); end
+
+	self.onConnect[#self.onConnect+1] = handler;
 end
 
 
-function Server:inTransaction(handle)
-	sharedData.root():at('server'):at('transaction'):set('start');
+function Server:transaction(handle)
+	self.sw:at('transaction'):set('start');
 	self.pendingTransactions[#self.pendingTransactions+1] = handle;
 end
 
 
-function Server:logIn()
-	self.meNo = sharedData.root():at('server'):at('me'):at('no'):get();
+function getClients()
+	local ret = {};
 
-	-- If the game has not yet started
-	self:inTransaction(function()
-		if(sharedData.root():at('gameStarted'):get() ~= 'true') then
-			self.meName = GuiHelpers:input("What is your name?");
-			local ok = false;
-			while(not ok) do
-				ok = true;
-				for i=0,sharedData.root():at('server'):at('clients'):get()-1 do
-					if(sharedData.root():at('server'):at('clients'):at(i):at('name'):get() == self.meName) then
-						self.meName = GuiHelpers:input("This name is already in use. Pick another one.");
-						ok = false;
-						break;
-					end
-				end
-			end
-		else
-			local inactive = {};
-			for i=0,sharedData.root():at('server'):at('clients'):get()-1 do
-				if(sharedData.root():at('server'):at('clients'):at(i):at('addr'):get() == '') then
-					local name = sharedData.root():at('server'):at('clients'):at(i):at('name'):get();
-					if(name ~= '') then
-						inactive[#inactive+1] = name;
-					end
-				end
-			end
+	local cliNo = self.sw:at('clients'):get();
+	if(cliNo == '') then return ret; end
 
-			if(#inactive == 0) then
-				GuiHelpers:message('The game is on, you cannot join it');
-				return;
-			else
-				self.meName = GuiHelpers:selectFrom('Which player are you?', inactive, inactive);
-			end
+	for i = 0, cliNo-1 do
+		local addr = sharedData.root():at('server'):at('clients'):at(i):at('addr'):get();
+		if(addr ~= '') then
+			ret[cliNo] = addr;
 		end
-		sharedData.root():at('server'):at('clients'):at(self.meNo):at('name'):set(self.meName);
-	end)
+	end
+
+	return ret;
 end
+
+
+function Server:meNo()
+	return self._meNo;
+end
+
+
+
+
+
+
 
 function Server:showWindow()
 	self.widget = {};

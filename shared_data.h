@@ -34,6 +34,7 @@ public:
 	void print(int idn = 0);
 	DataNode* at(std::string key);
 	std::string get();
+	std::vector<std::string> branches();
 	void set(std::string s);
 
 

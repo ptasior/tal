@@ -127,4 +127,11 @@ DataNode::operator int()
 	return std::stoi(mValue);
 }
 
+std::vector<std::string> DataNode::branches()
+{
+	std::vector<std::string> ret;
+	for(auto i: mBranches)
+		ret.push_back(i.first);
+	return ret;
+}
 
