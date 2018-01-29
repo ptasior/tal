@@ -18,14 +18,14 @@ function GuiHelpers:input(question)
 
 	local l = Button.new('OK');
 	l:onClickLua(function()
-			gui.rootWidget():removeButtonBox(bx);
+			gui:rootWidget():removeButtonBox(bx);
 			bx = nil;
 			text = edit:getText();
 			appContinue();
 		end)
 	bx:addBottomButton(l);
 
-	gui.rootWidget():addButtonBox(bx);
+	gui:rootWidget():addButtonBox(bx);
 	appWait();
 
 	return text
@@ -43,7 +43,7 @@ function GuiHelpers:message(label, handler)
 
 	local l = Button.new('OK');
 	l:onClickLua(function()
-			gui.rootWidget():removeButtonBox(bx);
+			gui:rootWidget():removeButtonBox(bx);
 			bx = nil;
 			if handler then
 				handler();
@@ -52,7 +52,7 @@ function GuiHelpers:message(label, handler)
 		end)
 	bx:addBottomButton(l);
 
-	gui.rootWidget():addButtonBox(bx);
+	gui:rootWidget():addButtonBox(bx);
 	appWait();
 end
 
@@ -70,7 +70,7 @@ function GuiHelpers:askQuestion(label, options)
 	for i,o in ipairs(options) do
 		local l = Button.new(o);
 		l:onClickLua(function()
-				gui.rootWidget():removeButtonBox(bx);
+				gui:rootWidget():removeButtonBox(bx);
 				bx = nil;
 				ans = o;
 				appContinue();
@@ -78,7 +78,7 @@ function GuiHelpers:askQuestion(label, options)
 		bx:addBottomButton(l);
 	end
 
-	gui.rootWidget():addButtonBox(bx);
+	gui:rootWidget():addButtonBox(bx);
 	appWait();
 
 	return ans;
@@ -98,7 +98,7 @@ function GuiHelpers:selectFrom(label, choices)
 	for i,o in ipairs(choices) do
 		local l = Button.new(o);
 		l:onClickLua(function()
-				gui.rootWidget():removeBox(bx);
+				gui:rootWidget():removeBox(bx);
 				bx = nil;
 				ans = o;
 				appContinue();
@@ -106,7 +106,7 @@ function GuiHelpers:selectFrom(label, choices)
 		bx:addButton(l);
 	end
 
-	gui.rootWidget():addBox(bx);
+	gui:rootWidget():addBox(bx);
 	appWait();
 
 	return ans;
@@ -117,7 +117,7 @@ function GuiHelpers:randomButton(label, handler)
 	local b = Button.new(label)
 	b:setRect(50, randomButton_t, 80, 30);
 	b:onClickLua(handler)
-	gui.rootWidget():addButton(b);
+	gui:rootWidget():addButton(b);
 	randomButton_t = randomButton_t + 35;
 	return b;
 end

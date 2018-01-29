@@ -42,14 +42,14 @@ function Server:transaction(handle)
 end
 
 
-function getClients()
+function Server:getClients()
 	local ret = {};
 
 	local cliNo = self.sw:at('clients'):get();
 	if(cliNo == '') then return ret; end
 
 	for i = 0, cliNo-1 do
-		local addr = sharedData.root():at('server'):at('clients'):at(i):at('addr'):get();
+		local addr = self.sw:at('clients'):at(i):at('addr'):get();
 		if(addr ~= '') then
 			ret[cliNo] = addr;
 		end
@@ -82,30 +82,30 @@ function Server:showWindow()
 
 	self.widget['print'] = Button.new('Print tree');
 	self.widget['print']:onClickLua(function()
-			sharedData.print();
+			sharedData:print();
 		end);
 	self.widget['box']:addButton(self.widget['print']);
 
 	self.widget['tstart'] = Button.new('Start transaction');
 	self.widget['tstart']:onClickLua(function()
-			sharedData.root():at('server'):at('transaction'):set('start');
+			sharedData:root():at('server'):at('transaction'):set('start');
 		end);
 	self.widget['box']:addButton(self.widget['tstart']);
 
 	self.widget['tstop'] = Button.new('Finish transaction');
 	self.widget['tstop']:onClickLua(function()
-			sharedData.root():at('server'):at('transaction'):set('stop');
+			sharedData:root():at('server'):at('transaction'):set('stop');
 		end);
 	self.widget['box']:addButton(self.widget['tstop']);
 
 	self.widget['write'] = Button.new('write Something');
 	self.widget['write']:onClickLua(function()
-			local v = sharedData.root():at('test'):at('variable'):get();
-			sharedData.root():at('test'):at('variable'):set(v+1);
+			local v = sharedData:root():at('test'):at('variable'):get();
+			sharedData:root():at('test'):at('variable'):set(v+1);
 		end);
 	self.widget['box']:addButton(self.widget['write']);
 
-	gui.rootWidget():addBox(self.widget['box']);
+	gui:rootWidget():addBox(self.widget['box']);
 end
 
 return Server

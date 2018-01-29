@@ -14,7 +14,7 @@ Config::Config()
 std::string Config::get(std::string key)
 {
 	std::string t = mState[key.c_str()];
-	Log() << "Config: key: " << key << " = " << t;
+	// Log() << "Config: key: " << key << " = " << t;
 	return mState[key.c_str()];
 }
 

@@ -49,7 +49,8 @@ end
 
 function Players:isActive(name)
 	local cli = server:getClients();
-	local cliNo = self.pl:get(name):get('cliNo');
+	-- print(self.pl)
+	local cliNo = self.pl:at(name):get('cliNo');
 	return hasKey(cli, cliNo);
 end
 
@@ -95,9 +96,9 @@ function Players:showWidget(onNewGame)
 
 	-- self:toggleStartButton();
 
-	print('++++++++=', server.sw)
-	gui.rootWidget():addBox(self.widget['box']);
-	print('++++++++=', server.sw)
+	-- print('++++++++=', server.sw)
+	gui:rootWidget():addBox(self.widget['box']);
+	-- print('++++++++=', server.sw)
 end
 
 

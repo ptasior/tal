@@ -97,12 +97,12 @@ function setup()
 	players:showWidget(startGame);
 	-- print('++++++++=', server.sw)
 
-	-- server:showWindow();
+	server:showWindow();
 
 
 	-- local cheatsheet = Box.new("Cheatsheet");
 	-- cheatsheet:setRect(100,100,420,224);
-	-- gui.rootWidget():addBox(cheatsheet);
+	-- gui:rootWidget():addBox(cheatsheet);
     --
 	-- local cs_scroll = Scroll.new();
 	-- cs_scroll:addLabel(Label.new("Princess (1) - loose when discarded"));

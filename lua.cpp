@@ -28,12 +28,26 @@ Lua* Lua::getInstance()
 	return &l;
 }
 
-int luaPanic(lua_State* s)
+int luaPanic(lua_State* L)
 {
 	// if(mGui) mGui->getConsole()->log(msg);
-	std::string msg = sol::stack::get<std::string>(s, -1);
+	std::string msg;
 
-	Log(Log::DIE)<< "Lua exception: " << msg;
+	sol::optional<sol::string_view> maybetopmsg = sol::stack::check_get<sol::string_view>(L, 1);
+	if (maybetopmsg) {
+		const sol::string_view& topmsg = maybetopmsg.value();
+		msg.assign(topmsg.data(), topmsg.size());
+	}
+
+	luaL_traceback(L, L, msg.c_str(), 1);
+	sol::optional<sol::string_view> maybetraceback = sol::stack::check_get<sol::string_view>(L, -1);
+	if (maybetraceback) {
+		const sol::string_view& traceback = maybetraceback.value();
+		msg.assign(traceback.data(), traceback.size());
+	}
+
+	Log(Log::DIE)<< "Lua exception: "
+				<< sol::stack::get<std::string>(L, -1);
 	return -1;
 }
 
@@ -76,22 +90,15 @@ void Lua::setup()
 {
 	mState.set_panic(luaPanic);
 
-	// auto m = mState.load_file("lua_lib/main.lua");
-	// if(!m.valid())
-	// 	Log(Log::DIE) << "Lua: cannot load main.lua";
+	auto m = mState.script_file("lua_lib/main.lua");
+	if(!m.valid())
+		Log(Log::DIE) << "Lua: cannot load main.lua";
 
 	auto g = mState.script_file(global_config->get("gameFile").c_str());
 	if(!g.valid())
 		Log(Log::DIE) << "Lua: cannot load " << global_config->get("gameFile");
-	// m();
-	// g();
-	Log() << "here";
 
-	sol::function stp = mState["setup"];
-	if(!stp.valid())
-		Log(Log::DIE) << "invalid function";
-	stp();
-	Log() << "here";
+	mState["setup"]();
 }
 
 void Lua::loop()
@@ -165,56 +172,392 @@ void Lua::initGui(Gui *gui)
 			"showFps", &Gui::showFps
 		);
 
-	applyWidgetInheritance("MultiLine");
+	// applyWidgetInheritance("MultiLine");
 	mState.new_usertype<MultiLine>("MultiLine",
 					sol::constructors<MultiLine(std::string)>(),
 					"setText", &MultiLine::setText,
 					"resize", &MultiLine::resize,
 					"label", &MultiLine::label,
-					"linesCount", &MultiLine::linesCount
+					"linesCount", &MultiLine::linesCount,
+
+
+			"setTop", &Widget::setTop,
+			"setLeft", &Widget::setLeft,
+			"setWidth", &Widget::setWidth,
+			"setHeight", &Widget::setHeight,
+			"setPosition", &Widget::setPosition,
+			"setSize", &Widget::setSize,
+			"setRect", &Widget::setRect,
+			"setPadding", &Widget::setPadding,
+			"setLayout", &Widget::setLayout,
+			"setOverflow", &Widget::setOverflow,
+			"setCenter", &Widget::setCenter,
+			"setStretch", &Widget::setStretch,
+			"setColor", &Widget::setColor,
+
+			"onClickLua", &Widget::onClickLua,
+
+			"getTop", &Widget::getTop,
+			"getLeft", &Widget::getLeft,
+			"getWidth", &Widget::getWidth,
+			"getHeight", &Widget::getHeight,
+
+			"addWidget", &Widget::addWidget<Widget>,
+			"addLabel", &Widget::addWidget<Label>,
+			"addMultiLine", &Widget::addWidget<MultiLine>,
+			"addEdit", &Widget::addWidget<Edit>,
+			"addButton", &Widget::addWidget<Button>,
+			"addBox", &Widget::addWidget<Box>,
+			"addButtonBox", &Widget::addWidget<ButtonBox>,
+			"addScroll", &Widget::addWidget<Scroll>,
+			"addCheckbox", &Widget::addWidget<Checkbox>,
+
+			"removeWidget", &Widget::removeWidget<Widget>,
+			"removeLabel", &Widget::removeWidget<Label>,
+			"removeMultiLine", &Widget::removeWidget<MultiLine>,
+			"removeEdit", &Widget::removeWidget<Edit>,
+			"removeButton", &Widget::removeWidget<Button>,
+			"removeBox", &Widget::removeWidget<Box>,
+			"removeButtonBox", &Widget::removeWidget<ButtonBox>,
+			"removeScroll", &Widget::removeWidget<Scroll>
+
 				);
 
-	applyWidgetInheritance("Label");
+	// applyWidgetInheritance("Label");
 	mState.new_usertype<Label>("Label",
 					sol::constructors<Label(std::string)>(),
 					"setText", &Label::setText,
-					"getText", &Label::getText
+					"getText", &Label::getText,
+
+
+			"setTop", &Widget::setTop,
+			"setLeft", &Widget::setLeft,
+			"setWidth", &Widget::setWidth,
+			"setHeight", &Widget::setHeight,
+			"setPosition", &Widget::setPosition,
+			"setSize", &Widget::setSize,
+			"setRect", &Widget::setRect,
+			"setPadding", &Widget::setPadding,
+			"setLayout", &Widget::setLayout,
+			"setOverflow", &Widget::setOverflow,
+			"setCenter", &Widget::setCenter,
+			"setStretch", &Widget::setStretch,
+			"setColor", &Widget::setColor,
+
+			"onClickLua", &Widget::onClickLua,
+
+			"getTop", &Widget::getTop,
+			"getLeft", &Widget::getLeft,
+			"getWidth", &Widget::getWidth,
+			"getHeight", &Widget::getHeight,
+
+			"addWidget", &Widget::addWidget<Widget>,
+			"addLabel", &Widget::addWidget<Label>,
+			"addMultiLine", &Widget::addWidget<MultiLine>,
+			"addEdit", &Widget::addWidget<Edit>,
+			"addButton", &Widget::addWidget<Button>,
+			"addBox", &Widget::addWidget<Box>,
+			"addButtonBox", &Widget::addWidget<ButtonBox>,
+			"addScroll", &Widget::addWidget<Scroll>,
+			"addCheckbox", &Widget::addWidget<Checkbox>,
+
+			"removeWidget", &Widget::removeWidget<Widget>,
+			"removeLabel", &Widget::removeWidget<Label>,
+			"removeMultiLine", &Widget::removeWidget<MultiLine>,
+			"removeEdit", &Widget::removeWidget<Edit>,
+			"removeButton", &Widget::removeWidget<Button>,
+			"removeBox", &Widget::removeWidget<Box>,
+			"removeButtonBox", &Widget::removeWidget<ButtonBox>,
+			"removeScroll", &Widget::removeWidget<Scroll>
+
 				);
 
-	applyWidgetInheritance("Edit");
+	// applyWidgetInheritance("Edit");
 	mState.new_usertype<Edit>("Edit",
 					sol::constructors<Edit(std::string)>(),
 					"setText", &Edit::setText,
-					"getText", &Edit::getText
+					"getText", &Edit::getText,
+
+
+			"setTop", &Widget::setTop,
+			"setLeft", &Widget::setLeft,
+			"setWidth", &Widget::setWidth,
+			"setHeight", &Widget::setHeight,
+			"setPosition", &Widget::setPosition,
+			"setSize", &Widget::setSize,
+			"setRect", &Widget::setRect,
+			"setPadding", &Widget::setPadding,
+			"setLayout", &Widget::setLayout,
+			"setOverflow", &Widget::setOverflow,
+			"setCenter", &Widget::setCenter,
+			"setStretch", &Widget::setStretch,
+			"setColor", &Widget::setColor,
+
+			"onClickLua", &Widget::onClickLua,
+
+			"getTop", &Widget::getTop,
+			"getLeft", &Widget::getLeft,
+			"getWidth", &Widget::getWidth,
+			"getHeight", &Widget::getHeight,
+
+			"addWidget", &Widget::addWidget<Widget>,
+			"addLabel", &Widget::addWidget<Label>,
+			"addMultiLine", &Widget::addWidget<MultiLine>,
+			"addEdit", &Widget::addWidget<Edit>,
+			"addButton", &Widget::addWidget<Button>,
+			"addBox", &Widget::addWidget<Box>,
+			"addButtonBox", &Widget::addWidget<ButtonBox>,
+			"addScroll", &Widget::addWidget<Scroll>,
+			"addCheckbox", &Widget::addWidget<Checkbox>,
+
+			"removeWidget", &Widget::removeWidget<Widget>,
+			"removeLabel", &Widget::removeWidget<Label>,
+			"removeMultiLine", &Widget::removeWidget<MultiLine>,
+			"removeEdit", &Widget::removeWidget<Edit>,
+			"removeButton", &Widget::removeWidget<Button>,
+			"removeBox", &Widget::removeWidget<Box>,
+			"removeButtonBox", &Widget::removeWidget<ButtonBox>,
+			"removeScroll", &Widget::removeWidget<Scroll>
+
 				);
 
-	applyWidgetInheritance("Button");
+	// applyWidgetInheritance("Button");
 	mState.new_usertype<Button>("Button",
 					sol::constructors<Button(std::string)>(),
-					"setText", &Button::setText
+					"setText", &Button::setText,
+
+
+			"setTop", &Widget::setTop,
+			"setLeft", &Widget::setLeft,
+			"setWidth", &Widget::setWidth,
+			"setHeight", &Widget::setHeight,
+			"setPosition", &Widget::setPosition,
+			"setSize", &Widget::setSize,
+			"setRect", &Widget::setRect,
+			"setPadding", &Widget::setPadding,
+			"setLayout", &Widget::setLayout,
+			"setOverflow", &Widget::setOverflow,
+			"setCenter", &Widget::setCenter,
+			"setStretch", &Widget::setStretch,
+			"setColor", &Widget::setColor,
+
+			"onClickLua", &Widget::onClickLua,
+
+			"getTop", &Widget::getTop,
+			"getLeft", &Widget::getLeft,
+			"getWidth", &Widget::getWidth,
+			"getHeight", &Widget::getHeight,
+
+			"addWidget", &Widget::addWidget<Widget>,
+			"addLabel", &Widget::addWidget<Label>,
+			"addMultiLine", &Widget::addWidget<MultiLine>,
+			"addEdit", &Widget::addWidget<Edit>,
+			"addButton", &Widget::addWidget<Button>,
+			"addBox", &Widget::addWidget<Box>,
+			"addButtonBox", &Widget::addWidget<ButtonBox>,
+			"addScroll", &Widget::addWidget<Scroll>,
+			"addCheckbox", &Widget::addWidget<Checkbox>,
+
+			"removeWidget", &Widget::removeWidget<Widget>,
+			"removeLabel", &Widget::removeWidget<Label>,
+			"removeMultiLine", &Widget::removeWidget<MultiLine>,
+			"removeEdit", &Widget::removeWidget<Edit>,
+			"removeButton", &Widget::removeWidget<Button>,
+			"removeBox", &Widget::removeWidget<Box>,
+			"removeButtonBox", &Widget::removeWidget<ButtonBox>,
+			"removeScroll", &Widget::removeWidget<Scroll>
+
 				);
 
-	applyWidgetInheritance("Box");
+	// applyWidgetInheritance("Box");
 	mState.new_usertype<Box>("Box",
-					sol::constructors<Box(std::string)>()
+					sol::constructors<Box(std::string)>(),
+
+
+			"setTop", &Widget::setTop,
+			"setLeft", &Widget::setLeft,
+			"setWidth", &Widget::setWidth,
+			"setHeight", &Widget::setHeight,
+			"setPosition", &Widget::setPosition,
+			"setSize", &Widget::setSize,
+			"setRect", &Widget::setRect,
+			"setPadding", &Widget::setPadding,
+			"setLayout", &Widget::setLayout,
+			"setOverflow", &Widget::setOverflow,
+			"setCenter", &Widget::setCenter,
+			"setStretch", &Widget::setStretch,
+			"setColor", &Widget::setColor,
+
+			"onClickLua", &Widget::onClickLua,
+
+			"getTop", &Widget::getTop,
+			"getLeft", &Widget::getLeft,
+			"getWidth", &Widget::getWidth,
+			"getHeight", &Widget::getHeight,
+
+			"addWidget", &Widget::addWidget<Widget>,
+			"addLabel", &Widget::addWidget<Label>,
+			"addMultiLine", &Widget::addWidget<MultiLine>,
+			"addEdit", &Widget::addWidget<Edit>,
+			"addButton", &Widget::addWidget<Button>,
+			"addBox", &Widget::addWidget<Box>,
+			"addButtonBox", &Widget::addWidget<ButtonBox>,
+			"addScroll", &Widget::addWidget<Scroll>,
+			"addCheckbox", &Widget::addWidget<Checkbox>,
+
+			"removeWidget", &Widget::removeWidget<Widget>,
+			"removeLabel", &Widget::removeWidget<Label>,
+			"removeMultiLine", &Widget::removeWidget<MultiLine>,
+			"removeEdit", &Widget::removeWidget<Edit>,
+			"removeButton", &Widget::removeWidget<Button>,
+			"removeBox", &Widget::removeWidget<Box>,
+			"removeButtonBox", &Widget::removeWidget<ButtonBox>,
+			"removeScroll", &Widget::removeWidget<Scroll>
+
 				);
 
-	applyWidgetInheritance("Scroll");
+	// applyWidgetInheritance("Scroll");
 	mState.new_usertype<Scroll>("Scroll",
-					"clear", &Scroll::clear
+					"clear", &Scroll::clear,
+
+
+			"setTop", &Widget::setTop,
+			"setLeft", &Widget::setLeft,
+			"setWidth", &Widget::setWidth,
+			"setHeight", &Widget::setHeight,
+			"setPosition", &Widget::setPosition,
+			"setSize", &Widget::setSize,
+			"setRect", &Widget::setRect,
+			"setPadding", &Widget::setPadding,
+			"setLayout", &Widget::setLayout,
+			"setOverflow", &Widget::setOverflow,
+			"setCenter", &Widget::setCenter,
+			"setStretch", &Widget::setStretch,
+			"setColor", &Widget::setColor,
+
+			"onClickLua", &Widget::onClickLua,
+
+			"getTop", &Widget::getTop,
+			"getLeft", &Widget::getLeft,
+			"getWidth", &Widget::getWidth,
+			"getHeight", &Widget::getHeight,
+
+			"addWidget", &Widget::addWidget<Widget>,
+			"addLabel", &Widget::addWidget<Label>,
+			"addMultiLine", &Widget::addWidget<MultiLine>,
+			"addEdit", &Widget::addWidget<Edit>,
+			"addButton", &Widget::addWidget<Button>,
+			"addBox", &Widget::addWidget<Box>,
+			"addButtonBox", &Widget::addWidget<ButtonBox>,
+			"addScroll", &Widget::addWidget<Scroll>,
+			"addCheckbox", &Widget::addWidget<Checkbox>,
+
+			"removeWidget", &Widget::removeWidget<Widget>,
+			"removeLabel", &Widget::removeWidget<Label>,
+			"removeMultiLine", &Widget::removeWidget<MultiLine>,
+			"removeEdit", &Widget::removeWidget<Edit>,
+			"removeButton", &Widget::removeWidget<Button>,
+			"removeBox", &Widget::removeWidget<Box>,
+			"removeButtonBox", &Widget::removeWidget<ButtonBox>,
+			"removeScroll", &Widget::removeWidget<Scroll>
+
 				);
 
-	applyWidgetInheritance("Checkbox");
+	// applyWidgetInheritance("Checkbox");
 	mState.new_usertype<Checkbox>("Checkbox",
 					sol::constructors<Checkbox(bool)>(),
 					"setChecked", &Checkbox::setChecked,
-					"isChecked", &Checkbox::isChecked
+					"isChecked", &Checkbox::isChecked,
+
+
+			"setTop", &Widget::setTop,
+			"setLeft", &Widget::setLeft,
+			"setWidth", &Widget::setWidth,
+			"setHeight", &Widget::setHeight,
+			"setPosition", &Widget::setPosition,
+			"setSize", &Widget::setSize,
+			"setRect", &Widget::setRect,
+			"setPadding", &Widget::setPadding,
+			"setLayout", &Widget::setLayout,
+			"setOverflow", &Widget::setOverflow,
+			"setCenter", &Widget::setCenter,
+			"setStretch", &Widget::setStretch,
+			"setColor", &Widget::setColor,
+
+			"onClickLua", &Widget::onClickLua,
+
+			"getTop", &Widget::getTop,
+			"getLeft", &Widget::getLeft,
+			"getWidth", &Widget::getWidth,
+			"getHeight", &Widget::getHeight,
+
+			"addWidget", &Widget::addWidget<Widget>,
+			"addLabel", &Widget::addWidget<Label>,
+			"addMultiLine", &Widget::addWidget<MultiLine>,
+			"addEdit", &Widget::addWidget<Edit>,
+			"addButton", &Widget::addWidget<Button>,
+			"addBox", &Widget::addWidget<Box>,
+			"addButtonBox", &Widget::addWidget<ButtonBox>,
+			"addScroll", &Widget::addWidget<Scroll>,
+			"addCheckbox", &Widget::addWidget<Checkbox>,
+
+			"removeWidget", &Widget::removeWidget<Widget>,
+			"removeLabel", &Widget::removeWidget<Label>,
+			"removeMultiLine", &Widget::removeWidget<MultiLine>,
+			"removeEdit", &Widget::removeWidget<Edit>,
+			"removeButton", &Widget::removeWidget<Button>,
+			"removeBox", &Widget::removeWidget<Box>,
+			"removeButtonBox", &Widget::removeWidget<ButtonBox>,
+			"removeScroll", &Widget::removeWidget<Scroll>
+
 				);
 
-	applyWidgetInheritance("ButtonBox");
+	// applyWidgetInheritance("ButtonBox");
 	mState.new_usertype<ButtonBox>("ButtonBox",
 					sol::constructors<ButtonBox(std::string)>(),
-					"addBottomButton", &ButtonBox::addForeignBottomButton
+					"addBottomButton", &ButtonBox::addForeignBottomButton,
+
+
+			"setTop", &Widget::setTop,
+			"setLeft", &Widget::setLeft,
+			"setWidth", &Widget::setWidth,
+			"setHeight", &Widget::setHeight,
+			"setPosition", &Widget::setPosition,
+			"setSize", &Widget::setSize,
+			"setRect", &Widget::setRect,
+			"setPadding", &Widget::setPadding,
+			"setLayout", &Widget::setLayout,
+			"setOverflow", &Widget::setOverflow,
+			"setCenter", &Widget::setCenter,
+			"setStretch", &Widget::setStretch,
+			"setColor", &Widget::setColor,
+
+			"onClickLua", &Widget::onClickLua,
+
+			"getTop", &Widget::getTop,
+			"getLeft", &Widget::getLeft,
+			"getWidth", &Widget::getWidth,
+			"getHeight", &Widget::getHeight,
+
+			"addWidget", &Widget::addWidget<Widget>,
+			"addLabel", &Widget::addWidget<Label>,
+			"addMultiLine", &Widget::addWidget<MultiLine>,
+			"addEdit", &Widget::addWidget<Edit>,
+			"addButton", &Widget::addWidget<Button>,
+			"addBox", &Widget::addWidget<Box>,
+			"addButtonBox", &Widget::addWidget<ButtonBox>,
+			"addScroll", &Widget::addWidget<Scroll>,
+			"addCheckbox", &Widget::addWidget<Checkbox>,
+
+			"removeWidget", &Widget::removeWidget<Widget>,
+			"removeLabel", &Widget::removeWidget<Label>,
+			"removeMultiLine", &Widget::removeWidget<MultiLine>,
+			"removeEdit", &Widget::removeWidget<Edit>,
+			"removeButton", &Widget::removeWidget<Button>,
+			"removeBox", &Widget::removeWidget<Box>,
+			"removeButtonBox", &Widget::removeWidget<ButtonBox>,
+			"removeScroll", &Widget::removeWidget<Scroll>
+
 				);
 
 	applyWidgetInheritance("Widget");
@@ -223,7 +566,7 @@ void Lua::initGui(Gui *gui)
 
 void Lua::applyWidgetInheritance(const char *type)
 {
-	mState.new_usertype<Widget>("Widget",
+	mState.new_usertype<Widget>(type,
 			sol::constructors<Widget(std::string)>(),
 			"setTop", &Widget::setTop,
 			"setLeft", &Widget::setLeft,
