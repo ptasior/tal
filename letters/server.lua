@@ -1,6 +1,6 @@
 Server = class(function(self)
 		self.pendingTransactions = {};
-		self.sw = sharedData.root():at('server');
+		self.sw = sharedData:root():at('server');
 		self.onConnect = {};
 		self._connected = false;
 	end)

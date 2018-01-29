@@ -1,7 +1,7 @@
 -- Requires Game and Server to be initialised
 
 Players = class(function(self)
-		self.pl = sharedData.root():at('players');
+		self.pl = sharedData:root():at('players');
 
 		server:addOnConnect(function()
 				server:transaction(function() self:logIn() end);

@@ -1,5 +1,5 @@
 #pragma once
-#include <selene.h>
+#include <sol.hpp>
 
 class Gui;
 class Scene;
@@ -37,6 +37,6 @@ private:
 	WaitState mWait = wsRun;
 	int mTimeout;
 
-	sel::State state;
+	sol::state mState;
 };
 

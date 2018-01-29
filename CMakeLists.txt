@@ -65,12 +65,13 @@ if("${JS}")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_PTHREADS=1")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ldl")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file game")
+	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file letters")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file lua_lib")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file shaders")
 
 	include_directories("lib")
 	include_directories("lib/lua")
-	include_directories("lib/selene")
+	include_directories("lib/sol")
 
 	link_directories("${PROJECT_SOURCE_DIR}/lib/lua/")
 	link_libraries("lua_emscripten")
@@ -97,7 +98,7 @@ else()
 	find_package(GLEW)
 	include_directories(${GLEW_INCLUDE_DIRS})
 
-	include_directories(lib/selene)
+	include_directories(lib/sol)
 	include_directories(lib/lua)
 
 	target_link_libraries(${PROJECT_NAME}

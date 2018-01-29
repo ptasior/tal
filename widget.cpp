@@ -380,7 +380,7 @@ void Widget::onClick(std::function<void(void)> fnc)
 	mOnClick = fnc;
 }
 
-void Widget::onClickLua(sel::function<void(void)> fnc)
+void Widget::onClickLua(sol::function fnc)
 {
 	mOnClickLua.push_back(fnc);
 }

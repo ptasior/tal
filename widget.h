@@ -1,10 +1,10 @@
 #pragma once
 #include "gl_header.h"
+#include <sol.hpp>
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>
 #include <functional>
-#include <selene.h>
 
 class GuiSprite;
 class Gui;
@@ -54,7 +54,7 @@ public:
 
 
 	virtual void onClick(std::function<void(void)> fnc);
-	virtual void onClickLua(sel::function<void(void)> fnc);
+	virtual void onClickLua(sol::function fnc);
 
 	virtual void focus();
 	virtual void unfocus();
@@ -100,7 +100,7 @@ protected:
 	// Vector because empty constructor in sel::fuction is deleted and
 	// object has to be copied, otherwise will be garbage collected
 	// TODO fix me in a more elegant way or at least add asserts(size() <= 1)
-	std::vector<sel::function<void(void)>> mOnClickLua;
+	std::vector<sol::function> mOnClickLua;
 	std::function<void(void)> mOnClick;
 
 	friend Gui;

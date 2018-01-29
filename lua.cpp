@@ -28,21 +28,43 @@ Lua* Lua::getInstance()
 	return &l;
 }
 
-Lua::Lua():
-	state(true)
+int luaPanic(lua_State* s)
 {
-	state["log"] = &Lua::logFnc;
-	state["wireframe"] = &Lua::wireframe;
-	state["setLoopResolution"] = &Lua::setLoopResolution;
-	state["setWait"] = &Lua::setWait;
-	state["setTimeout"] = &Lua::setTimeout;
+	// if(mGui) mGui->getConsole()->log(msg);
+	std::string msg = sol::stack::get<std::string>(s, -1);
 
-	state["sharedData"].SetObj<SharedData>(*global_sharedData,
+	Log(Log::DIE)<< "Lua exception: " << msg;
+	return -1;
+}
+
+Lua::Lua():
+	mState(sol::c_call<decltype(&luaPanic), &luaPanic>)
+{
+	mState.open_libraries(sol::lib::base,
+						sol::lib::package,
+						sol::lib::coroutine,
+						sol::lib::string,
+						sol::lib::os,
+						sol::lib::math,
+						sol::lib::table,
+						sol::lib::debug
+					);
+
+
+	mState["log"] = &Lua::logFnc;
+	mState["wireframe"] = &Lua::wireframe;
+	mState["setLoopResolution"] = &Lua::setLoopResolution;
+	mState["setWait"] = &Lua::setWait;
+	mState["setTimeout"] = &Lua::setTimeout;
+
+	mState.new_usertype<SharedData>("SharedData",
 			"root", &SharedData::root,
 			"print", &SharedData::print
 		);
 
-	state["DataNode"].SetClass<DataNode>(
+	mState["sharedData"] = *global_sharedData;
+
+	mState.new_usertype<DataNode>("DataNode",
 			"at", &DataNode::at,
 			"get", &DataNode::get,
 			"set", &DataNode::set,
@@ -52,17 +74,24 @@ Lua::Lua():
 
 void Lua::setup()
 {
-	state.HandleExceptionsWith([this](int, std::string msg, std::exception_ptr){
-			if(mGui) mGui->getConsole()->log(msg);
-			Log() << "----------------------------------------";
-			Log() << "Lua exception: " << msg;
-			Log() << "----------------------------------------";
-		});
+	mState.set_panic(luaPanic);
 
-	state.Load(global_config->get("gameFile").c_str());
-	state.Load("lua_lib/main.lua");
+	// auto m = mState.load_file("lua_lib/main.lua");
+	// if(!m.valid())
+	// 	Log(Log::DIE) << "Lua: cannot load main.lua";
 
-	state["setup"]();
+	auto g = mState.script_file(global_config->get("gameFile").c_str());
+	if(!g.valid())
+		Log(Log::DIE) << "Lua: cannot load " << global_config->get("gameFile");
+	// m();
+	// g();
+	Log() << "here";
+
+	sol::function stp = mState["setup"];
+	if(!stp.valid())
+		Log(Log::DIE) << "invalid function";
+	stp();
+	Log() << "here";
 }
 
 void Lua::loop()
@@ -81,12 +110,12 @@ void Lua::loop()
 	time = Time::current();
 
 	if(mWait == wsRun)
-		state["main_loop"]();
+		mState["main_loop"]();
 }
 
 void Lua::execute(const char *cmd)
 {
-	state(cmd);
+	mState.script(cmd);
 }
 
 void Lua::wireframe()
@@ -115,11 +144,181 @@ void Lua::setLoopResolution(unsigned int res)
 
 void Lua::resizeWindow()
 {
-	state["resizeWindow"]();
+	mState["resizeWindow"]();
 }
 
 void Lua::sharedDataUpdated(const std::string &line)
 {
-	state["sharedDataUpdated"](line);
+	mState["sharedDataUpdated"](line);
+}
+
+void Lua::initGui(Gui *gui)
+{
+	mGui = gui;
+
+	mState["gui"] = *gui;
+	mState.new_usertype<Gui>("Gui",
+			"rootWidget", &Gui::rootWidget,
+			"getSceneWidth", &Gui::getSceneWidth,
+			"getSceneHeight", &Gui::getSceneHeight,
+			"message", &Gui::message,
+			"showFps", &Gui::showFps
+		);
+
+	applyWidgetInheritance("MultiLine");
+	mState.new_usertype<MultiLine>("MultiLine",
+					sol::constructors<MultiLine(std::string)>(),
+					"setText", &MultiLine::setText,
+					"resize", &MultiLine::resize,
+					"label", &MultiLine::label,
+					"linesCount", &MultiLine::linesCount
+				);
+
+	applyWidgetInheritance("Label");
+	mState.new_usertype<Label>("Label",
+					sol::constructors<Label(std::string)>(),
+					"setText", &Label::setText,
+					"getText", &Label::getText
+				);
+
+	applyWidgetInheritance("Edit");
+	mState.new_usertype<Edit>("Edit",
+					sol::constructors<Edit(std::string)>(),
+					"setText", &Edit::setText,
+					"getText", &Edit::getText
+				);
+
+	applyWidgetInheritance("Button");
+	mState.new_usertype<Button>("Button",
+					sol::constructors<Button(std::string)>(),
+					"setText", &Button::setText
+				);
+
+	applyWidgetInheritance("Box");
+	mState.new_usertype<Box>("Box",
+					sol::constructors<Box(std::string)>()
+				);
+
+	applyWidgetInheritance("Scroll");
+	mState.new_usertype<Scroll>("Scroll",
+					"clear", &Scroll::clear
+				);
+
+	applyWidgetInheritance("Checkbox");
+	mState.new_usertype<Checkbox>("Checkbox",
+					sol::constructors<Checkbox(bool)>(),
+					"setChecked", &Checkbox::setChecked,
+					"isChecked", &Checkbox::isChecked
+				);
+
+	applyWidgetInheritance("ButtonBox");
+	mState.new_usertype<ButtonBox>("ButtonBox",
+					sol::constructors<ButtonBox(std::string)>(),
+					"addBottomButton", &ButtonBox::addForeignBottomButton
+				);
+
+	applyWidgetInheritance("Widget");
+}
+
+
+void Lua::applyWidgetInheritance(const char *type)
+{
+	mState.new_usertype<Widget>("Widget",
+			sol::constructors<Widget(std::string)>(),
+			"setTop", &Widget::setTop,
+			"setLeft", &Widget::setLeft,
+			"setWidth", &Widget::setWidth,
+			"setHeight", &Widget::setHeight,
+			"setPosition", &Widget::setPosition,
+			"setSize", &Widget::setSize,
+			"setRect", &Widget::setRect,
+			"setPadding", &Widget::setPadding,
+			"setLayout", &Widget::setLayout,
+			"setOverflow", &Widget::setOverflow,
+			"setCenter", &Widget::setCenter,
+			"setStretch", &Widget::setStretch,
+			"setColor", &Widget::setColor,
+
+			"onClickLua", &Widget::onClickLua,
+
+			"getTop", &Widget::getTop,
+			"getLeft", &Widget::getLeft,
+			"getWidth", &Widget::getWidth,
+			"getHeight", &Widget::getHeight,
+
+			"addWidget", &Widget::addWidget<Widget>,
+			"addLabel", &Widget::addWidget<Label>,
+			"addMultiLine", &Widget::addWidget<MultiLine>,
+			"addEdit", &Widget::addWidget<Edit>,
+			"addButton", &Widget::addWidget<Button>,
+			"addBox", &Widget::addWidget<Box>,
+			"addButtonBox", &Widget::addWidget<ButtonBox>,
+			"addScroll", &Widget::addWidget<Scroll>,
+			"addCheckbox", &Widget::addWidget<Checkbox>,
+
+			"removeWidget", &Widget::removeWidget<Widget>,
+			"removeLabel", &Widget::removeWidget<Label>,
+			"removeMultiLine", &Widget::removeWidget<MultiLine>,
+			"removeEdit", &Widget::removeWidget<Edit>,
+			"removeButton", &Widget::removeWidget<Button>,
+			"removeBox", &Widget::removeWidget<Box>,
+			"removeButtonBox", &Widget::removeWidget<ButtonBox>,
+			"removeScroll", &Widget::removeWidget<Scroll>
+		);
+}
+
+void Lua::initScene(Scene *scene)
+{
+	mScene = scene;
+
+	// mState.new_usertype<glm::mat4>("Glm_Mat4",
+	// 		sol::constructors<glm::mat4(float)>()
+	// 	);
+	// mState.new_usertype<glm::mat3>("Glm_Vec3",
+	// 		sol::constructors<glm::vec3(double, double, double)>()
+	// 	);
+
+	mState.new_usertype<Matrix>("Matrix",
+			"val", &Matrix::val,
+			"rotate", &Matrix::rotate,
+			"translate", &Matrix::translate,
+			"scale", &Matrix::scale,
+			"scaleVec", &Matrix::scaleVec
+		);
+
+
+	mState.new_usertype<Map>("Map",
+			"init", &Map::init,
+			"addTexture", &Map::addTexture,
+			"setRect", &Map::setRect,
+			"getAltitude", &Map::getAltitude
+		);
+
+	mState.new_usertype<Skybox>("Skybox",
+			"init", &Skybox::init,
+			"setTexture", &Skybox::setTexture
+		);
+
+
+	mState.new_usertype<Sprite>("Sprite",
+			"init", &Sprite::init,
+			"setPosition", &Sprite::setPosition,
+			"setSize", &Sprite::setSize
+		);
+
+	mState.new_usertype<Model>("ModelObj",
+			"setPosition", &Model::setPosition
+		);
+	mState.new_usertype<ModelObj>("ModelObj",
+			"init", &ModelObj::init
+		);
+
+	mState["scene"] = *scene;
+	mState.new_usertype<Scene>("Scene",
+			"getMap", &Scene::getMap,
+			"getSkybox", &Scene::getSkybox,
+			"addModel", &Scene::addModel<ModelObj>,
+			"addSprite", &Scene::addSprite
+		);
 }
 

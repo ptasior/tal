@@ -2,7 +2,6 @@
 #include "widget.h"
 
 #include "gl_header.h"
-#include <selene.h>
 #include <glm/glm.hpp>
 #include <memory>
 #include <vector>

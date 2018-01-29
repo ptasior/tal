@@ -1,5 +1,5 @@
 Game = class(function(self)
-		self.gm = sharedData.root():at('game');
+		self.gm = sharedData:root():at('game');
 		self.onStart = {};
 		self.onInit = {};
 	end)

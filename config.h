@@ -1,5 +1,5 @@
 #pragma once
-#include <selene.h>
+#include <sol.hpp>
 
 class Config
 {
@@ -9,7 +9,7 @@ public:
 	std::string operator[](std::string key);
 
 protected:
-	sel::State mState;
+	sol::state mState;
 };
 
 extern Config* global_config;

@@ -1,17 +1,20 @@
 #include "config.h"
 #include "log.h"
 
-Config::Config():
-	mState(true)
+Config::Config()
 {
-	mState.Load("config.lua");
+	sol::load_result r = mState.load_file("config.lua");
+	if(!r.valid())
+		Log(Log::DIE) << "Error while loading config.lua";
+
+	r();
 	Log() << "Config initialised";
 }
 
 std::string Config::get(std::string key)
 {
 	std::string t = mState[key.c_str()];
-	// Log() << "Config: key: " << key << " = " << t;
+	Log() << "Config: key: " << key << " = " << t;
 	return mState[key.c_str()];
 }
 
