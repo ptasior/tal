@@ -36,6 +36,7 @@ public:
 	std::string get();
 	std::vector<std::string> branches();
 	void set(std::string s);
+	void set(int s);
 
 
 private:

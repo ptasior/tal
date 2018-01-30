@@ -49,8 +49,7 @@ end
 
 function Players:isActive(name)
 	local cli = server:getClients();
-	-- print(self.pl)
-	local cliNo = self.pl:at(name):get('cliNo');
+	local cliNo = tonumber(self.pl:at(name):at('cliNo'):get());
 	return hasKey(cli, cliNo);
 end
 
@@ -61,7 +60,7 @@ function Players:getInactive()
 	local ret = {};
 
 	for i = 0, #nm do
-		local cliNo = self.pl:get(nm[i]):get('cliNo');
+		local cliNo = tonumber(self.pl:at(name):at('cliNo'):get());
 		if(not hasKey(cli, cliNo)) then
 			ret[#ret+1] = nm[i];
 		end
@@ -94,11 +93,9 @@ function Players:showWidget(onNewGame)
 	self.widget['list']:setRect(3,6,300,150);
 	self.widget['box']:addScroll(self.widget['list']);
 
-	-- self:toggleStartButton();
+	self:toggleStartButton();
 
-	-- print('++++++++=', server.sw)
 	gui:rootWidget():addBox(self.widget['box']);
-	-- print('++++++++=', server.sw)
 end
 
 
@@ -124,7 +121,7 @@ function Players:updateWidget()
 	self.widget['list']:clear();
 	for i = 1,#names do
 		local txt = names[i];
-		if(not self:isActive(names[i])) then
+		if(not self:isActive(txt)) then
 			txt = '- ' .. txt;
 		end
 

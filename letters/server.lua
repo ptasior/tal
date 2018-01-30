@@ -10,7 +10,7 @@ function Server:update(line)
 	-- On connection success
 	if(startsWith(line, 'server\1me\1no')) then
 		self._connected = true;
-		self._meNo = self.sw:at('me'):at('no'):get();
+		self._meNo = tonumber(self.sw:at('me'):at('no'):get());
 
 		for k,v in pairs(self.onConnect) do
 			v(); -- Call all handelrs
@@ -45,13 +45,13 @@ end
 function Server:getClients()
 	local ret = {};
 
-	local cliNo = self.sw:at('clients'):get();
+	local cliNo = tonumber(self.sw:at('clients'):get());
 	if(cliNo == '') then return ret; end
 
 	for i = 0, cliNo-1 do
-		local addr = self.sw:at('clients'):at(i):at('addr'):get();
+		local addr = self.sw:at('clients'):at(tostring(i)):at('addr'):get();
 		if(addr ~= '') then
-			ret[cliNo] = addr;
+			ret[i] = addr;
 		end
 	end
 
@@ -62,10 +62,6 @@ end
 function Server:meNo()
 	return self._meNo;
 end
-
-
-
-
 
 
 

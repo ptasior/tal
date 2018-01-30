@@ -6,9 +6,9 @@
 void SharedData::applyChange(std::string line)
 {
 	assert(mOnline);
+	std::string origLine = line;
 
-	Log() << "SharedData: Applying line: " << line;
-	Lua::getInstance()->sharedDataUpdated(line);
+	Log() << "SharedData: Applying line: " << origLine;
 
 	size_t pos = 0;
 	std::string token;
@@ -18,10 +18,12 @@ void SharedData::applyChange(std::string line)
 		token = line.substr(0, pos);
 		line.erase(0, pos + 1);
 
-		p = &(p->operator[](token.c_str()));
+		p = p->at(token.c_str());
 	}
 
 	p->mValue = line;
+
+	Lua::getInstance()->sharedDataUpdated(origLine);
 }
 
 std::queue<std::string>& SharedData::getChanges()
@@ -65,7 +67,7 @@ void DataNode::print(int idn)
 	else
 		Log() << "-";
 
-	for(auto b : mBranches)
+	for(auto &b : mBranches)
 		b.second.print(idn+1);
 }
 
@@ -77,6 +79,11 @@ DataNode* DataNode::at(std::string key)
 		mBranches[key].mParent = this;
 	}
 	return &mBranches[key];
+}
+
+void DataNode::set(int i)
+{
+	set(std::to_string(i));
 }
 
 void DataNode::set(std::string v)

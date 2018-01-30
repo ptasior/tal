@@ -26,7 +26,6 @@ private:
 	enum WaitState {wsRun, wsWait, wsRefresh, wsSleep};
 
 	Lua();
-	void applyWidgetInheritance(const char *type);
 
 	static void logFnc(std::string s);
 	static void wireframe();
