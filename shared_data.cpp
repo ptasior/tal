@@ -8,7 +8,7 @@ void SharedData::applyChange(std::string line)
 	assert(mOnline);
 	std::string origLine = line;
 
-	Log() << "SharedData: Applying line: " << origLine;
+	Log() << "SharedData: received: " << origLine;
 
 	size_t pos = 0;
 	std::string token;
@@ -33,7 +33,7 @@ std::queue<std::string>& SharedData::getChanges()
 
 void SharedData::setOnline(bool v)
 {
-	Log() << "SharedData: Online: " << v;
+	Log() << "SharedData: online: " << v;
 	mOnline = v;
 }
 
@@ -49,6 +49,7 @@ void SharedData::print()
 
 void SharedData::addChange(const std::string& line)
 {
+	Log() << "SharedData: sending: " << line;
 	mChanges.push(line);
 }
 

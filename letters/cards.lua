@@ -7,7 +7,6 @@ Cards = class(function(self, var)
 function Cards:set(arr, names)
 	self.names = names;
 	self.deck = arr;
-	self:shuffle();
 end
 
 
@@ -20,13 +19,13 @@ function Cards:shuffle()
 end
 
 
-function toName(no)
+function Cards:toName(no)
 	return self.names[tonumber(no)];
 end
 
 
-function toNumber(name)
-	for i = 0,#names do
+function Cards:toNumber(name)
+	for i = 0,#self.names do
 		if(self.names[i] == name) then
 			return i;
 		end
@@ -35,18 +34,18 @@ function toNumber(name)
 end
 
 
-function drawOne()
-	self:read();
+function Cards:drawOne()
 	return table.remove(self.deck,1);
 end
 
 
-function save()
+function Cards:save()
+	log('saving'..join('-', self.deck))
 	self.shvar:set(join('-', self.deck));
 end
 
 
-function read()
+function Cards:read()
 	local s = self.shvar:get()
 	self.deck = split('-', s);
 end

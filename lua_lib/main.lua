@@ -22,6 +22,15 @@ function appSleep(ms)
 	coroutine.yield();
 end
 
+function waitFor(s_data)
+	local v = s_data:get();
+	while(v == '') do
+		appWait(100);
+		v = s_data:get();
+	end
+	return v;
+end
+
 global_co = coroutine.create(function()
 		while(true) do
 			s, res = xpcall(function()

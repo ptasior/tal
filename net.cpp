@@ -63,7 +63,7 @@ void Net::loop()
 	if(SDLNet_CheckSockets(mSocketSet, 0) && SDLNet_SocketReady(mSock))
 		if((lenr = SDLNet_TCP_Recv(mSock, recvbuf, BUFFSIZE)) > 0)
 		{
-			Log() << "Net: received: " << recvbuf << " len: " << lenr;
+			// Log() << "Net: received: " << recvbuf << " len: " << lenr;
 			int b = 0, e = 0;
 			for(; e < lenr; e++)
 				if(recvbuf[e] == '\2')
@@ -87,7 +87,7 @@ void Net::loop()
 			}
 		}
 		else
-			Log() << "Net: sever error, lenr = " << lenr;
+			Log(Log::DIE) << "Net: sever error, lenr = " << lenr;
 
 	// If nothing to send, return
 	if(global_sharedData->getChanges().empty())
@@ -96,8 +96,7 @@ void Net::loop()
 	global_sharedData->getChanges().pop();
 
 	int actual = 0;
-	int len = line.size(); // -1 removes \0
-	// assert(len < BUFFSIZE); // Remote buffer size // Shouldn't be needed any more
+	int len = line.size();
 
 	if((actual = SDLNet_TCP_Send(mSock, (void *)line.c_str(), len)) != len)
 	{
@@ -121,9 +120,7 @@ void Net::loop()
 		if(actual > 0)
 			Log(Log::DIE) << "Net: actual > 0";
 	}
-	else
-	{
-		Log() << "Net: message sent: " << line;
-	}
+	// else
+	// 	Log() << "Net: message sent: " << line;
 }
 

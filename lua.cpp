@@ -28,31 +28,31 @@ Lua* Lua::getInstance()
 	return &l;
 }
 
-int luaPanic(lua_State* L)
-{
-	// if(mGui) mGui->getConsole()->log(msg);
-	std::string msg;
+// int luaPanic(lua_State* L)
+// {
+// 	// if(mGui) mGui->getConsole()->log(msg);
+// 	std::string msg;
+//
+// 	sol::optional<sol::string_view> maybetopmsg = sol::stack::check_get<sol::string_view>(L, 1);
+// 	if (maybetopmsg) {
+// 		const sol::string_view& topmsg = maybetopmsg.value();
+// 		msg.assign(topmsg.data(), topmsg.size());
+// 	}
+//
+// 	luaL_traceback(L, L, msg.c_str(), 1);
+// 	sol::optional<sol::string_view> maybetraceback = sol::stack::check_get<sol::string_view>(L, -1);
+// 	if (maybetraceback) {
+// 		const sol::string_view& traceback = maybetraceback.value();
+// 		msg.assign(traceback.data(), traceback.size());
+// 	}
+//
+// 	Log(Log::DIE)<< "Lua exception: "
+// 				<< sol::stack::get<std::string>(L, -1);
+// 	return -1;
+// }
 
-	sol::optional<sol::string_view> maybetopmsg = sol::stack::check_get<sol::string_view>(L, 1);
-	if (maybetopmsg) {
-		const sol::string_view& topmsg = maybetopmsg.value();
-		msg.assign(topmsg.data(), topmsg.size());
-	}
-
-	luaL_traceback(L, L, msg.c_str(), 1);
-	sol::optional<sol::string_view> maybetraceback = sol::stack::check_get<sol::string_view>(L, -1);
-	if (maybetraceback) {
-		const sol::string_view& traceback = maybetraceback.value();
-		msg.assign(traceback.data(), traceback.size());
-	}
-
-	Log(Log::DIE)<< "Lua exception: "
-				<< sol::stack::get<std::string>(L, -1);
-	return -1;
-}
-
-Lua::Lua():
-	mState(sol::c_call<decltype(&luaPanic), &luaPanic>)
+Lua::Lua()//:
+	// mState(sol::c_call<decltype(&luaPanic), &luaPanic>)
 {
 	mState.open_libraries(sol::lib::base,
 						sol::lib::package,
@@ -91,7 +91,7 @@ Lua::Lua():
 
 void Lua::setup()
 {
-	mState.set_panic(luaPanic);
+	// mState.set_panic(luaPanic);
 
 	auto m = mState.script_file("lua_lib/main.lua");
 	if(!m.valid())
@@ -101,7 +101,37 @@ void Lua::setup()
 	if(!g.valid())
 		Log(Log::DIE) << "Lua: cannot load " << global_config->get("gameFile");
 
-	mState["setup"]();
+	try
+	{
+		mState["setup"]();
+	}
+	catch(const sol::error& e)
+	{
+		lua_State *L = mState.lua_state();
+
+		std::string msg;
+		sol::optional<sol::string_view> maybetopmsg = sol::stack::check_get<sol::string_view>(L, 1);
+		if (maybetopmsg) {
+			const sol::string_view& topmsg = maybetopmsg.value();
+			msg.assign(topmsg.data(), topmsg.size());
+		}
+
+		luaL_traceback(L, L, msg.c_str(), 1);
+		sol::optional<sol::string_view> maybetraceback = sol::stack::check_get<sol::string_view>(L, -1);
+		if (maybetraceback) {
+			const sol::string_view& traceback = maybetraceback.value();
+			msg.assign(traceback.data(), traceback.size());
+		}
+
+		Log(Log::DIE)<< "Lua exception: "
+					<< e.what()
+					<< msg;
+					// << sol::stack::get<std::string>(L, -1);
+	}
+	catch (const std::exception& e)
+	{
+		Log(Log::DIE) << "Generic exception: " << e.what();
+	}
 }
 
 void Lua::loop()
@@ -119,8 +149,39 @@ void Lua::loop()
 
 	time = Time::current();
 
-	if(mWait == wsRun)
+	if(mWait != wsRun)
+		return;
+
+	try
+	{
 		mState["main_loop"]();
+	}
+	catch(const sol::error& e)
+	{
+		lua_State *L = mState.lua_state();
+		std::string msg;
+		sol::optional<sol::string_view> maybetopmsg = sol::stack::check_get<sol::string_view>(L, 1);
+		if (maybetopmsg) {
+			const sol::string_view& topmsg = maybetopmsg.value();
+			msg.assign(topmsg.data(), topmsg.size());
+		}
+
+		luaL_traceback(L, L, msg.c_str(), 1);
+		sol::optional<sol::string_view> maybetraceback = sol::stack::check_get<sol::string_view>(L, -1);
+		if (maybetraceback) {
+			const sol::string_view& traceback = maybetraceback.value();
+			msg.assign(traceback.data(), traceback.size());
+		}
+
+		Log(Log::DIE)<< "Lua exception: "
+					<< e.what()
+					<< msg;
+					// << sol::stack::get<std::string>(L, -1);
+	}
+	catch (const std::exception& e)
+	{
+		Log(Log::DIE) << "Generic exception: " << e.what();
+	}
 }
 
 void Lua::execute(const char *cmd)

@@ -78,9 +78,7 @@ function Players:update(line)
 end
 
 
-function Players:showWidget(onNewGame)
-	self.onNewGame = onNewGame;
-
+function Players:showWidget()
 	self.widget = {};
 
 	self.widget['box'] = Box.new("Players");
@@ -127,30 +125,21 @@ function Players:updateWidget()
 
 		self.widget['list']:addLabel(Label.new(txt));
 	end
+
+	-- if(self.meName ~= '') then
+	-- 	self.widget['box']:setTitle(self.meName)
+	-- end
 end
 
 
--- function Players:get(name)
--- 	return sharedData.root():at('players'):at(name);
--- end
---
---
+function Players:get(name)
+	return sharedData:root():at('players'):at(name);
+end
+
+
 function Players:me()
-	return self.meName;
+	return self:get(self.meName);
 end
-
-
--- function Players:nextPlayer()
--- 	local ap = self.players;
--- 	local pos = find(server.meName, ap)+1;
---
--- 	if(pos > #ap) then pos = 1; end -- Modulo with offset +1 is too complicated :(
---
--- 	-- log('mename= '..meName..' pos = '..pos..' vd = '..var_dump(ap))
---
--- 	return ap[pos];
--- end
---
 
 return Players
 

@@ -12,38 +12,32 @@ server = nil;
 players = nil;
 game = nil;
 
-function waitFor(s_data)
-	local v = s_data:get();
-	while(v == '') do
-		appWait(100);
-		v = s_data:get();
-	end
-	return v;
+
+function setupGame()
+	local names = {"Guard", "Priest", "Baron", "Handmaid",
+					"Prince", "King", "Countess", "Princess"};
+	local set = {8,7,6,5,5,4,4,3,3,2,2,1,1,1,1,1};
+
+	cards = Cards(sharedData:root():at('deck'));
+	cards:set(set, names);
 end
 
 
 function startGame()
 	log('Start game');
 
-	local names = {"Guard", "Priest", "Baron", "Handmaid",
-					"Prince", "King", "Countess", "Princess"};
-	local set = {8,7,6,5,5,4,4,3,3,2,2,1,1,1,1,1};
+	cards:shuffle();
+	cards:save();
 
-	cards = Cards(sharedData.root():at('deck'));
-	cards:set(set, names);
-
-
-	local ap = players.getActive();
+	local ap = players:getNames();
 
 	for i = 1,#ap do
-		local c = cards.drawOne();
+		local c = cards:drawOne();
 		players:get(ap[i]):at('card'):set(c);
 	end
 
-	cards.save();
-	local turn = ap[math.random(#ap)];
-	sharedData.root():at('turn'):set(turn);
-	log('turn = '..turn);
+	cards:save();
+	game:initTurn();
 end
 
 
@@ -56,31 +50,54 @@ function playTurn()
 	log('My Turn!')
 
 	-- Draw a card
-	local drawn = cards.drawOne();
+	local drawn = cards:drawOne();
+	cards:save();
 	log('drawn '..drawn)
 
 	-- Play a card
-	-- sharedData.at('players'):at(meName):at('protected'):set(false);
+	-- players:me():at('protected'):set(false);
 	local hand = players:me():at('card'):get();
-	local cards = {cards:toName(drawn), cards:toName(hand)};
-	local played = GuiHelpers:askQuestion("Which card would you like to play?", cards);
+	local choice = {cards:toName(drawn), cards:toName(hand)};
+	local played = GuiHelpers:askQuestion("Which card would you like to play?", choice);
 
 	log('played = '..played)
-	local left = without(cards, played);
+	local left = nil;
+	if(drawn ~= hand) then
+		left = without(choice, played);
+	else
+		-- When two cards are the same, list is cleaned
+		left = {played};
+	end
 	log('left'..var_dump(left))
 
 	players:me():at('card'):set(cards:toNumber(left[1]));
 	perform(played);
 
-	-- Next player's turn
-	local nxt = players.nextPlayer();
-	sharedData.root():at('turn'):set(nxt);
-	log('next turn = '..nxt);
-
 	if(#cards.deck == 0) then
 		-- Check who win
-		GuiHelpers:message("end of the game");
+		GuiHelpers:message("End of the game");
 	end
+
+	-- Next player's turn
+	game:nextTurn();
+end
+
+
+function showCheatsheet()
+	local cheatsheet = Box.new("Cheatsheet");
+	cheatsheet:setRect(100,100,420,224);
+	gui:rootWidget():addBox(cheatsheet);
+
+	local cs_scroll = Scroll.new();
+	cs_scroll:addLabel(Label.new("Princess (1) - loose when discarded"));
+	cs_scroll:addLabel(Label.new("Countess (1) - discard when with King or Prince"));
+	cs_scroll:addLabel(Label.new("King (1) - trade hands"));
+	cs_scroll:addLabel(Label.new("Prince (2) - discard cards and draw new"));
+	cs_scroll:addLabel(Label.new("Handmaid (2) - protection till the end of round"));
+	cs_scroll:addLabel(Label.new("Baron (2) - compare hands; lower is out"));
+	cs_scroll:addLabel(Label.new("Priest (2) - look at a hand"));
+	cs_scroll:addLabel(Label.new("Guard (5) - guess player's hand"));
+	cheatsheet:addScroll(cs_scroll);
 end
 
 
@@ -91,55 +108,37 @@ function setup()
 	setLoopResolution(500);
 
 	server = Server();
-	game = Game();
-	players = Players();
-	-- print('++++++++=', server.sw)
-	players:showWidget(startGame);
-	-- print('++++++++=', server.sw)
-
 	server:showWindow();
 
+	game = Game();
+	game:addOnInit(startGame);
+	game:addOnTurn(playTurn);
 
-	-- local cheatsheet = Box.new("Cheatsheet");
-	-- cheatsheet:setRect(100,100,420,224);
-	-- gui:rootWidget():addBox(cheatsheet);
-    --
-	-- local cs_scroll = Scroll.new();
-	-- cs_scroll:addLabel(Label.new("Princess (1) - loose when discarded"));
-	-- cs_scroll:addLabel(Label.new("Countess (1) - discard when with King or Prince"));
-	-- cs_scroll:addLabel(Label.new("King (1) - trade hands"));
-	-- cs_scroll:addLabel(Label.new("Prince (2) - discard cards and draw new"));
-	-- cs_scroll:addLabel(Label.new("Handmaid (2) - protection till the end of round"));
-	-- cs_scroll:addLabel(Label.new("Baron (2) - compare hands; lower is out"));
-	-- cs_scroll:addLabel(Label.new("Priest (2) - look at a hand"));
-	-- cs_scroll:addLabel(Label.new("Guard (5) - guess player's hand"));
-	-- cheatsheet:addScroll(cs_scroll);
+	players = Players();
+	players:showWidget();
+
+	setupGame();
+	-- showCheatsheet();
 
 	log('Lua setup done');
 end
 
+
 function resizeWindow()
 end
+
 
 function loop()
 end
 
-function isMyTurn()
-	if(sharedData.root():at('turn'):get() == server.meName) then
-		return true;
-	end
-
-	print('not my turn - ', sharedData.root():at('turn'):get(), ' me: ', server.meName);
-	return false;
-end
 
 function sharedDataChange(line)
 	server:update(line);
 	game:update(line);
 	players:update(line);
 
-	if(startsWith(line, 'turn') and isMyTurn()) then
-		playTurn();
+	if(startsWith(line, 'deck')) then
+		cards:read();
 	end
 end
 
