@@ -98,6 +98,7 @@ void Lua::initGui(Gui *gui)
 
 	mState.new_usertype<Box>("Box",
 					sol::constructors<Box(std::string)>(),
+					"setTitle", &Box::setTitle,
 					WIDGET_INHERITED
 				);
 

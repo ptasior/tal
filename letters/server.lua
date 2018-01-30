@@ -3,6 +3,7 @@ Server = class(function(self)
 		self.sw = sharedData:root():at('server');
 		self.onConnect = {};
 		self._connected = false;
+		self.onBroadcast = {};
 	end)
 
 
@@ -26,6 +27,19 @@ function Server:update(line)
 		end
 		self.pendingTransactions = {}; -- Remove handlers
 		self.sw:at('transaction'):set('stop');
+	end
+
+
+	if(startsWith(line, 'server\1broadcast')) then
+		local msg = self.sw:at('broadcast'):get();
+
+		if(#self.onBroadcast > 0) then
+			for i=1,#self.onBroadcast do
+				self.onBroadcast[i](msg);
+			end
+		else
+			GuiHelpers:message(msg);
+		end
 	end
 end
 
@@ -67,6 +81,13 @@ function Server:meNo()
 	return self._meNo;
 end
 
+function Server:addOnBroadcast(handler)
+	self.onBroadcast[#self.onBroadcast+1] = handler;
+end
+
+function Server:broadcast(msg)
+	self.sw:at('broadcast'):set(msg);
+end
 
 
 function Server:showWindow()

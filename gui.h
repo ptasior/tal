@@ -113,6 +113,7 @@ class Box : public Widget
 public:
 	Box(std::string title);
 	virtual void setupChildren();
+	virtual void setTitle(std::string title);
 
 	virtual void addForeignWidget(Widget* w);
 	virtual void addOwnedWidget(std::shared_ptr<Widget> w);

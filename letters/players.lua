@@ -47,6 +47,25 @@ function Players:getNames()
 end
 
 
+function Players:getPlaying()
+	local names = self:getNames();
+	local ret = {};
+	for i = 1, #names do
+		if(self:get(names[i]):at('lost'):get() ~= 'true') then
+			ret[#ret+1] = names[i];
+		end
+	end
+	return ret;
+end
+
+
+function Players:lose(name)
+	self:get(name):at('lost'):set('true');
+	log('Player '..name..' has lost');
+	self:updateWidget();
+end
+
+
 function Players:isActive(name)
 	local cli = server:getClients();
 	local cliNo = tonumber(self.pl:at(name):at('cliNo'):get());
@@ -59,7 +78,7 @@ function Players:getInactive()
 	local cli = server:getClients();
 	local ret = {};
 
-	for i = 0, #nm do
+	for i = 1, #nm do
 		local cliNo = tonumber(self.pl:at(name):at('cliNo'):get());
 		if(not hasKey(cli, cliNo)) then
 			ret[#ret+1] = nm[i];
@@ -120,20 +139,22 @@ function Players:updateWidget()
 	for i = 1,#names do
 		local txt = names[i];
 		if(not self:isActive(txt)) then
+			txt = 'X ' .. txt;
+		elseif(self.pl:at(txt):at('lost'):get() == 'true') then
 			txt = '- ' .. txt;
 		end
 
 		self.widget['list']:addLabel(Label.new(txt));
 	end
 
-	-- if(self.meName ~= '') then
-	-- 	self.widget['box']:setTitle(self.meName)
-	-- end
+	if(self.meName) then
+		self.widget['box']:setTitle('Players - '..self.meName)
+	end
 end
 
 
 function Players:get(name)
-	return sharedData:root():at('players'):at(name);
+	return self.pl:at(name);
 end
 
 

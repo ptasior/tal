@@ -62,6 +62,8 @@ function Game:update(line)
 					self.onTurn[i]();
 				end
 			end)
+		else
+			log('Not my turn but '..self.gm:at('turn'):get())
 		end
 	end
 end
@@ -82,8 +84,8 @@ end
 
 
 function Game:nextTurn()
-	local ap = players:getNames();
-	local pos = find(players.meName, ap)+1;
+	local ap = players:getPlaying();
+	local pos = find(players.meName, ap)+1; -- TODO fix me
 
 	if(pos > #ap) then pos = 1; end -- Modulo with offset +1 is too complicated :(
 

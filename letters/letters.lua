@@ -41,8 +41,78 @@ function startGame()
 end
 
 
+function playersToPick(includeSelf)
+	local pls = players:getPlaying();
+	local ret = {};
+
+	for i = 1, #pls do
+		if(players:get(pls[i]):at('protected'):get() ~= 'true') then
+			if(includeSelf or pls[i] ~= players.meName) then
+				ret[#ret+1] = pls[i];
+			end
+		end
+	end
+	return ret;
+end
+
+
 function perform(card)
-	log('Performing '..card)
+	log('Performing '..card);
+	if(card == 1) then
+		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(false));
+		local crd = GuiHelpers:selectFrom("Guess the card",
+											without(cards.names, 'Guard'));
+		if(players:get(pl):at('card'):get() == crd) then
+			players:lose(pl);
+			server:broadcast(pl..' has lost');
+		else
+			server:broadcast(players.meName..' used guard but '..pl..' does not have '..crd);
+		end
+
+	elseif(card == 2) then
+		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(false));
+		GuiHelpers:message(pl..' has '..cards:toName(players:get(pl):at('card'):get()));
+		server:broadcast(players.meName..' checked '..pl..'\'s card');
+
+	elseif(card == 3) then
+		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(false));
+		local mc = players:me():at('card'):get();
+		local pc = players:get(pl):at('card'):get();
+		if(pc == mc) then
+			server:broadcast(pl..'\'s and '..players.meName..'\'s cards are identical');
+		elseif(pc > mc) then
+			players:lose(players.meName);
+			server:broadcast(players.meName..' has lost');
+		elseif(pc < mc) then
+			players:lose(pl);
+			server:broadcast(pl..' has lost');
+		end
+	elseif(card == 4) then
+		players:get(players.meName):at('protected'):set('true');
+		server:broadcast(players.meName..' is protected');
+
+	elseif(card == 5) then
+		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(true));
+		local c = cards:drawOne();
+		players:get(pl):at('card'):set(c);
+		cards:save();
+		server:broadcast(pl..' was chosen to draw new cards');
+
+	elseif(card == 6) then
+		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(false));
+		local tmp = players:get(pl):at('card'):get();
+		players:get(pl):at('card'):set(players:me():at('card'):get());
+		players:me():at('card'):set(tmp);
+		server:broadcast(pl..' and '..players.meName..' traded hands');
+
+	elseif(card == 7) then
+		server:broadcast(players.meName..' played Countess');
+
+	elseif(card == 8) then
+		server:broadcast(players.meName..' played Princess and lost');
+		players:lose(players.meName);
+
+	end
 end
 
 
@@ -55,7 +125,7 @@ function playTurn()
 	log('drawn '..drawn)
 
 	-- Play a card
-	-- players:me():at('protected'):set(false);
+	players:me():at('protected'):set('false');
 	local hand = players:me():at('card'):get();
 	local choice = {cards:toName(drawn), cards:toName(hand)};
 	local played = GuiHelpers:askQuestion("Which card would you like to play?", choice);
@@ -71,7 +141,7 @@ function playTurn()
 	log('left'..var_dump(left))
 
 	players:me():at('card'):set(cards:toNumber(left[1]));
-	perform(played);
+	perform(cards:toNumber(played));
 
 	if(#cards.deck == 0) then
 		-- Check who win
@@ -89,10 +159,10 @@ function showCheatsheet()
 	gui:rootWidget():addBox(cheatsheet);
 
 	local cs_scroll = Scroll.new();
-	cs_scroll:addLabel(Label.new("Princess (1) - loose when discarded"));
+	cs_scroll:addLabel(Label.new("Princess (1) - lose when discarded"));
 	cs_scroll:addLabel(Label.new("Countess (1) - discard when with King or Prince"));
 	cs_scroll:addLabel(Label.new("King (1) - trade hands"));
-	cs_scroll:addLabel(Label.new("Prince (2) - discard cards and draw new"));
+	cs_scroll:addLabel(Label.new("Prince (2) - discard card and draw new one"));
 	cs_scroll:addLabel(Label.new("Handmaid (2) - protection till the end of round"));
 	cs_scroll:addLabel(Label.new("Baron (2) - compare hands; lower is out"));
 	cs_scroll:addLabel(Label.new("Priest (2) - look at a hand"));

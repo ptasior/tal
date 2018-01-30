@@ -25,7 +25,7 @@ end
 
 
 function Cards:toNumber(name)
-	for i = 0,#self.names do
+	for i = 1,#self.names do
 		if(self.names[i] == name) then
 			return i;
 		end

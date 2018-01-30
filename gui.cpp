@@ -94,13 +94,13 @@ public:
 
 	void up()
 	{
-		mSkipWidgets = std::max(--mSkipWidgets, 0);
+		mSkipWidgets = std::max(mSkipWidgets-1, 0);
 		setupChildren();
 	}
 
 	void down()
 	{
-		mSkipWidgets = std::min(++mSkipWidgets, (int)(mWidgets.size() + mForeignWidgets.size())-1);
+		mSkipWidgets = std::min(mSkipWidgets-1, (int)(mWidgets.size() + mForeignWidgets.size())-1);
 		setupChildren();
 	}
 
@@ -390,6 +390,7 @@ public:
 		return true;
 	}
 
+
 private:
 	Widget *mBox;
 	int mLastX = 0;
@@ -426,6 +427,11 @@ void Box::setupChildren()
 	if(mContent)
 		mContent->setRect(0, 20, mWidth, mHeight-23);
 	Widget::setupChildren();
+}
+
+void Box::setTitle(std::string title)
+{
+	mLabel->setText(title);
 }
 
 void Box::addForeignWidget(Widget* w)
