@@ -61,6 +61,7 @@ end
 
 function Players:lose(name)
 	self:get(name):at('lost'):set('true');
+	self:me():at('card'):set('');
 	log('Player '..name..' has lost');
 	self:updateWidget();
 end

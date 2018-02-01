@@ -52,8 +52,9 @@ end
 
 
 function Server:transaction(handle)
-	if(self.sw:at('me'):at('transaction'):get() == 'true') then
-		error('A transaction is already started');
+	if(self.sw:at('me'):at('transaction'):get() ~= 'true') then
+		self.sw:at('transaction'):set('start');
+		-- error('A transaction is already started');
 	end
 	self.sw:at('transaction'):set('start');
 	self.pendingTransactions[#self.pendingTransactions+1] = handle;
@@ -121,8 +122,8 @@ function Server:showWindow()
 
 	self.widget['write'] = Button.new('write Something');
 	self.widget['write']:onClickLua(function()
-			local v = sharedData:root():at('test'):at('variable'):get();
-			sharedData:root():at('test'):at('variable'):set(tonumber(v)+1);
+			-- local v = sharedData:root():at('test'):at('variable'):get();
+			-- sharedData:root():at('test'):at('variable'):set(v);
 		end);
 	self.widget['box']:addButton(self.widget['write']);
 

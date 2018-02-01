@@ -62,7 +62,7 @@ function perform(card)
 		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(false));
 		local crd = GuiHelpers:selectFrom("Guess the card",
 											without(cards.names, 'Guard'));
-		if(players:get(pl):at('card'):get() == crd) then
+		if(players:get(pl):at('card'):get() == tostring(cards:toNumber(crd))) then
 			players:lose(pl);
 			server:broadcast(pl..' has lost');
 		else
@@ -116,6 +116,29 @@ function perform(card)
 end
 
 
+function isGameOver()
+	local playing = players:getPlaying();
+	if(#playing > 1 and #cards.deck > 0) then
+		return false;
+	end
+
+	local m_v = 0;
+	local m_n = nil;
+
+	-- Find the one with the biggest card
+	for i = 1,#playing do
+		local p_card = tonumber(players:get(playing[i]):at('card'):get());
+		if(p_card > m_v) then
+			m_v = p_card;
+			m_n = playing[i];
+		end
+	end
+
+	server:broadcast("End of the game, "..m_n..' won');
+	return true;
+end
+
+
 function playTurn()
 	log('My Turn!')
 
@@ -143,13 +166,9 @@ function playTurn()
 	players:me():at('card'):set(cards:toNumber(left[1]));
 	perform(cards:toNumber(played));
 
-	if(#cards.deck == 0) then
-		-- Check who win
-		GuiHelpers:message("End of the game");
+	if(not isGameOver()) then
+		game:nextTurn();
 	end
-
-	-- Next player's turn
-	game:nextTurn();
 end
 
 
@@ -189,6 +208,10 @@ function setup()
 
 	setupGame();
 	-- showCheatsheet();
+	--
+	myCard = Label.new("myCard");
+	myCard:setRect(10, 10,100,50);
+	gui:rootWidget():addLabel(myCard);
 
 	log('Lua setup done');
 end
@@ -202,6 +225,14 @@ function loop()
 end
 
 
+function updateHand()
+	if(not game:isStarted()) then return; end
+	local c = cards:toName(players:me():at('card'):get());
+	if(not c) then c = '-'; end
+	myCard:setText(c);
+end
+
+
 function sharedDataChange(line)
 	server:update(line);
 	game:update(line);
@@ -209,6 +240,10 @@ function sharedDataChange(line)
 
 	if(startsWith(line, 'deck')) then
 		cards:read();
+	end
+
+	if(startsWith(line, 'players\1')) then
+		updateHand();
 	end
 end
 

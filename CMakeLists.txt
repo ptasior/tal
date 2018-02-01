@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 option(JS "JS complation" OFF)
 if("${JS}")
 	# Yeah, I know, it's not portable... but how convenient!
-	set(CMAKE_TOOLCHAIN_FILE "/home/ja/Tmp/cpp/emsdk-portable/emscripten/1.37.22/cmake/Modules/Platform/Emscripten.cmake")
+	set(CMAKE_TOOLCHAIN_FILE "/home/ja/Tmp/cpp/emsdk-portable/emscripten/1.37.29/cmake/Modules/Platform/Emscripten.cmake")
 endif()
 
 project(tal)
@@ -51,7 +51,7 @@ add_custom_target(symlinks ALL
 
 # -----------------------------------------------------------------------------
 if("${JS}")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGLM_FORCE_RADIANS=1")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL=2")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_SDL_NET=2")
