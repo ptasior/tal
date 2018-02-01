@@ -97,7 +97,9 @@ GLuint Shader::loadShader(const char * file, GLenum type)
 	auto ptr = lines.c_str();
 
 	const char* precision =
+	#ifndef __EMSCRIPTEN__
 		"#version 130                        \n"
+	#endif
 		"#ifdef GL_ES                        \n"
 		"#  ifdef GL_FRAGMENT_PRECISION_HIGH \n"
 		"     precision highp float;         \n"

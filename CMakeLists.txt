@@ -41,11 +41,19 @@ set(SOURCE_FILES
 	)
 
 
+# add_custom_target(game_symlinks ALL
+# 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/talisman game
+#		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+# 	)
+
+add_custom_target(game_symlinks ALL
+		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/letters game
+		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	)
+
 add_custom_target(symlinks ALL
-		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/game .
 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/shaders .
 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/lua_lib .
-		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/config.lua .
 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	)
 
@@ -65,7 +73,6 @@ if("${JS}")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_PTHREADS=1")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ldl")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file game")
-	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file letters")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file lua_lib")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file shaders")
 

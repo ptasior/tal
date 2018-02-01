@@ -3,7 +3,7 @@
 
 Config::Config()
 {
-	sol::load_result r = mState.load_file("config.lua");
+	sol::load_result r = mState.load_file("game/config.lua");
 	if(!r.valid())
 		Log(Log::DIE) << "Error while loading config.lua";
 
