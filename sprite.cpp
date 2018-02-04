@@ -11,6 +11,11 @@
 
 Sprite::~Sprite()
 {
+	if(mTexture)
+		Log() << "~Sprite" << mTexture->getName();
+	else
+		Log() << "~Sprite no texture";
+
 	if(!mShader) return;
 
 	glDeleteBuffers(1, &vbo_vertices);
@@ -27,7 +32,7 @@ void Sprite::init(std::string path, std::string shaderName)
 		-mWidth,  mHeight,  0.0
 	};
 
-	float t=0, l=0, w=1, h=1;
+	float t=0, l=0, w=mRepeatX, h=mRepeatY;
 	if(path.substr(0, 7) == "letter-") // A letter
 	{
 		const int SIZE = 16;
@@ -134,5 +139,38 @@ void Sprite::paint()
 
 	glDisableVertexAttribArray(attribute_texcoord);
 	glDisableVertexAttribArray(attribute_coord3d);
+}
+
+void Sprite::setShader(const std::string &name)
+{
+	mShader = Shader::getShader(name.c_str());
+}
+
+void Sprite::setTexture(const std::string &path)
+{
+	if(!mShader) return;
+
+	mTexture = Texture::getTexture(path.c_str(), mShader.get());
+}
+
+void Sprite::setTextureRepeat(unsigned int x, unsigned int y)
+{
+	mRepeatX = x;
+	mRepeatY = y;
+
+	float t=0, l=0, w=mRepeatX, h=mRepeatY;
+
+	GLfloat texcoords[] = {
+		l,   t,
+		l+w, t,
+		l+w, t+h,
+		l,   t+h,
+	};
+
+	// TODO Is it necessary to remove and create it again?
+	glDeleteBuffers(1, &vbo_texcoords);
+	glGenBuffers(1, &vbo_texcoords);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_texcoords);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords), texcoords, GL_STATIC_DRAW);
 }
 

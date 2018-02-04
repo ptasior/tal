@@ -23,6 +23,7 @@ public:
 
 	// For multi texturing
 	void setName(std::string name, int id);
+	std::string getName();
 
 	static std::shared_ptr<Texture> getTexture(const char* path, Shader *s, const char* name="mytexture", int id=0);
 	static void unbind();

@@ -213,6 +213,10 @@ function setup()
 	myCard:setRect(10, 10,100,50);
 	gui:rootWidget():addLabel(myCard);
 
+	-- gui:rootWidget():addLabel(myCard);
+	gui:rootWidget():setTexture("game/assets/bg.png");
+	gui:rootWidget():setTextureRepeat(3,3);
+
 	log('Lua setup done');
 end
 

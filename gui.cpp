@@ -4,6 +4,7 @@
 #include "shader.h"
 #include "lua.h"
 #include "time.h"
+#include "config.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -594,7 +595,8 @@ void Gui::init()
 
 	mConsole = std::make_shared<Console>();
 	mRoot->addOwnedWidget(mConsole);
-	showFps();
+	if(global_config->get("showFps") == "true")
+		showFps();
 }
 
 void Gui::paint()

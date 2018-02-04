@@ -246,3 +246,8 @@ void Texture::setName(std::string name, int id)
 	mGlslId = id;
 }
 
+std::string Texture::getName()
+{
+	return mName;
+}
+

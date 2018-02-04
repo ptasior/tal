@@ -12,6 +12,9 @@
 
 
 #define WIDGET_INHERITED \
+			"setTexture", &Widget::setTexture, \
+			"setTextureRepeat", &Widget::setTextureRepeat, \
+\
 			"setTop", &Widget::setTop, \
 			"setLeft", &Widget::setLeft, \
 			"setWidth", &Widget::setWidth, \
@@ -25,14 +28,14 @@
 			"setCenter", &Widget::setCenter, \
 			"setStretch", &Widget::setStretch, \
 			"setColor", &Widget::setColor, \
- \
+\
 			"onClickLua", &Widget::onClickLua, \
- \
+\
 			"getTop", &Widget::getTop, \
 			"getLeft", &Widget::getLeft, \
 			"getWidth", &Widget::getWidth, \
 			"getHeight", &Widget::getHeight, \
- \
+\
 			"addWidget", &Widget::addWidget<Widget>, \
 			"addLabel", &Widget::addWidget<Label>, \
 			"addMultiLine", &Widget::addWidget<MultiLine>, \
@@ -42,7 +45,7 @@
 			"addButtonBox", &Widget::addWidget<ButtonBox>, \
 			"addScroll", &Widget::addWidget<Scroll>, \
 			"addCheckbox", &Widget::addWidget<Checkbox>, \
- \
+\
 			"removeWidget", &Widget::removeWidget<Widget>, \
 			"removeLabel", &Widget::removeWidget<Label>, \
 			"removeMultiLine", &Widget::removeWidget<MultiLine>, \

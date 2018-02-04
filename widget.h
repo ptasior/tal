@@ -18,6 +18,8 @@ public:
 	enum LayoutType {ltNone, ltHorizontal, ltVertical};
 	enum OverflowPolicy {opNone, opResize, opClip};
 	virtual void paint();
+	virtual void setTexture(const std::string &t);
+	virtual void setTextureRepeat(unsigned int x, unsigned int y);
 
 	virtual void setTop(unsigned int v);
 	virtual void setLeft(unsigned int v);

@@ -12,6 +12,9 @@ public:
 	virtual ~Sprite();
 	virtual void init(std::string path, std::string shaderName);
 	virtual void setPosition(const glm::mat4 &position);
+	virtual void setShader(const std::string &name);
+	virtual void setTexture(const std::string &path);
+	virtual void setTextureRepeat(unsigned int x, unsigned int y);
 	// Must be called before init()
 	virtual void setSize(double w, double h);
 	virtual void paint();
@@ -28,9 +31,10 @@ protected:
 	GLuint attribute_texcoord;
 
 	glm::mat4 mPosition;
-	glm::mat4 mRot;
 
 	float mWidth=1;
 	float mHeight=1;
+	unsigned int mRepeatX=1;
+	unsigned int mRepeatY=1;
 };
 

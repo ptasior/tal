@@ -427,3 +427,21 @@ void Widget::removeSelf()
 	mParent->removeForeignWidget(this);
 }
 
+void Widget::setTexture(const std::string &t)
+{
+	if(!mSprite)
+	{
+		mSprite = std::make_shared<GuiSprite>();
+		mSprite->init(t.c_str(), "gui");
+	}
+	else
+		mSprite->setTexture(t);
+	updatePosition();
+}
+
+void Widget::setTextureRepeat(unsigned int x, unsigned int y)
+{
+	if(mSprite)
+		mSprite->setTextureRepeat(x,y);
+}
+
