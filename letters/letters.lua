@@ -113,6 +113,9 @@ function perform(card)
 	elseif(card == 8) then
 		server:broadcast(players.meName..' played Princess and lost');
 		players:lose(players.meName);
+	
+	else
+		log('Perform: No such card'..card);
 
 	end
 end
@@ -143,34 +146,42 @@ end
 
 function playTurn()
 	log('My Turn!')
+	server:broadcast(players.meName..'\'s turn');
+	players:me():at('protected'):set('false');
 
 	-- Draw a card
-	local drawn = cards:drawOne();
+	drawnCardValue = cards:drawOne();
 	cards:save();
+
+	-- Display it
 	updateHand();
 
-	-- Play a card
-	players:me():at('protected'):set('false');
+	-- And wait for decision
+	-- appWait();
+end
+
+
+function cardSelected(card)
 	local hand = players:me():at('card'):get();
-	local choice = {cards:toName(drawn), cards:toName(hand)};
-	local played = GuiHelpers:askQuestion("Which card would you like to play?", choice);
-
-	log('played = '..played)
-	local left = nil;
-	if(drawn ~= hand) then
-		left = without(choice, played);
+	local played = nil;
+	if(card == 'hand') then
+		players:me():at('card'):set(drawnCardValue);
+		played = tonumber(hand);
 	else
-		-- When two cards are the same, list is cleaned
-		left = {played};
+		players:me():at('card'):set(hand);
+		played = tonumber(drawnCardValue);
 	end
-	log('left'..var_dump(left))
 
-	players:me():at('card'):set(cards:toNumber(left[1]));
-	perform(cards:toNumber(played));
+	drawnCardValue = nil;
+	log('played = '..var_dump(played))
+
+	perform(played);
 
 	if(not isGameOver()) then
 		game:nextTurn();
 	end
+
+	-- appContinue();
 end
 
 
@@ -199,6 +210,7 @@ function setup()
 	setLoopResolution(500);
 
 	server = Server();
+	server:addOnBroadcast(function(txt) statusLabel:setText(txt); end);
 	-- server:showWindow();
 
 	game = Game();
@@ -210,15 +222,21 @@ function setup()
 
 	setupGame();
 	-- showCheatsheet();
-	--
+
 	myCard = Widget.new('');
-	myCard:setRect(10, 10,200,300);
+	myCard:setRect(10, 50,200,300);
+	myCard:onClickLua(function() cardSelected('hand'); end);
 	gui:rootWidget():addWidget(myCard);
 
+	drawnCard = Widget.new('');
+	drawnCard:setRect(300, 50,200,300);
+	drawnCard:onClickLua(function() cardSelected('drawn'); end);
+	gui:rootWidget():addWidget(drawnCard);
 
-	-- drawnCard = Widget.new();
-	-- drawnCard:setRect(10, 10,100,50);
-	-- gui:rootWidget():addWidget(drawnCard);
+	myName = Label.new('');
+	myName:setRect(10, 10, 100, 80);
+	gui:rootWidget():addLabel(myName);
+
 
 	statusBar = Widget.new('');
 	statusBar:setRect(10, 500, 700, 80);
@@ -227,6 +245,7 @@ function setup()
 	statusBar:setCenter(true);
 	statusBar:setPadding(0, 35);
 	statusLabel = Label.new('Status');
+	statusLabel:setSize(500, 60);
 	statusBar:addLabel(statusLabel);
 	gui:rootWidget():addWidget(statusBar);
 
@@ -249,14 +268,20 @@ end
 
 function updateHand()
 	myCard:setVisible(false);
+	drawnCard:setVisible(false);
 
 	if(not game:isStarted()) then return; end
 	local c = tostring(players:me():at('card'):get());
 
-	if(not c or c == '') then return; end
+	if(c and c ~= '') then
+		myCard:setVisible(true);
+		myCard:setTexture('letters/assets/c'..c..'.png');
+	end
 
-	myCard:setVisible(true);
-	myCard:setTexture('letters/assets/c'..c..'.png');
+	if(drawnCardValue and drawnCardValue ~= '') then
+		drawnCard:setVisible(true);
+		drawnCard:setTexture('letters/assets/c'..drawnCardValue..'.png');
+	end
 end
 
 
@@ -270,6 +295,9 @@ function sharedDataChange(line)
 	end
 
 	if(startsWith(line, 'players\1')) then
+		if(players.meName) then
+			myName:setText(players.meName);
+		end
 		updateHand();
 	end
 end

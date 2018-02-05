@@ -293,6 +293,8 @@ bool Widget::isPositionOver(int x, int y)
 
 bool Widget::click(int x, int y)
 {
+	if(!mVisible) return false;
+
 	if(!isPositionOver(x, y)) return false;
 
 	focus();

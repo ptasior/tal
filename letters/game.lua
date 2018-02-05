@@ -57,11 +57,9 @@ function Game:update(line)
 	end
 	if(startsWith(line, 'game\1turn')) then
 		if(self:isMyTurn()) then
-			server:transaction(function()
-				for i=1,#self.onTurn do
-					self.onTurn[i]();
-				end
-			end)
+			for i=1,#self.onTurn do
+				self.onTurn[i]();
+			end
 		else
 			log('Not my turn but '..self.gm:at('turn'):get())
 		end

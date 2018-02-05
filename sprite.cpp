@@ -11,10 +11,10 @@
 
 Sprite::~Sprite()
 {
-	if(mTexture)
-		Log() << "~Sprite" << mTexture->getName();
-	else
-		Log() << "~Sprite no texture";
+	// if(mTexture)
+	// 	Log() << "~Sprite" << mTexture->getName();
+	// else
+	// 	Log() << "~Sprite no texture";
 
 	if(!mShader) return;
 

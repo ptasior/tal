@@ -11,8 +11,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <algorithm>
 
-const unsigned int Label::WIDTH = 9;
-const unsigned int Label::HEIGHT = 15;
+unsigned int Label::WIDTH = 9;
+unsigned int Label::HEIGHT = 15;
 
 Widget *Gui::mFocused = nullptr;
 
@@ -592,6 +592,9 @@ void Gui::init()
 	mRoot->setLayout(Widget::ltNone);
 	mRoot->setOverflow(Widget::opNone);
 	mRoot->mSprite.reset(); // Do not display anything
+
+	Label::WIDTH = std::atoi(global_config->get("labelWidth").c_str());
+	Label::HEIGHT = std::atoi(global_config->get("labelHeight").c_str());
 
 	mConsole = std::make_shared<Console>();
 	mRoot->addOwnedWidget(mConsole);

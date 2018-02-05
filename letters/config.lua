@@ -6,4 +6,6 @@ serverAddr = "127.0.0.1"
 serverPort = "1234"
 offline = "false"
 -- showFps = "true"
+labelWidth = 12
+labelHeight = 16
 
