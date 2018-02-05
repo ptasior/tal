@@ -38,6 +38,8 @@ function startGame()
 
 	cards:save();
 	game:initTurn();
+
+	updateHand();
 end
 
 
@@ -145,7 +147,7 @@ function playTurn()
 	-- Draw a card
 	local drawn = cards:drawOne();
 	cards:save();
-	log('drawn '..drawn)
+	updateHand();
 
 	-- Play a card
 	players:me():at('protected'):set('false');
@@ -197,7 +199,7 @@ function setup()
 	setLoopResolution(500);
 
 	server = Server();
-	server:showWindow();
+	-- server:showWindow();
 
 	game = Game();
 	game:addOnInit(startGame);
@@ -209,13 +211,29 @@ function setup()
 	setupGame();
 	-- showCheatsheet();
 	--
-	myCard = Label.new("myCard");
-	myCard:setRect(10, 10,100,50);
-	gui:rootWidget():addLabel(myCard);
+	myCard = Widget.new('');
+	myCard:setRect(10, 10,200,300);
+	gui:rootWidget():addWidget(myCard);
 
-	-- gui:rootWidget():addLabel(myCard);
-	gui:rootWidget():setTexture("game/assets/bg.png");
+
+	-- drawnCard = Widget.new();
+	-- drawnCard:setRect(10, 10,100,50);
+	-- gui:rootWidget():addWidget(drawnCard);
+
+	statusBar = Widget.new('');
+	statusBar:setRect(10, 500, 700, 80);
+	statusBar:setTexture('letters/assets/banner.png');
+	statusBar:setLayout(2);
+	statusBar:setCenter(true);
+	statusBar:setPadding(0, 35);
+	statusLabel = Label.new('Status');
+	statusBar:addLabel(statusLabel);
+	gui:rootWidget():addWidget(statusBar);
+
+	gui:rootWidget():setTexture("letters/assets/bg.png");
 	gui:rootWidget():setTextureRepeat(3,3);
+
+	updateHand();
 
 	log('Lua setup done');
 end
@@ -230,10 +248,15 @@ end
 
 
 function updateHand()
+	myCard:setVisible(false);
+
 	if(not game:isStarted()) then return; end
-	local c = cards:toName(players:me():at('card'):get());
-	if(not c) then c = '-'; end
-	myCard:setText(c);
+	local c = tostring(players:me():at('card'):get());
+
+	if(not c or c == '') then return; end
+
+	myCard:setVisible(true);
+	myCard:setTexture('letters/assets/c'..c..'.png');
 end
 
 

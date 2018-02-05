@@ -28,6 +28,7 @@
 			"setCenter", &Widget::setCenter, \
 			"setStretch", &Widget::setStretch, \
 			"setColor", &Widget::setColor, \
+			"setVisible", &Widget::setVisible, \
 \
 			"onClickLua", &Widget::onClickLua, \
 \
