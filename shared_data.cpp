@@ -87,6 +87,12 @@ void DataNode::set(int i)
 	set(std::to_string(i));
 }
 
+void DataNode::set_i(std::string v)
+{
+	set(v);
+	mValue = v;
+}
+
 void DataNode::set(std::string v)
 {
 	if(!global_sharedData->mOnline)

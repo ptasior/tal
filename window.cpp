@@ -10,6 +10,8 @@
 #include "time.h"
 #include "config.h"
 #include "shared_data.h"
+#include <thread>
+#include <chrono>
 
 #ifdef __EMSCRIPTEN__
 	#include <SDL_ttf.h>
@@ -189,8 +191,20 @@ bool Window::onEvent(SDL_Event &event)
 
 void Window::loop()
 {
-	while (!mQuit)
-		onLoop();
+	if(!global_config->get("loopSleep").empty())
+	{
+		Log() << "Window: Entering throttled loop";
+		int sleep = std::stoi(global_config->get("loopSleep"));
+
+		while (!mQuit)
+		{
+			onLoop();
+			std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
+		}
+	}
+	else
+		while (!mQuit)
+			onLoop();
 }
 
 void Window::onLoop()

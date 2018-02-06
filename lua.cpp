@@ -51,8 +51,7 @@ Lua* Lua::getInstance()
 // 	return -1;
 // }
 
-Lua::Lua()//:
-	// mState(sol::c_call<decltype(&luaPanic), &luaPanic>)
+Lua::Lua()
 {
 	mState.open_libraries(sol::lib::base,
 						sol::lib::package,
@@ -70,6 +69,9 @@ Lua::Lua()//:
 	mState["setLoopResolution"] = &Lua::setLoopResolution;
 	mState["setWait"] = &Lua::setWait;
 	mState["setTimeout"] = &Lua::setTimeout;
+	mState["execute"] = &Lua::executeLua;
+
+	mState["updateAwaitingExecution"] = &Lua::updateAwaitingExecution;
 
 	mState.new_usertype<SharedData>("SharedData",
 			"root", &SharedData::root,
@@ -85,6 +87,7 @@ Lua::Lua()//:
 							static_cast<void (DataNode::*)(std::string)>(&DataNode::set),
 							static_cast<void (DataNode::*)(int)>(&DataNode::set)
 						),
+			"set_i", &DataNode::set_i,
 			"branches", &DataNode::branches
 		);
 }
@@ -186,7 +189,34 @@ void Lua::loop()
 
 void Lua::execute(const char *cmd)
 {
-	mState.script(cmd);
+	Lua::getInstance()->mExecuteStrings.push_back(cmd);
+}
+
+void Lua::executeLua(sol::function f)
+{
+	Lua::getInstance()->mExecuteLuaFunctions.push_back(f);
+}
+
+void Lua::execute(sol::function f)
+{
+	Lua::getInstance()->mExecuteLuaFunctions.push_back(f);
+}
+
+void Lua::execute(std::function<void(void)> f)
+{
+	Lua::getInstance()->mExecuteFunctions.push_back(f);
+}
+
+void Lua::updateAwaitingExecution()
+{
+	Lua::getInstance()->mState["global_toExecute"] = Lua::getInstance()->mExecuteFunctions;
+	Lua::getInstance()->mState["global_toExecuteLua"] = Lua::getInstance()->mExecuteLuaFunctions;
+	Lua::getInstance()->mState["global_toExecuteStrings"] = Lua::getInstance()->mExecuteStrings;
+
+	// TODO Check if it is OK or does it remove memory bbefore use...
+	Lua::getInstance()->mExecuteFunctions.clear();
+	Lua::getInstance()->mExecuteLuaFunctions.clear();
+	Lua::getInstance()->mExecuteStrings.clear();
 }
 
 void Lua::wireframe()
@@ -220,6 +250,6 @@ void Lua::resizeWindow()
 
 void Lua::sharedDataUpdated(const std::string &line)
 {
-	mState["sharedDataUpdated"](line);
+	execute(("sharedDataChange(\""+line+"\")").c_str());
 }
 

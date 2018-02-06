@@ -7,9 +7,6 @@ Players = class(function(self)
 				server:transaction(function() self:logIn() end);
 			end);
 
-		game:addOnStart(function()
-				self:toggleStartButton();
-			end);
 	end)
 
 
@@ -60,10 +57,17 @@ end
 
 
 function Players:lose(name)
-	self:get(name):at('lost'):set('true');
-	self:me():at('card'):set('');
+	self:get(name):at('lost'):set_i('true');
 	log('Player '..name..' has lost');
-	self:updateWidget();
+end
+
+
+-- Marks al players as playing, called from Game:finishGame()
+function Players:reset()
+	local pl = self:getNames();
+	for i = 1, #pl do
+		self:get(pl[i]):at('lost'):set('false');
+	end
 end
 
 
@@ -94,6 +98,10 @@ function Players:update(line)
 	-- TODO Fix me
 	if(startsWith(line, 'players')) then
 		self:updateWidget();
+	end
+	if(self.meName and
+		startsWith(line, 'players\1'..self.meName..'\1lost\1true')) then
+		game:doOnLost();
 	end
 end
 

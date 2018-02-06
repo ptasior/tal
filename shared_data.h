@@ -36,6 +36,8 @@ public:
 	std::string get();
 	std::vector<std::string> branches();
 	void set(std::string s);
+	// Set the value immediately, dont wait for srv confirmation
+	void set_i(std::string s);
 	void set(int s);
 
 

@@ -5,10 +5,10 @@ Config::Config()
 {
 	sol::load_result r = mState.load_file("game/config.lua");
 	if(!r.valid())
-		Log(Log::DIE) << "Error while loading config.lua";
+		Log(Log::DIE) << "Config: Error while loading config.lua";
 
 	r();
-	Log() << "Config initialised";
+	Log() << "Config: Initialised";
 }
 
 std::string Config::get(std::string key)

@@ -213,8 +213,15 @@ MultiLine::MultiLine(std::string text)
 
 void MultiLine::setText(std::string text)
 {
+	for(auto l : mLabels)
+		removeOwnedWidget(l.get());
+
 	mLines.clear();
 	mLabels.clear();
+
+	assert(mWidgets.size() == 0);
+	assert(mLabels.size() == 0);
+	assert(mLines.size() == 0);
 
 	if(text.empty()) return;
 

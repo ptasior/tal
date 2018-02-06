@@ -13,13 +13,18 @@ players = nil;
 game = nil;
 
 
-function setupGame()
+function initGame()
 	local names = {"Guard", "Priest", "Baron", "Handmaid",
 					"Prince", "King", "Countess", "Princess"};
 	local set = {8,7,6,5,5,4,4,3,3,2,2,1,1,1,1,1};
 
 	cards = Cards(sharedData:root():at('deck'));
 	cards:set(set, names);
+end
+
+
+function initGame()
+	players:toggleStartButton();
 end
 
 
@@ -37,7 +42,9 @@ function startGame()
 	end
 
 	cards:save();
-	game:initTurn();
+	local turn = game:initTurn();
+
+	server:broadcast(turn.."'s turn");
 
 	updateHand();
 end
@@ -60,59 +67,71 @@ end
 
 function perform(card)
 	log('Performing '..card);
+	local msg = players.meName..' played '..cards:toName(card)..'\n';
+
 	if(card == 1) then
-		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(false));
+		local all_players = playersToPick(false);
+		if(#all_players == 0) then
+			GuiHelpers:message('All players are protected');
+			return msg..'but all players were protected';
+		end
+
+		local pl = GuiHelpers:selectFrom("Pick the player", all_players);
 		local crd = GuiHelpers:selectFrom("Guess the card",
 											without(cards.names, 'Guard'));
 		if(players:get(pl):at('card'):get() == tostring(cards:toNumber(crd))) then
 			players:lose(pl);
 			server:broadcast(pl..' has lost');
+			return msg..pl..' had '..crd..' and lost the round';
 		else
-			server:broadcast(players.meName..' used guard but '..pl..' does not have '..crd);
+			GuiHelpers:message('No!');
+			return msg..'but '..pl..' does not have '..crd;
 		end
 
 	elseif(card == 2) then
 		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(false));
 		GuiHelpers:message(pl..' has '..cards:toName(players:get(pl):at('card'):get()));
-		server:broadcast(players.meName..' checked '..pl..'\'s card');
+		return msg..'and now knows '..pl..'\'s card';
 
 	elseif(card == 3) then
 		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(false));
 		local mc = players:me():at('card'):get();
 		local pc = players:get(pl):at('card'):get();
 		if(pc == mc) then
-			server:broadcast(pl..'\'s and '..players.meName..'\'s cards are identical');
+			GuiHelpers:message(pl..' has the same card');
+			return msg..pl..'\'s and '..players.meName..'\'s cards are identical';
 		elseif(pc > mc) then
 			players:lose(players.meName);
-			server:broadcast(players.meName..' has lost');
+			return msg..players.meName..' has lost';
 		elseif(pc < mc) then
 			players:lose(pl);
-			server:broadcast(pl..' has lost');
+			return msg..pl..' has lost';
 		end
+
 	elseif(card == 4) then
 		players:get(players.meName):at('protected'):set('true');
-		server:broadcast(players.meName..' is protected');
+		return msg..' and is protected';
 
 	elseif(card == 5) then
 		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(true));
 		local c = cards:drawOne();
 		players:get(pl):at('card'):set(c);
 		cards:save();
-		server:broadcast(pl..' was chosen to draw new cards');
+		return msg..pl..' was chosen to draw new cards';
 
 	elseif(card == 6) then
 		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(false));
 		local tmp = players:get(pl):at('card'):get();
 		players:get(pl):at('card'):set(players:me():at('card'):get());
-		players:me():at('card'):set(tmp);
-		server:broadcast(pl..' and '..players.meName..' traded hands');
+		players:me():at('card'):set(tmp)
+		return msg..pl..' and '..players.meName..' traded hands';
 
 	elseif(card == 7) then
-		server:broadcast(players.meName..' played Countess');
+		return msg..' nothing happens';
 
 	elseif(card == 8) then
-		server:broadcast(players.meName..' played Princess and lost');
 		players:lose(players.meName);
+		return msg..' and lost';
 	
 	else
 		log('Perform: No such card'..card);
@@ -127,6 +146,8 @@ function isGameOver()
 		return false;
 	end
 
+	log('GAME OVER!');
+
 	local m_v = 0;
 	local m_n = nil;
 
@@ -139,14 +160,30 @@ function isGameOver()
 		end
 	end
 
+	-- Inform players
+	for i = 1,#playing do
+		if(playing[i] ~= m_n) then
+			players:lose(playing[i]);
+		end
+	end
+
+	-- Clean cards
+	local pl = players:getNames();
+	for i = 1,#pl do
+		players:get(pl[i]):at('card'):set('');
+	end
+	game:finishGame();
+
 	server:broadcast("End of the game, "..m_n..' won');
+	players:toggleStartButton();
+
 	return true;
 end
 
 
 function playTurn()
 	log('My Turn!')
-	server:broadcast(players.meName..'\'s turn');
+	-- server:broadcast(players.meName..'\'s turn');
 	players:me():at('protected'):set('false');
 
 	-- Draw a card
@@ -155,13 +192,12 @@ function playTurn()
 
 	-- Display it
 	updateHand();
-
-	-- And wait for decision
-	-- appWait();
 end
 
 
 function cardSelected(card)
+	if(not game:isMyTurn()) then return; end
+
 	local hand = players:me():at('card'):get();
 	local played = nil;
 	if(card == 'hand') then
@@ -175,13 +211,19 @@ function cardSelected(card)
 	drawnCardValue = nil;
 	log('played = '..var_dump(played))
 
-	perform(played);
+	local message = perform(played);
+	message = message.."\n"..game:whoseTurnNext().."'s turn"
+	server:broadcast(message);
 
 	if(not isGameOver()) then
 		game:nextTurn();
 	end
+end
 
-	-- appContinue();
+
+function gameLost()
+	players:me():at('card'):set('');
+	GuiHelpers:message("You've lost the round");
 end
 
 
@@ -214,8 +256,10 @@ function setup()
 	-- server:showWindow();
 
 	game = Game();
-	game:addOnInit(startGame);
+	game:addOnInit(initGame);
+	game:addOnStart(startGame);
 	game:addOnTurn(playTurn);
+	game:addOnLost(gameLost)
 
 	players = Players();
 	players:showWidget();
@@ -225,12 +269,12 @@ function setup()
 
 	myCard = Widget.new('');
 	myCard:setRect(10, 50,200,300);
-	myCard:onClickLua(function() cardSelected('hand'); end);
+	myCard:onClickLua(function() execute(function() cardSelected('hand'); end) end);
 	gui:rootWidget():addWidget(myCard);
 
 	drawnCard = Widget.new('');
 	drawnCard:setRect(300, 50,200,300);
-	drawnCard:onClickLua(function() cardSelected('drawn'); end);
+	drawnCard:onClickLua(function() execute(function() cardSelected('drawn'); end) end);
 	gui:rootWidget():addWidget(drawnCard);
 
 	myName = Label.new('');
@@ -244,9 +288,9 @@ function setup()
 	statusBar:setLayout(2);
 	statusBar:setCenter(true);
 	statusBar:setPadding(0, 35);
-	statusLabel = Label.new('Status');
+	statusLabel = MultiLine.new('');
 	statusLabel:setSize(500, 60);
-	statusBar:addLabel(statusLabel);
+	statusBar:addMultiLine(statusLabel);
 	gui:rootWidget():addWidget(statusBar);
 
 	gui:rootWidget():setTexture("letters/assets/bg.png");

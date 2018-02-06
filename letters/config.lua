@@ -8,4 +8,5 @@ offline = "false"
 -- showFps = "true"
 labelWidth = 12
 labelHeight = 16
+loopSleep = 10
 

@@ -9,7 +9,10 @@ class Lua
 public:
 	void initGui(Gui *gui);
 	void initScene(Scene *scene);
-	void execute(const char *cmd);
+	static void execute(const char *cmd);
+	static void execute(sol::function f);
+	static void executeLua(sol::function f);
+	static void execute(std::function<void(void)> f);
 
 	// TODO Make it non static and provide Lua obj to script
 	static void setLoopResolution(unsigned int res);
@@ -27,6 +30,7 @@ private:
 
 	Lua();
 
+	static void updateAwaitingExecution();
 	static void logFnc(std::string s);
 	static void wireframe();
 
@@ -35,6 +39,10 @@ private:
 	unsigned int mLoopResolution = 10;
 	WaitState mWait = wsRun;
 	int mTimeout;
+
+	std::vector<std::string> mExecuteStrings;
+	std::vector<sol::function> mExecuteLuaFunctions;
+	std::vector<std::function<void(void)>> mExecuteFunctions;
 
 	sol::state mState;
 };

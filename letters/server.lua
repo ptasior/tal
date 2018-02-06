@@ -120,10 +120,11 @@ function Server:showWindow()
 		end);
 	self.widget['box']:addButton(self.widget['tstop']);
 
-	self.widget['write'] = Button.new('write Something');
+	self.widget['write'] = Button.new('Message');
 	self.widget['write']:onClickLua(function()
 			-- local v = sharedData:root():at('test'):at('variable'):get();
 			-- sharedData:root():at('test'):at('variable'):set(v);
+			execute(function() GuiHelpers:message('qqrq'); end);
 		end);
 	self.widget['box']:addButton(self.widget['write']);
 

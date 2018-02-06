@@ -31,13 +31,27 @@ function waitFor(s_data)
 	return v;
 end
 
+function executeAwaiting()
+	updateAwaitingExecution();
+
+	for i=1,#global_toExecuteStrings do
+		local c = global_toExecuteStrings[i]:gsub("\n","\\n");
+		load(c)();
+	end
+
+	for i=1,#global_toExecuteLua do
+		global_toExecuteLua[i]();
+	end
+
+	for i=1,#global_toExecute do
+		global_toExecute[i]();
+	end
+end
+
 global_co = coroutine.create(function()
 		while(true) do
 			s, res = xpcall(function()
-					for i=1,#global_sharedDataBuffer do
-						local l = table.remove(global_sharedDataBuffer,1);
-						sharedDataChange(l);
-					end
+					executeAwaiting();
 					loop();
 				end, debug.traceback);
 
@@ -50,10 +64,5 @@ global_co = coroutine.create(function()
 
 function main_loop()
 	coroutine.resume(global_co);
-end
-
--- To enable yield when handling shared data changes, push onto a list and process in loop
-function sharedDataUpdated(line)
-	global_sharedDataBuffer[#global_sharedDataBuffer+1] = line;
 end
 

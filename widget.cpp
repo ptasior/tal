@@ -148,6 +148,7 @@ void Widget::removeOwnedWidget(Widget* w)
 	else
 		mWidgets.erase(f, mWidgets.end());
 
+	setupChildren();
 	Gui::mFocused = nullptr;
 }
 
