@@ -13,7 +13,7 @@ players = nil;
 game = nil;
 
 
-function initGame()
+function initCards()
 	local names = {"Guard", "Priest", "Baron", "Handmaid",
 					"Prince", "King", "Countess", "Princess"};
 	local set = {8,7,6,5,5,4,4,3,3,2,2,1,1,1,1,1};
@@ -24,12 +24,7 @@ end
 
 
 function initGame()
-	players:toggleStartButton();
-end
-
-
-function startGame()
-	log('Start game');
+	log('Init game');
 
 	cards:shuffle();
 	cards:save();
@@ -47,6 +42,12 @@ function startGame()
 	server:broadcast(turn.."'s turn");
 
 	updateHand();
+end
+
+
+function startGame()
+	log('Start game');
+	players:toggleStartButton();
 end
 
 
@@ -212,10 +213,10 @@ function cardSelected(card)
 	log('played = '..var_dump(played))
 
 	local message = perform(played);
-	message = message.."\n"..game:whoseTurnNext().."'s turn"
-	server:broadcast(message);
 
 	if(not isGameOver()) then
+		message = message.."\n"..game:whoseTurnNext().."'s turn"
+		server:broadcast(message);
 		game:nextTurn();
 	end
 end
@@ -245,8 +246,46 @@ function showCheatsheet()
 end
 
 
+function updateHand()
+	myCard:setVisible(false);
+	drawnCard:setVisible(false);
+
+	if(not game:isStarted()) then return; end
+	local c = tostring(players:me():at('card'):get());
+
+	if(c and c ~= '') then
+		myCard:setVisible(true);
+		myCard:setTexture('letters/assets/c'..c..'.png');
+	end
+
+	if(drawnCardValue and drawnCardValue ~= '') then
+		drawnCard:setVisible(true);
+		drawnCard:setTexture('letters/assets/c'..drawnCardValue..'.png');
+	end
+end
+
+
+function sharedDataUpdate(line)
+	if(startsWith(line, 'deck')) then
+		cards:read();
+	end
+
+	if(startsWith(line, 'players\1')) then
+		if(players.meName) then
+			myName:setText(players.meName);
+		end
+		updateHand();
+	end
+
+	if(startsWith(line, 'game\1started')) then
+		players:toggleStartButton();
+	end
+end
+
+
 function setup()
 	math.randomseed(os.time());
+	main_addOnSharedDataUpdate(sharedDataUpdate);
 
 	-- Temporarily
 	setLoopResolution(500);
@@ -264,7 +303,7 @@ function setup()
 	players = Players();
 	players:showWidget();
 
-	setupGame();
+	initCards();
 	-- showCheatsheet();
 
 	myCard = Widget.new('');
@@ -307,42 +346,5 @@ end
 
 
 function loop()
-end
-
-
-function updateHand()
-	myCard:setVisible(false);
-	drawnCard:setVisible(false);
-
-	if(not game:isStarted()) then return; end
-	local c = tostring(players:me():at('card'):get());
-
-	if(c and c ~= '') then
-		myCard:setVisible(true);
-		myCard:setTexture('letters/assets/c'..c..'.png');
-	end
-
-	if(drawnCardValue and drawnCardValue ~= '') then
-		drawnCard:setVisible(true);
-		drawnCard:setTexture('letters/assets/c'..drawnCardValue..'.png');
-	end
-end
-
-
-function sharedDataChange(line)
-	server:update(line);
-	game:update(line);
-	players:update(line);
-
-	if(startsWith(line, 'deck')) then
-		cards:read();
-	end
-
-	if(startsWith(line, 'players\1')) then
-		if(players.meName) then
-			myName:setText(players.meName);
-		end
-		updateHand();
-	end
 end
 

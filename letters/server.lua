@@ -4,6 +4,8 @@ Server = class(function(self)
 		self.onConnect = {};
 		self._connected = false;
 		self.onBroadcast = {};
+
+		main_addOnSharedDataUpdate(function(l) self:update(l); end);
 	end)
 
 

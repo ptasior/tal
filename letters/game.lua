@@ -4,7 +4,8 @@ Game = class(function(self)
 		self.onStart = {};
 		self.onTurn = {};
 		self.onLost = {};
-		self._isStarted = false;
+
+		main_addOnSharedDataUpdate(function(l) self:update(l); end);
 	end)
 
 
@@ -16,8 +17,7 @@ function Game:start()
 				return;
 			end
 
-			self.gm:at('started'):set('true');
-			self._isStarted = true;
+			self.gm:at('started'):set_i('true');
 			for i=1,#self.onInit do
 				self.onInit[i]();
 			end
@@ -26,7 +26,7 @@ end
 
 
 function Game:isStarted()
-	return self._isStarted;
+	return self.gm:at('started'):get() == 'true';
 end
 
 
@@ -61,7 +61,6 @@ function Game:update(line)
 		if(#self.onStart == 0) then return; end
 
 		server:transaction(function()
-			self._isStarted = true;
 			for i=1,#self.onStart do
 				self.onStart[i]();
 			end
@@ -114,8 +113,7 @@ end
 
 function Game:finishGame()
 	self.gm:at('turn'):set('');
-	self.gm:at('started'):set('false');
-	self._isStarted = false;
+	self.gm:at('started'):set_i('false');
 	players:reset();
 end
 

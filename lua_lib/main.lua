@@ -1,6 +1,7 @@
 -- buffer for holding shared data changes between class handler and Lua loop
 --  Used for enabling yields when handling changes
 global_sharedDataBuffer = {};
+global_sharedDataListeners = {};
 
 function appContinue()
 	setWait(0); -- C++, wsRun
@@ -31,7 +32,19 @@ function waitFor(s_data)
 	return v;
 end
 
-function executeAwaiting()
+
+function main_addOnSharedDataUpdate(handler)
+	global_sharedDataListeners[#global_sharedDataListeners+1] = handler;
+end
+
+
+function main_sharedDataUpdate(line)
+	for i=1,#global_sharedDataListeners do
+		global_sharedDataListeners[i](line);
+	end
+end
+
+function main_executeAwaiting()
 	updateAwaitingExecution();
 
 	for i=1,#global_toExecuteStrings do
@@ -48,10 +61,10 @@ function executeAwaiting()
 	end
 end
 
-global_co = coroutine.create(function()
+main_coroutine = coroutine.create(function()
 		while(true) do
 			s, res = xpcall(function()
-					executeAwaiting();
+					main_executeAwaiting();
 					loop();
 				end, debug.traceback);
 
@@ -63,6 +76,6 @@ global_co = coroutine.create(function()
 	end)
 
 function main_loop()
-	coroutine.resume(global_co);
+	coroutine.resume(main_coroutine);
 end
 

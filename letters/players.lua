@@ -7,6 +7,7 @@ Players = class(function(self)
 				server:transaction(function() self:logIn() end);
 			end);
 
+		main_addOnSharedDataUpdate(function(l) self:update(l); end);
 	end)
 
 
@@ -136,7 +137,6 @@ function Players:toggleStartButton()
 		self.widget['start']:onClickLua(function()game:start(); end);
 		self.widget['box']:addButton(self.widget['start']);
 		self.widget['box']:setSize(306,220);
-
 	end
 end
 

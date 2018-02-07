@@ -250,6 +250,6 @@ void Lua::resizeWindow()
 
 void Lua::sharedDataUpdated(const std::string &line)
 {
-	execute(("sharedDataChange(\""+line+"\")").c_str());
+	execute(("main_sharedDataUpdate(\""+line+"\")").c_str());
 }
 
