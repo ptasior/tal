@@ -4,7 +4,7 @@ uniform sampler2D mytexture;
 void main(void)
 {
 	vec4 col = texture2D(mytexture, f_texcoord);
-	if(col.a == 0.0f)
+	if(col.a == 0.0)
 		discard;
 	gl_FragColor = col;
 }
