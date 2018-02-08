@@ -16,17 +16,25 @@ void main_loop()
 
 int main(int argc, char* args[])
 {
-	Window w;
-	global_window = &w;
-	w.init();
+	try
+	{
+		Window w;
+		global_window = &w;
+		w.init();
 
-	#ifdef __EMSCRIPTEN__
-		Log() << "Running Emscripten loop";
-		emscripten_set_main_loop(main_loop, 0, true);
-	#else
-		global_window->loop();
-	#endif
+		#ifdef __EMSCRIPTEN__
+			Log() << "Running Emscripten loop";
+			emscripten_set_main_loop(main_loop, 0, true);
+		#else
+			global_window->loop();
+		#endif
+	}
+	catch(const std::exception& e)
+	{
+		Log(Log::DIE) << e.what();
+	}
 
 	return 0;
 }
+
 

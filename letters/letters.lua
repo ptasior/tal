@@ -2,11 +2,11 @@ class = require('lua_lib/class')
 var_dump = require('lua_lib/var_dump')
 require('lua_lib/functions')
 
-GuiHelpers = require('letters/gui_helpers')
-Cards = require('letters/cards')
-Game = require('letters/game')
-Players = require('letters/players')
-Server = require('letters/server')
+GuiHelpers = require('game/gui_helpers')
+Cards = require('game/cards')
+Game = require('game/game')
+Players = require('game/players')
+Server = require('game/server')
 
 server = nil;
 players = nil;
@@ -255,12 +255,12 @@ function updateHand()
 
 	if(c and c ~= '') then
 		myCard:setVisible(true);
-		myCard:setTexture('letters/assets/c'..c..'.png');
+		myCard:setTexture('game/assets/c'..c..'.png');
 	end
 
 	if(drawnCardValue and drawnCardValue ~= '') then
 		drawnCard:setVisible(true);
-		drawnCard:setTexture('letters/assets/c'..drawnCardValue..'.png');
+		drawnCard:setTexture('game/assets/c'..drawnCardValue..'.png');
 	end
 end
 
@@ -322,8 +322,8 @@ function setup()
 
 
 	statusBar = Widget.new('');
-	statusBar:setRect(10, 500, 700, 80);
-	statusBar:setTexture('letters/assets/banner.png');
+	statusBar:setRect(10, 300, 700, 80);
+	statusBar:setTexture('game/assets/banner.png');
 	statusBar:setLayout(2);
 	statusBar:setCenter(true);
 	statusBar:setPadding(0, 35);
@@ -332,7 +332,7 @@ function setup()
 	statusBar:addMultiLine(statusLabel);
 	gui:rootWidget():addWidget(statusBar);
 
-	gui:rootWidget():setTexture("letters/assets/bg.png");
+	gui:rootWidget():setTexture("game/assets/bg.png");
 	gui:rootWidget():setTextureRepeat(3,3);
 
 	updateHand();

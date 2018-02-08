@@ -22,11 +22,14 @@ import websockets
 
 @asyncio.coroutine
 def echo(websocket, path):
-    text = yield from websocket.recv()
-    print("< {}".format(text))
-    yield from websocket.send(text)
+    print('connected')
+    while(True):
+        text = yield from websocket.recv()
+        print("< {}".format(text))
+        yield from websocket.send(text)
 
-asyncio.get_event_loop().run_until_complete(websockets.serve(echo, '0.0.0.0', 1234))
+print('start')
+asyncio.get_event_loop().run_until_complete(websockets.serve(echo, '0.0.0.0', 1234, subprotocols=['binary']))
 asyncio.get_event_loop().run_forever()
 
 
