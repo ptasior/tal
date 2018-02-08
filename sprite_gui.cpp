@@ -27,6 +27,7 @@ void GuiSprite::setColor(int r, int g, int b, int a)
 
 void GuiSprite::paint()
 {
+	mShader->use();
 	mShader->setUniform("color", Shader::Value{.float_v4 = {mColor.r, mColor.g, mColor.b, mColor.a}});
 	mShader->setUniform("colorOnly", Shader::Value{.int_val = !mTexture});
 	Sprite::paint();

@@ -37,6 +37,7 @@ private:
 	void readVariables();
 	std::string readFile(const char* filename);
 	std::string getGlLog(GLuint object);
+	void useProgram();
 
 	GLuint mProgram;
 	std::string mName;

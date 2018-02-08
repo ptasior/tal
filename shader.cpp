@@ -162,6 +162,12 @@ std::string Shader::getGlLog(GLuint object)
 }
 
 
+void Shader::useProgram()
+{
+	glUseProgram(mProgram);
+}
+
+
 void Shader::use()
 {
 	{
@@ -172,7 +178,7 @@ void Shader::use()
 		mCurrent = mName;
 	}
 
-	glUseProgram(mProgram);
+	useProgram();
 	// Log() << "Shader: Using " << mName;
 
 	if(mOnChange) mOnChange();
@@ -227,6 +233,10 @@ void Shader::setUniform(const char* name, Value v)
 
 	// Log() << "Shader: set " << mName << " " << name << " val " << (long)v.float_ptr;
 
+	// Switch to current shader
+	if(mCurrent != mName)
+		useProgram();
+
 	auto f = uniformFunctions.at(std::get<1>(attr));
 	f(std::get<0>(attr), v);
 
@@ -235,6 +245,10 @@ void Shader::setUniform(const char* name, Value v)
 #ifndef NDEBUG
 	std::get<3>(mUniforms[name]) = true;
 #endif
+
+	// Restore previous shader
+	if(mCurrent != mName && !mCurrent.empty())
+		getShader(mCurrent.c_str())->useProgram();
 }
 
 GLuint Shader::attrib(const char* name)
