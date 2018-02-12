@@ -23,7 +23,12 @@ void Net::connect()
 	if(mSock) return;
 
 	std::string addr = global_config->get("serverAddr");
-	int port = std::stoi(global_config->get("serverPort"));
+	int port;
+	#ifdef __EMSCRIPTEN__
+		port = std::stoi(global_config->get("serverWSPort"));
+	#else
+		port = std::stoi(global_config->get("serverPort"));
+	#endif
 	if(SDLNet_ResolveHost(&mIp, addr.c_str(), port) < 0)
 		Log(Log::DIE) << "Net: resolve host ("
 					<< addr << ":"

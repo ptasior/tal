@@ -15,22 +15,14 @@ class Logger(object):
         print('*', message)
 
 
-    def client(self, message, idx=None):
+    def client(self, message, idx):
         self._lock.acquire()
 
-        if idx == None:
-            cid = self.server.myNo()
-            print('idx myno = ', cid)
-        else:
-            cid = idx
-            print('idx = ', cid)
-        if(cid not in self.clientsLog):
-            self.clientsLog[cid] = []
+        if(idx not in self.clientsLog):
+            self.clientsLog[idx] = []
 
-        self.clientsLog[cid].append(message)
+        self.clientsLog[idx].append(message)
         self._lock.release()
-        print(cid, message)
+        print(idx, message)
 
-    def setServer(self, server):
-        self.server = server
 

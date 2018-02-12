@@ -4,6 +4,7 @@ gameFile = "game/letters.lua"
 -- serverAddr = "10.0.0.2"
 serverAddr = "127.0.0.1"
 serverPort = "1234"
+serverWSPort = "1235"
 offline = "false"
 -- showFps = "true"
 labelWidth = 12
