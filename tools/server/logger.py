@@ -25,4 +25,3 @@ class Logger(object):
         self._lock.release()
         print(idx, message)
 
-
