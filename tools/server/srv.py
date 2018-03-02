@@ -166,19 +166,18 @@ class Server(object):
             # Em, a spinlock. Yeah, I know. Whatever...
             while self.transaction != None and self.transaction != c.no:
                 await asyncio.sleep(0)
-                print('awa tra:', self.transaction, c.no)
-
-            print('tra:', self.transaction, c.no)
 
             data = await reader.read(1024)
             message = data.decode()
             if len(message) == 0: break;
             c.receive(message)
 
-            # Yield all messages to web sockets as it can be done only here
+            # Yield all messages to web sockets as yielding can be done only here
             for cl in self.clients:
                 for l in self.clients[cl].ws_send:
-                    await self.clients[cl].ws_socket.send(l)
+                    # await self.clients[cl].ws_socket.send(l)
+                    self.clients[cl].ws_socket.send(l)
+                    await self.clients[cl].ws_socket.drain(l)
 
         print('RAW disconected')
         self.remove_client(c)
@@ -187,21 +186,25 @@ class Server(object):
 
 
     async def loop_ws(self, websocket, path):
-        print('WS connected', path)
+        print('WS connected', websocket, path)
         c = Client(path, 'WS', self)
         c.ws_socket = websocket
         self.add_client(c)
+
+        # JS must talk first
+        await websocket.recv()
         c.initData()
 
         while(True):
+            # Yield all messages to web sockets as yielding can be done only here
+            for cl in self.clients:
+                for l in self.clients[cl].ws_send:
+                    # await self.clients[cl].ws_socket.send(l)
+                    await self.clients[cl].ws_socket.send(l)
+
             data = await websocket.recv()
             message = data.decode()
             c.receive(message)
-
-            # Yield all messages to web sockets as it can be done only here
-            for c in self.clients:
-                for l in self.clients[c].ws_send:
-                    await self.clients[c].ws_socket.send(l)
 
         print('WS disconected')
         self.remove_client(c)

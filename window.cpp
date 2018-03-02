@@ -101,6 +101,12 @@ void Window::init()
 	Lua::getInstance()->initScene(mScene.get());
 	Lua::getInstance()->setup();
 
+#ifdef __EMSCRIPTEN__
+	// Tell server, javascript is ready. String won't be saved
+	if(mConfig->get("offline") == "false")
+		Lua::execute("sharedData:root():at('server'):set('hello');");
+#endif
+
 	Log() << "Window: Initialisation succesed";
 }
 
