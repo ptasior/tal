@@ -9,7 +9,8 @@ class Client(object):
         self.prot = prot
         self.server = server
         self.no = None
-        self.raw_socket = None
+        self.raw_reader = None
+        self.raw_writer = None
         self.ws_socket = None
         self.reminder = ''
         self.ws_send = []
@@ -76,16 +77,14 @@ class Client(object):
 
 
     def _send_ws(self, line):
-        self.log('< '+line)
+        self.log('< staged '+line)
         self.ws_send.append(bytes(line+'\2', 'ascii'))
 
 
     def _send_raw(self, line):
-        self.log('< '+line)
+        self.log('< staged '+line)
         self.raw_send.append(bytes(line+'\2', 'ascii'))
 
-        # self.raw_socket.write(bytes(line+'\2', 'ascii'))
-        # self.raw_socket.drain()
 
     def log(self, line):
         logger.client(line, self.no)
@@ -132,6 +131,12 @@ class Server(object):
             self.transaction = None
         invoker.sendReleaseTransaction()
 
+    def forceReleaseTransaction(self, invoker):
+        # Used when client disconnects
+        if self.transaction == invoker.no:
+            self.transactionCount = 0
+            self.transaction = None
+
 
     def processCommand(self, line, invoker):
         if(line == "server\1transaction\1start"):
@@ -148,39 +153,74 @@ class Server(object):
         return False
 
 
+    async def _raw_read(self, cli):
+        print('reading raw')
+        while(True):
+            # Em, a spinlock but in asyncio it just yields
+            while self.transaction != None and self.transaction != cli.no:
+                await asyncio.sleep(0)
+
+            print('await reading raw')
+            data = await cli.raw_reader.read(1024)
+            message = data.decode()
+            print('rcd: '+message)
+            if len(message) == 0: break
+            cli.receive(message)
+
+
+    async def _raw_write(self, cli):
+        print('writing raw')
+        while(True):
+            for l in cli.raw_send:
+                cli.raw_writer.write(l)
+                await cli.raw_writer.drain()
+                cli.log('< sent raw')
+            cli.raw_send = []
+
 
     async def loop_raw(self, reader, writer):
         addr = writer.get_extra_info('peername')
         logger.general('RAW conected ' + str(addr))
         c = Client(addr, 'RAW', self)
-        c.raw_socket = writer
+        c.raw_reader = reader
+        c.raw_writer = writer
         self.add_client(c)
         c.initData()
 
-        while(True):
-            # Em, a spinlock but in asyncio it just yields
-            while self.transaction != None and self.transaction != c.no:
-                await asyncio.sleep(0)
+        read_t = asyncio.ensure_future(self._raw_read(c))
+        write_t = asyncio.ensure_future(self._raw_write(c))
 
-            # Yield all messages to web sockets as yielding can be done only here
-            for cl in self.clients:
-                # if self.clients[cl].prot == 'WS': continue
-
-                for l in self.clients[cl].raw_send:
-                    self.clients[cl].raw_socket.write(l)
-                    await self.clients[cl].raw_socket.drain()
-                    self.clients[cl].log('sent raw'+str(cl))
-                self.clients[cl].raw_send = []
-
-            data = await reader.read(1024)
-            message = data.decode()
-            if len(message) == 0: break;
-            c.receive(message)
+        await asyncio.gather(read_t, write_t)
 
         logger.general('RAW disconected')
+        self.forceReleaseTransaction(c)
         self.remove_client(c)
-        writer.close()
 
+        writer.close()
+        reader.close()
+
+
+    async def _ws_read(self, cli):
+        print('reading ws')
+        while(True):
+            # Em, a spinlock but in asyncio it just yields
+            while self.transaction != None and self.transaction != cli.no:
+                await asyncio.sleep(0)
+
+            data = await cli.ws_socket.recv()
+            message = data.decode()
+            if len(message) == 0: break
+            cli.receive(message)
+
+
+    async def _ws_write(self, cli):
+        print('writing ws')
+        while(True):
+            for l in cli.ws_send:
+                await cli.ws_socket.send(l)
+                cli.log('< sent ws')
+            cli.ws_send = []
+            await asyncio.sleep(0);
 
 
     async def loop_ws(self, websocket, path):
@@ -189,32 +229,18 @@ class Server(object):
         c = Client('ws:://'+str(path), 'WS', self)
         c.ws_socket = websocket
         self.add_client(c)
-
-        # JS must talk first
-        await websocket.recv()
         c.initData()
 
-        while(True):
-            # Em, a spinlock but in asyncio it just yields
-            while self.transaction != None and self.transaction != c.no:
-                await asyncio.sleep(0)
+        read_t = asyncio.ensure_future(self._ws_read(c))
+        write_t = asyncio.ensure_future(self._ws_write(c))
 
-            # Yield all messages to web sockets as yielding can be done only here
-            for cl in self.clients:
-                if self.clients[cl].prot == 'RAW': continue
-
-                for l in self.clients[cl].ws_send:
-                    await self.clients[cl].ws_socket.send(l)
-                    self.clients[cl].log('sent ws'+str(cl))
-                self.clients[cl].ws_send = []
-
-            data = await websocket.recv()
-            message = data.decode()
-            c.receive(message)
+        await asyncio.gather(read_t, write_t)
 
         logger.general('WS disconected')
+        self.forceReleaseTransaction(c)
         self.remove_client(c)
 
+        websocket.close()
 
 
     def start(self):
