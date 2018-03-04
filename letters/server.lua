@@ -4,6 +4,7 @@ Server = class(function(self)
 		self.onConnect = {};
 		self._connected = false;
 		self.onBroadcast = {};
+		self.awaitingTransaction = false;
 
 		main_addOnSharedDataUpdate(function(l) self:update(l); end);
 	end)
@@ -29,6 +30,7 @@ function Server:update(line)
 		end
 		self.pendingTransactions = {}; -- Remove handlers
 		self.sw:at('transaction'):set('stop');
+		self.awaitingTransaction = false;
 	end
 
 
@@ -54,11 +56,17 @@ end
 
 
 function Server:transaction(handle)
-	if(self.sw:at('me'):at('transaction'):get() ~= 'true') then
-		self.sw:at('transaction'):set('start');
-		-- error('A transaction is already started');
+	-- If transaction is pending, execute immediately
+	if(self.sw:at('me'):at('transaction'):get() == 'true') then
+		handle();
+		return;
 	end
-	self.sw:at('transaction'):set('start');
+
+	-- Ask for a transaction only once
+	if(not self.awaitingTransaction) then
+		self.sw:at('transaction'):set('start');
+		self.awaitingTransaction = true;
+	end
 	self.pendingTransactions[#self.pendingTransactions+1] = handle;
 end
 
