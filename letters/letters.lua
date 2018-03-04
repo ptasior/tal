@@ -77,7 +77,7 @@ function perform(card)
 			return msg..'but all players were protected';
 		end
 
-		local pl = GuiHelpers:selectFrom("Pick the player", all_players);
+		local pl = GuiHelpers:selectFrom("Pick a player", all_players);
 		local crd = GuiHelpers:selectFrom("Guess the card",
 											without(cards.names, 'Guard'));
 		if(players:get(pl):at('card'):get() == tostring(cards:toNumber(crd))) then
@@ -90,12 +90,24 @@ function perform(card)
 		end
 
 	elseif(card == 2) then
-		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(false));
+		local all_players = playersToPick(false);
+		if(#all_players == 0) then
+			GuiHelpers:message('All players are protected');
+			return msg..'but all players were protected';
+		end
+
+		local pl = GuiHelpers:selectFrom("Pick a player", all_players);
 		GuiHelpers:message(pl..' has '..cards:toName(players:get(pl):at('card'):get()));
 		return msg..'and now knows '..pl..'\'s card';
 
 	elseif(card == 3) then
-		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(false));
+		local all_players = playersToPick(false);
+		if(#all_players == 0) then
+			GuiHelpers:message('All players are protected');
+			return msg..'but all players were protected';
+		end
+
+		local pl = GuiHelpers:selectFrom("Pick a player", all_players);
 		local mc = players:me():at('card'):get();
 		local pc = players:get(pl):at('card'):get();
 		if(pc == mc) then
@@ -114,14 +126,26 @@ function perform(card)
 		return msg..' and is protected';
 
 	elseif(card == 5) then
-		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(true));
+		local all_players = playersToPick(false);
+		if(#all_players == 0) then
+			GuiHelpers:message('All players are protected');
+			return msg..'but all players were protected';
+		end
+
+		local pl = GuiHelpers:selectFrom("Pick a player", all_players);
 		local c = cards:drawOne();
 		players:get(pl):at('card'):set(c);
 		cards:save();
 		return msg..pl..' was chosen to draw new cards';
 
 	elseif(card == 6) then
-		local pl = GuiHelpers:selectFrom("Pick the player", playersToPick(false));
+		local all_players = playersToPick(false);
+		if(#all_players == 0) then
+			GuiHelpers:message('All players are protected');
+			return msg..'but all players were protected';
+		end
+
+		local pl = GuiHelpers:selectFrom("Pick a player", all_players);
 		local tmp = players:get(pl):at('card'):get();
 		players:get(pl):at('card'):set(players:me():at('card'):get());
 		players:me():at('card'):set(tmp)
