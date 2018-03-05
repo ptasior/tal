@@ -1,7 +1,16 @@
+# Asyncio debugging
+# import os
+# os.environ['PYTHONASYNCIODEBUG'] = '1'
+# import logging, warnings
+# logging.basicConfig(level=logging.DEBUG)
+# warnings.resetwarnings()
+
 import asyncio
 import websockets
 from app_globals import logger
 from app_globals import tree
+
+
 
 class Client(object):
     def __init__(self, address, prot, server):
@@ -15,6 +24,7 @@ class Client(object):
         self.reminder = ''
         self.ws_send = []
         self.raw_send = []
+        self.has_data = asyncio.Event()
 
 
     def initData(self):
@@ -52,14 +62,11 @@ class Client(object):
 
 
     def receive(self, data):
-        # print("Received %r" % (data))
-
         data = self.reminder + data
 
         end = data.find("\2")
         while(end != -1):
             line = data[:end]
-            # print('+'+line)
 
             if len(line) > 0:
                 self.handleLine(line)
@@ -70,20 +77,15 @@ class Client(object):
         self.reminder = data
 
 
-
     def send(self, line):
-        if self.prot == 'WS': self._send_ws(line)
-        else:                 self._send_raw(line)
+        data = bytes(line+'\2', 'ascii')
+        if self.prot == 'WS':
+            self.ws_send.append(data)
+        else:
+            self.raw_send.append(data)
 
-
-    def _send_ws(self, line):
-        self.log('< staged '+line)
-        self.ws_send.append(bytes(line+'\2', 'ascii'))
-
-
-    def _send_raw(self, line):
-        self.log('< staged '+line)
-        self.raw_send.append(bytes(line+'\2', 'ascii'))
+        self.log('< '+line)
+        self.has_data.set()
 
 
     def log(self, line):
@@ -160,10 +162,8 @@ class Server(object):
             while self.transaction != None and self.transaction != cli.no:
                 await asyncio.sleep(0)
 
-            print('await reading raw')
             data = await cli.raw_reader.read(1024)
             message = data.decode()
-            print('rcd: '+message)
             if len(message) == 0: break
             cli.receive(message)
 
@@ -174,30 +174,32 @@ class Server(object):
             for l in cli.raw_send:
                 cli.raw_writer.write(l)
                 await cli.raw_writer.drain()
-                cli.log('< sent raw')
             cli.raw_send = []
+
+            cli.has_data.clear()
+            await cli.has_data.wait()
 
 
     async def loop_raw(self, reader, writer):
         addr = writer.get_extra_info('peername')
         logger.general('RAW conected ' + str(addr))
-        c = Client(addr, 'RAW', self)
-        c.raw_reader = reader
-        c.raw_writer = writer
-        self.add_client(c)
-        c.initData()
+        cli = Client(addr, 'RAW', self)
+        cli.raw_reader = reader
+        cli.raw_writer = writer
+        self.add_client(cli)
+        cli.initData()
 
-        read_t = asyncio.ensure_future(self._raw_read(c))
-        write_t = asyncio.ensure_future(self._raw_write(c))
+        read_t = asyncio.ensure_future(self._raw_read(cli))
+        write_t = asyncio.ensure_future(self._raw_write(cli))
 
-        await asyncio.gather(read_t, write_t)
+        await asyncio.gather(read_t)
+        write_t.cancel()
 
         logger.general('RAW disconected')
-        self.forceReleaseTransaction(c)
-        self.remove_client(c)
+        self.forceReleaseTransaction(cli)
+        self.remove_client(cli)
 
         writer.close()
-        reader.close()
 
 
     async def _ws_read(self, cli):
@@ -207,9 +209,11 @@ class Server(object):
             while self.transaction != None and self.transaction != cli.no:
                 await asyncio.sleep(0)
 
-            data = await cli.ws_socket.recv()
+            try:
+                data = await cli.ws_socket.recv()
+            except:
+                break
             message = data.decode()
-            if len(message) == 0: break
             cli.receive(message)
 
 
@@ -220,27 +224,28 @@ class Server(object):
                 await cli.ws_socket.send(l)
                 cli.log('< sent ws')
             cli.ws_send = []
-            await asyncio.sleep(0);
+
+            cli.has_data.clear()
+            await cli.has_data.wait()
 
 
     async def loop_ws(self, websocket, path):
         logger.general('WS connected ' + str(websocket)  +' '+ str(path))
         # print(dir(path))
-        c = Client('ws:://'+str(path), 'WS', self)
-        c.ws_socket = websocket
-        self.add_client(c)
-        c.initData()
+        cli = Client('ws:://'+str(path), 'WS', self)
+        cli.ws_socket = websocket
+        self.add_client(cli)
+        cli.initData()
 
-        read_t = asyncio.ensure_future(self._ws_read(c))
-        write_t = asyncio.ensure_future(self._ws_write(c))
+        read_t = asyncio.ensure_future(self._ws_read(cli))
+        write_t = asyncio.ensure_future(self._ws_write(cli))
 
-        await asyncio.gather(read_t, write_t)
+        await asyncio.gather(read_t)
+        write_t.cancel()
 
         logger.general('WS disconected')
-        self.forceReleaseTransaction(c)
-        self.remove_client(c)
-
-        websocket.close()
+        self.forceReleaseTransaction(cli)
+        self.remove_client(cli)
 
 
     def start(self):
@@ -262,7 +267,4 @@ class Server(object):
         loop.run_until_complete(raw_srv.wait_closed())
         loop.close()
 
-
-# s = Server()
-# s.start()
 
