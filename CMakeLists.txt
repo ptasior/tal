@@ -59,6 +59,11 @@ add_custom_target(symlinks ALL
 
 # -----------------------------------------------------------------------------
 if("${JS}")
+	add_custom_target(html_symlinks ALL
+			COMMAND cp ${PROJECT_SOURCE_DIR}/tools/game.html .
+			WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+		)
+
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DGLM_FORCE_RADIANS=1")
