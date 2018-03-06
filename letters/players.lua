@@ -36,6 +36,7 @@ function Players:logIn()
 		end
 	end
 	self.pl:at(self.meName):at('cliNo'):set(server:meNo());
+	game:update('game\1turn'); -- Trigger restarting turn if possible
 end
 
 

@@ -212,8 +212,16 @@ function playTurn()
 	players:me():at('protected'):set('false');
 
 	-- Draw a card
-	drawnCardValue = cards:drawOne();
-	cards:save();
+
+	drawnCardValue = sharedData:root():at('drawnCard'):get();
+	if(drawnCardValue == '' or drawnCardValue == nil) then -- True unless resuming game
+		drawnCardValue = cards:drawOne();
+		cards:save();
+		sharedData:root():at('drawnCard'):set(drawnCardValue);
+	else
+		print("!!!!!!!!!!!!!!!!")
+		print(var_dump(drawnCardValue))
+	end
 
 	-- Display it
 	updateHand();
@@ -222,6 +230,8 @@ end
 
 function cardSelected(card)
 	if(not game:isMyTurn()) then return; end
+
+	sharedData:root():at('drawnCard'):set('');
 
 	local hand = players:me():at('card'):get();
 	local played = nil;
