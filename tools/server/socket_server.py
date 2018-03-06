@@ -102,8 +102,8 @@ class Server(object):
 
 
     def broadcast(self, line):
+        tree.write(line)
         for c in self.clients:
-            tree.write(line)
             self.clients[c].send(line)
 
 
@@ -118,6 +118,7 @@ class Server(object):
 
 
     def remove_client(self, client):
+        self.broadcast('server\1clients\1'+str(client.no)+'\1addr\1')
         del self.clients[client.no]
 
 

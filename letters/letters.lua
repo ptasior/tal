@@ -297,8 +297,8 @@ function sharedDataUpdate(line)
 	if(startsWith(line, 'players\1')) then
 		if(players.meName) then
 			myName:setText(players.meName);
+			updateHand();
 		end
-		updateHand();
 	end
 
 	if(startsWith(line, 'game\1started')) then

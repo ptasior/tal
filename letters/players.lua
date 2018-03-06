@@ -18,7 +18,7 @@ function Players:logIn()
 		print("not started")
 		self.meName = GuiHelpers:input("What is your name?");
 		while(true) do
-			if(inList(self:getNames(), self.meName)) then
+			if(inList(self:getNames(), self.meName) or self.meName:gsub(' ', '') == '') then
 				self.meName = GuiHelpers:input("This name is already in use.\nPick another one.");
 			else
 				break;
@@ -32,8 +32,7 @@ function Players:logIn()
 			GuiHelpers:message('The game is full, you cannot join in');
 			return;
 		else
-			local names = map(inactive, function(e) return e['name']; end);
-			self.meName = GuiHelpers:selectFrom('Which player are you?', names);
+			self.meName = GuiHelpers:selectFrom('Which player are you?', inactive);
 		end
 	end
 	self.pl:at(self.meName):at('cliNo'):set(server:meNo());
@@ -85,7 +84,7 @@ function Players:getInactive()
 	local ret = {};
 
 	for i = 1, #nm do
-		local cliNo = tonumber(self.pl:at(name):at('cliNo'):get());
+		local cliNo = tonumber(self.pl:at(nm[i]):at('cliNo'):get());
 		if(not hasKey(cli, cliNo)) then
 			ret[#ret+1] = nm[i];
 		end

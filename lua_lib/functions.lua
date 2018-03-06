@@ -81,10 +81,10 @@ function endsWith(text, part)
 end
 
 function map(table, handler)
-	local ret;
+	local ret = {};
 
 	for k, v in pairs(table) do
-		ret[k] = handler(table[v]);
+		ret[#ret+1] = handler(v);
 	end
 
 	return ret;
