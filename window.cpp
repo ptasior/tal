@@ -101,12 +101,6 @@ void Window::init()
 	Lua::getInstance()->initScene(mScene.get());
 	Lua::getInstance()->setup();
 
-#ifdef __EMSCRIPTEN__
-	// Tell server, javascript is ready. String won't be saved
-	if(mConfig->get("offline") == "false")
-		Lua::execute("sharedData:root():at('server'):set('hello');");
-#endif
-
 	Log() << "Window: Initialisation succesed";
 }
 
@@ -142,15 +136,17 @@ bool Window::onEvent(SDL_Event &event)
 				case SDLK_ESCAPE:
 					mQuit = true;
 					break;
-				/*case SDLK_n:
-					Log() << "net";
-					mNet->connect();
-					mNet->send("new message");
+				// case SDLK_n:
+				// 	Log() << "net";
+				// 	mNet->connect();
+				// 	mNet->send("new message");
+				// 	break;
+				// case SDLK_f:
+				// 	{
+				// 	static int cnt = 0;
+				// 	global_sharedData->root().at("test")->set(std::to_string(cnt++));
+				// 	}
 					break;
-				case SDLK_f:
-					{
-					}
-					break;*/
 				case SDLK_BACKSPACE:
 					if(mGui->textInput("backspace"))
 						return true;
