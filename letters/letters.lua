@@ -212,19 +212,20 @@ function playTurn()
 	players:me():at('protected'):set('false');
 
 	-- Draw a card
-
 	drawnCardValue = sharedData:root():at('drawnCard'):get();
+
 	if(drawnCardValue == '' or drawnCardValue == nil) then -- True unless resuming game
 		drawnCardValue = cards:drawOne();
 		cards:save();
 		sharedData:root():at('drawnCard'):set(drawnCardValue);
-	else
-		print("!!!!!!!!!!!!!!!!")
-		print(var_dump(drawnCardValue))
 	end
 
 	-- Display it
 	updateHand();
+
+	if(drawnCardValue) then -- When resuming game
+		resizeWindow(); -- Set drawnCard position
+	end
 end
 
 
@@ -306,9 +307,10 @@ function sharedDataUpdate(line)
 
 	if(startsWith(line, 'players\1')) then
 		if(players.meName) then
-			myName:setText(players.meName);
+			-- myName:setText(players.meName);
 			updateHand();
 		end
+		updatePlayersWidget();
 	end
 
 	if(startsWith(line, 'game\1started')) then
@@ -351,18 +353,15 @@ function setup()
 	gui:rootWidget():addWidget(drawnCard);
 
 	myName = Label.new('');
-	myName:setRect(10, 10, 100, 80);
+		myName:setRect(5, 0, 100, 80);
 	gui:rootWidget():addLabel(myName);
 
-
 	statusBar = Widget.new('');
-	statusBar:setRect(10, 300, 700, 80);
 	statusBar:setTexture('game/assets/banner.png');
 	statusBar:setLayout(2);
 	statusBar:setCenter(true);
-	statusBar:setPadding(0, 35);
+	statusBar:setPadding(0, 30);
 	statusLabel = MultiLine.new('');
-	statusLabel:setSize(500, 60);
 	statusBar:addMultiLine(statusLabel);
 	gui:rootWidget():addWidget(statusBar);
 
@@ -370,12 +369,47 @@ function setup()
 	gui:rootWidget():setTextureRepeat(3,3);
 
 	updateHand();
+	updatePlayersWidget();
+	resizeWindow();
 
 	log('Lua setup done');
 end
 
 
+function updatePlayersWidget()
+	if not players.meName then
+		return;
+	end
+
+	local pl = players:getNames();
+	local str = "me: "..players.meName.." - "
+	for i=1, #pl do
+		str = str..pl[i]..', ';
+	end
+
+	myName:setText(str);
+end
+
+
 function resizeWindow()
+	local width = gui:getSceneWidth();
+	local height = gui:getSceneHeight();
+	statusBar:setRect(10, height-120, width-10, 120);
+	statusLabel:setSize(math.floor(width*2/3), 70);
+
+	local cardHeight = math.floor(height/2);
+	local cardWidth = math.floor(cardHeight*2/3);
+	local cardSpace = math.floor(width/20);
+
+	if(drawnCardValue and drawnCardValue ~= '') then
+		myCard:setRect(math.floor(width/2-cardWidth-cardSpace), math.floor(height/4),
+						cardWidth, cardHeight);
+		drawnCard:setRect( math.floor(width/2+cardSpace), math.floor(height/4),
+						cardWidth, cardHeight);
+	else
+		myCard:setRect(math.floor((width-cardWidth)/2), math.floor(height/4),
+						cardWidth, cardHeight);
+	end
 end
 
 

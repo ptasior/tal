@@ -11,5 +11,6 @@ public:
 
 private:
 	glm::vec4 mColor = glm::vec4(1.0);
+	bool mColorIsSet;
 };
 
