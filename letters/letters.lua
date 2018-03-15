@@ -413,13 +413,15 @@ function updatePlayersWidget()
 
 		if(pl[i] == game:whoseTurn()) then
 			playersWidgets[i]['name']:setTextColor(255, 255, 0, 255);
+		elseif(players:hasLost(pl[i])) then
+			playersWidgets[i]['name']:setTextColor(100, 100, 100, 255);
 		else
 			playersWidgets[i]['name']:setTextColor(255, 255, 255, 255);
 		end
 
 		local name = pl[i];
 		if(not players:isActive(name)) then
-			name = 'X ' .. name;
+			name = '(X) ' .. name;
 		end
 		playersWidgets[i]['name']:setText(name);
 		playersWidgets[i]['protected']:setVisible(isProtected(pl[i]));

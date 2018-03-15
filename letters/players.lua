@@ -145,6 +145,11 @@ function Players:toggleStartButton()
 end
 
 
+function Players:hasLost(name)
+	return self.pl:at(name):at('lost'):get() == 'true'
+end
+
+
 function Players:updateWidget()
 	if(not self.widget) then
 		return;
@@ -157,8 +162,10 @@ function Players:updateWidget()
 		local txt = names[i];
 		if(not self:isActive(txt)) then
 			txt = 'X ' .. txt;
-		elseif(self.pl:at(txt):at('lost'):get() == 'true') then
+		elseif(self:hasLost(txt)) then
 			txt = '- ' .. txt;
+		elseif(txt == game:whoseTurn()) then
+			txt = '-> ' .. txt;
 		end
 
 		self.widget['list']:addLabel(Label.new(txt));
