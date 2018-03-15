@@ -79,7 +79,12 @@ end
 
 
 function Game:isMyTurn()
-	return self.gm:at('turn'):get() == players.meName;
+	return self:whoseTurn() == players.meName;
+end
+
+
+function Game:whoseTurn()
+	return self.gm:at('turn'):get();
 end
 
 

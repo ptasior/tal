@@ -83,6 +83,7 @@ void Lua::initGui(Gui *gui)
 	mState.new_usertype<Label>("Label",
 					sol::constructors<Label(std::string)>(),
 					"setText", &Label::setText,
+					"setTextColor", &Label::setTextColor,
 					"getText", &Label::getText,
 					WIDGET_INHERITED
 				);

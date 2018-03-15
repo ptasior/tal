@@ -127,6 +127,10 @@ end
 
 
 function Players:toggleStartButton()
+	if(not self.widget) then
+		return;
+	end
+
 	if(game:isStarted()) then
 		self.widget['box']:removeButton(players['widget']['start']);
 		self.widget['box']:setSize(306,220-36);
@@ -142,6 +146,10 @@ end
 
 
 function Players:updateWidget()
+	if(not self.widget) then
+		return;
+	end
+
 	local names = self:getNames();
 
 	self.widget['list']:clear();

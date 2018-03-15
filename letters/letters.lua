@@ -51,12 +51,17 @@ function startGame()
 end
 
 
+function isProtected(name)
+	return players:get(name):at('protected'):get() == 'true';
+end
+
+
 function playersToPick(includeSelf)
 	local pls = players:getPlaying();
 	local ret = {};
 
 	for i = 1, #pls do
-		if(players:get(pls[i]):at('protected'):get() ~= 'true') then
+		if(not isProtected(pls[i])) then
 			if(includeSelf or pls[i] ~= players.meName) then
 				ret[#ret+1] = pls[i];
 			end
@@ -337,7 +342,7 @@ function setup()
 	game:addOnLost(gameLost)
 
 	players = Players();
-	players:showWidget();
+	-- players:showWidget();
 
 	initCards();
 	-- showCheatsheet();
@@ -351,10 +356,6 @@ function setup()
 	drawnCard:setRect(300, 50,200,300);
 	drawnCard:onClickLua(function() execute(function() cardSelected('drawn'); end) end);
 	gui:rootWidget():addWidget(drawnCard);
-
-	myName = Label.new('');
-		myName:setRect(5, 0, 100, 80);
-	gui:rootWidget():addLabel(myName);
 
 	statusBar = Widget.new('');
 	statusBar:setTexture('game/assets/banner.png');
@@ -377,17 +378,52 @@ end
 
 
 function updatePlayersWidget()
-	if not players.meName then
-		return;
+	if(not playersWidgets) then
+		playersWidgets={};
 	end
 
 	local pl = players:getNames();
-	local str = "me: "..players.meName.." - "
 	for i=1, #pl do
-		str = str..pl[i]..', ';
-	end
+		if(#playersWidgets < i) then
+			playersWidgets[i] = {};
+			playersWidgets[i]['bg'] = Widget.new('');
+			playersWidgets[i]['bg']:setTexture('game/assets/player.png');
+			playersWidgets[i]['bg']:setLayout(2);
+			playersWidgets[i]['bg']:setCenter(true);
+			playersWidgets[i]['bg']:setPadding(15, 20);
+			playersWidgets[i]['bg']:setOverflow(1);
+			playersWidgets[i]['bg']:setRect(10 + (i-1)*200, 0, 180, 100);
 
-	myName:setText(str);
+			playersWidgets[i]['name'] = Label.new(pl[i]);
+			playersWidgets[i]['name']:setOverflow(2);
+			playersWidgets[i]['bg']:addLabel(playersWidgets[i]['name']);
+
+			playersWidgets[i]['protected'] = Label.new('');
+			playersWidgets[i]['protected']:setTextColor(255, 0, 0, 255);
+			playersWidgets[i]['protected']:setText('protected');
+			playersWidgets[i]['protected']:setOverflow(2);
+			playersWidgets[i]['bg']:addLabel(playersWidgets[i]['protected']);
+
+			gui:rootWidget():addWidget(playersWidgets[i]['bg']);
+		end
+
+		if(pl[i] == players.meName and not hasKey(playersWidgets[i], 'me')) then
+			playersWidgets[i]['bg']:setTexture('game/assets/player_me.png');
+		end
+
+		if(pl[i] == game:whoseTurn()) then
+			playersWidgets[i]['name']:setTextColor(255, 255, 0, 255);
+		else
+			playersWidgets[i]['name']:setTextColor(255, 255, 255, 255);
+		end
+
+		local name = pl[i];
+		if(not players:isActive(name)) then
+			name = 'X ' .. name;
+		end
+		playersWidgets[i]['name']:setText(name);
+		playersWidgets[i]['protected']:setVisible(isProtected(pl[i]));
+	end
 end
 
 
