@@ -159,11 +159,12 @@ class Server(object):
     async def _raw_read(self, cli):
         print('reading raw')
         while(True):
+            data = await cli.raw_reader.read(1024)
+
             # Em, a spinlock but in asyncio it just yields
             while self.transaction != None and self.transaction != cli.no:
                 await asyncio.sleep(0)
 
-            data = await cli.raw_reader.read(1024)
             message = data.decode()
             if len(message) == 0: break
             cli.receive(message)
@@ -206,14 +207,15 @@ class Server(object):
     async def _ws_read(self, cli):
         print('reading ws')
         while(True):
-            # Em, a spinlock but in asyncio it just yields
-            while self.transaction != None and self.transaction != cli.no:
-                await asyncio.sleep(0)
-
             try:
                 data = await cli.ws_socket.recv()
             except:
                 break
+
+            # Em, a spinlock but in asyncio it just yields
+            while self.transaction != None and self.transaction != cli.no:
+                await asyncio.sleep(0)
+
             message = data.decode()
             cli.receive(message)
 
