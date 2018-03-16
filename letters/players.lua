@@ -44,7 +44,7 @@ function Players:getNames()
 	return self.pl:branches();
 end
 
-
+-- All players who haven't lost
 function Players:getPlaying()
 	local names = self:getNames();
 	local ret = {};

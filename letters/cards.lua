@@ -6,12 +6,13 @@ Cards = class(function(self, var)
 
 function Cards:set(arr, names)
 	self.names = names;
-	self.deck = arr;
+	self.origDeck = arr;
 end
 
 
 function Cards:shuffle()
 	local p;
+	self.deck = self.origDeck;
 	for i = #self.deck, 2, -1 do
 		p = math.random(i);
 		self.deck[i], self.deck[p] = self.deck[p], self.deck[i];

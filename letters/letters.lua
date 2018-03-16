@@ -47,6 +47,9 @@ end
 
 function startGame()
 	log('Start game');
+
+	updatePlayersWidget();
+
 	players:toggleStartButton();
 end
 
@@ -369,6 +372,11 @@ function setup()
 	gui:rootWidget():setTexture("game/assets/bg.png");
 	gui:rootWidget():setTextureRepeat(3,3);
 
+	newGame = Widget.new('');
+	newGame:setTexture('game/assets/new_game.png');
+	newGame:onClickLua(function() game:start() end);
+	gui:rootWidget():addWidget(newGame);
+
 	updateHand();
 	updatePlayersWidget();
 	resizeWindow();
@@ -426,6 +434,8 @@ function updatePlayersWidget()
 		playersWidgets[i]['name']:setText(name);
 		playersWidgets[i]['protected']:setVisible(isProtected(pl[i]));
 	end
+
+	newGame:setVisible(not game:isStarted());
 end
 
 
@@ -434,6 +444,7 @@ function resizeWindow()
 	local height = gui:getSceneHeight();
 	statusBar:setRect(10, height-120, width-10, 120);
 	statusLabel:setSize(math.floor(width*2/3), 70);
+	newGame:setRect(math.floor(width/2-150), math.floor(height/2-50), 300, 100);
 
 	local cardHeight = math.floor(height/2);
 	local cardWidth = math.floor(cardHeight*2/3);
@@ -447,6 +458,7 @@ function resizeWindow()
 	else
 		myCard:setRect(math.floor((width-cardWidth)/2), math.floor(height/4),
 						cardWidth, cardHeight);
+		drawnCard:setVisible(false);
 	end
 end
 

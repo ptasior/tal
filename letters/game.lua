@@ -10,6 +10,12 @@ Game = class(function(self)
 
 
 function Game:start()
+	if(#players:getNames() < 2) then
+		execute(function()
+				GuiHelpers:message('Not enough players to start game');
+			end);
+		return;
+	end
 	server:transaction(function()
 			-- Check if someone else hasn't started the game before
 			if(self.gm:at('started'):get() == 'true') then
@@ -113,6 +119,7 @@ function Game:nextTurn()
 	local nxt = self:whoseTurnNext();
 
 	self.gm:at('turn'):set(nxt);
+	players:reset();
 end
 
 
