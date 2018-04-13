@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8)
 option(JS "JS complation" OFF)
 if("${JS}")
 	# Yeah, I know, it's not portable... but how convenient!
-	set(CMAKE_TOOLCHAIN_FILE "/home/ja/Tmp/cpp/emsdk-portable/emscripten/1.37.29/cmake/Modules/Platform/Emscripten.cmake")
+	set(CMAKE_TOOLCHAIN_FILE "/home/ja/Tmp/cpp/emsdk-portable/emscripten/1.37.36/cmake/Modules/Platform/Emscripten.cmake")
 endif()
 
 project(tal)
@@ -75,7 +75,8 @@ if("${JS}")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s SDL2_IMAGE_FORMATS='[\"png\"]'")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s USE_PTHREADS=1")
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s FULL_ES2=1")
-	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s TOTAL_MEMORY=167772160")
+	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s TOTAL_MEMORY=335544320")
+	# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -s ALLOW_MEMORY_GROWTH=1")
 
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -O2")
 	SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_PTHREADS=1")
