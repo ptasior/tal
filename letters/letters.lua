@@ -2,11 +2,11 @@ class = require('lua_lib/class')
 var_dump = require('lua_lib/var_dump')
 require('lua_lib/functions')
 
-GuiHelpers = require('game/gui_helpers')
-Cards = require('game/cards')
-Game = require('game/game')
-Players = require('game/players')
-Server = require('game/server')
+GuiHelpers = require('lua_lib/gui_helpers')
+Cards = require('lua_lib/cards')
+Game = require('lua_lib/game')
+Players = require('lua_lib/players')
+Server = require('lua_lib/server')
 
 server = nil;
 players = nil;
