@@ -1,0 +1,25 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:2.3.3'
+    }
+}
+
+buildDir = file("distribution/${rootProject.name}/${project.name}")
+subprojects {
+	buildDir = file("../distribution/${rootProject.name}/${project.name}")
+}
+
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
