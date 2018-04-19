@@ -223,7 +223,7 @@ void Lua::wireframe()
 {
 	static bool wf = false;
 	wf = !wf;
-#ifndef __EMSCRIPTEN__
+#ifdef DESKTOP
 	glPolygonMode(GL_FRONT_AND_BACK, wf?GL_LINE:GL_FILL);
 #endif
 }

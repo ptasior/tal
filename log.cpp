@@ -1,10 +1,14 @@
 #include "log.h"
 #include <iostream>
+#include <SDL.h>
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
+#ifdef JS
+	#include <emscripten.h>
 #endif
 
+#ifdef ANDROID
+	#include <android/log.h>
+#endif
 
 const char *Log::endl = "\n";
 
@@ -13,8 +17,8 @@ Log::Log(Action a):
 {
 	if(mAction == DIE)
 	{
-		write("---Fatal-error--------------------------");
-		write(Log::endl);
+		// write("---Fatal-error--------------------------");
+		// write(Log::endl);
 	}
 }
 
@@ -23,9 +27,9 @@ Log::~Log()
 	write(Log::endl);
 	if(mAction == DIE)
 	{
-		write("----------------------------------------");
+		// write("----------------------------------------");
 		write(Log::endl);
-		#ifdef __EMSCRIPTEN__
+		#ifdef JS
 		emscripten_cancel_main_loop();
 		#endif
 		std::exit(EXIT_FAILURE);
@@ -103,13 +107,20 @@ Log& Log::operator << (char val)
 void Log::write(const char* str)
 {
 	if(mAction == ERR || mAction == DIE)
-		std::cerr << str;
-	else
-		std::cout << str;
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", str, NULL);
+
+
+	// 	std::cerr << str;
+	// else
+	// 	std::cout << str;
+
+#ifdef ANDROID
+	__android_log_print(ANDROID_LOG_DEBUG, "tal", "%s", str);
+#endif
 }
 
 void Log::flush()
 {
-	std::cout << std::flush;
+	// std::cout << std::flush;
 }
 

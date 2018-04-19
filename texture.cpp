@@ -2,10 +2,11 @@
 #include "shader.h"
 #include "log.h"
 #include "config.h"
-#include <SDL2/SDL_image.h>
-#ifdef __EMSCRIPTEN__
+#if defined(JS) || defined(ANDROID)
 	#include <SDL_ttf.h>
+	#include <SDL_image.h>
 #else
+	#include <SDL2/SDL_image.h>
 	#include <SDL2/SDL_ttf.h>
 #endif
 #include <assert.h>
@@ -89,7 +90,12 @@ void Texture::init(const char *path, Shader *shader)
 	}
 	else // Regular image
 	{
-		res_texture = IMG_Load(path);
+		#ifdef ANDROID
+			std::string tmpp = "/sdcard/tal/";
+			res_texture = IMG_Load((tmpp+path).c_str());
+		#else
+			res_texture = IMG_Load(path);
+		#endif
 
 		if(!res_texture)
 			Log(Log::DIE) << "Texture: IMG_Load: " << SDL_GetError();

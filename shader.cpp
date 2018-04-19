@@ -97,7 +97,7 @@ GLuint Shader::loadShader(const char * file, GLenum type)
 	auto ptr = lines.c_str();
 
 	const char* precision =
-	#ifndef __EMSCRIPTEN__
+	#ifdef DESKTOP
 		"#version 130                        \n"
 	#endif
 		"#ifdef GL_ES                        \n"

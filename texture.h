@@ -5,7 +5,7 @@
 #include <string>
 #include <map>
 
-class SDL_Surface;
+struct SDL_Surface;
 class Shader;
 
 class Texture

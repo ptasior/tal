@@ -2,7 +2,8 @@
 #include "log.h"
 #include "shader.h"
 #include "texture.h"
-#include <SDL2/SDL_image.h>
+// #include <SDL2/SDL_image.h>
+#include <SDL_image.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

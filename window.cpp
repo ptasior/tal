@@ -13,10 +13,10 @@
 #include <thread>
 #include <chrono>
 
-#ifdef __EMSCRIPTEN__
-	#include <SDL_ttf.h>
-#else
+#ifdef DESKTOP
 	#include <SDL2/SDL_ttf.h>
+#else
+	#include <SDL_ttf.h>
 #endif
 
 Config* global_config = nullptr;
@@ -34,7 +34,7 @@ void Window::init()
 	SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
 	SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 1); // Transparency
 
-#ifndef __EMSCRIPTEN__
+#ifdef DESKTOP
 	glewExperimental = true; // Needed in core profile
 #endif
 
@@ -60,7 +60,7 @@ void Window::init()
 	if(fontsOK == -1)
 		Log(Log::DIE) << "Window: Cannot initialise fonts " << TTF_GetError() << SDL_GetError();
 
-#ifdef __EMSCRIPTEN__
+#ifndef DESKTOP
 	glGenVertexArraysOES(1, &vao);
 	glBindVertexArrayOES(vao);
 #else
@@ -71,6 +71,9 @@ void Window::init()
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 #endif
+
+	Log() << "GL_VERSION: " << (char*)glGetString(GL_VERSION);
+	Log() << "GL_SHADING_LANGUAGE_VERSION: " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
 	mConfig = std::make_shared<Config>();
 	global_config = mConfig.get();
@@ -157,19 +160,26 @@ bool Window::onEvent(SDL_Event &event)
 					break;
 			}
 			break;
+		// case SDL_FINGERDOWN:
+		// case SDL_FINGERMOTION:
+		// case SDL_FINGERUP:
 		case SDL_MOUSEBUTTONDOWN:
+			Log() << "Mouse down at: " << event.button.x << ", " << event.button.y;
 			if(onClick(event.button.x, event.button.y))
 				return true;
 			mButtonDown = true;
 			return true;
 		case SDL_MOUSEMOTION:
+			Log() << "Mouse move at: " << event.button.x << ", " << event.button.y;
 			if(mButtonDown)
 			{
 				mDragging = true;
 				return onDrag(event.button.x, event.button.y);
+				Log() << "Finger down at: " << event.tfinger.x << ", " << event.tfinger.y;
 			}
 			return false;
 		case SDL_MOUSEBUTTONUP:
+			Log() << "Mouse up at: " << event.button.x << ", " << event.button.y;
 			mButtonDown = false;
 			if(mDragging)
 			{

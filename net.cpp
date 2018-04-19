@@ -24,7 +24,7 @@ void Net::connect()
 
 	std::string addr = global_config->get("serverAddr");
 	int port;
-	#ifdef __EMSCRIPTEN__
+	#ifdef JS
 		port = std::stoi(global_config->get("serverWSPort"));
 	#else
 		port = std::stoi(global_config->get("serverPort"));
@@ -66,6 +66,7 @@ void Net::loop()
 	short lenr;
 
 	if(SDLNet_CheckSockets(mSocketSet, 0) && SDLNet_SocketReady(mSock))
+	{
 		if((lenr = SDLNet_TCP_Recv(mSock, recvbuf, BUFFSIZE)) > 0)
 		{
 			// Log() << "Net: received: " << recvbuf << " len: " << lenr;
@@ -93,6 +94,7 @@ void Net::loop()
 		}
 		else
 			Log(Log::DIE) << "Net: sever error, lenr = " << lenr;
+	}
 
 	// If nothing to send, return
 	if(global_sharedData->getChanges().empty())
@@ -112,7 +114,7 @@ void Net::loop()
 		if(errno == ENOTCONN)
 		{
 			Log() << "Net: errno == ENOTCONN";
-			#ifdef __EMSCRIPTEN__
+			#ifdef JS
 			mSock = nullptr; // A bit hacky, but its for web
 			#else
 			disconnect();

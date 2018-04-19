@@ -7,7 +7,7 @@
 
 class Shader;
 class Texture;
-class SDL_Surface;
+struct SDL_Surface;
 
 class Map
 {

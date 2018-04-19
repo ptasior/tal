@@ -1,28 +1,51 @@
 #include "window.h"
 #include "log.h"
 
-#ifdef __EMSCRIPTEN__
-#include <emscripten.h>
+#ifdef JS
+	#include <emscripten.h>
+#endif
+
+#ifdef ANDROID
+	#include <SDL.h>
+	#include <unistd.h>
 #endif
 
 Window *global_window;
 
-#ifdef __EMSCRIPTEN__
+#ifdef JS
 void main_loop()
 {
 	global_window->onLoop();
 }
 #endif
 
-int main(int argc, char* args[])
+int main(int argc, char* argv[])
 {
+	Log() << "Starting --------------";
+
+	#ifdef ANDROID
+		chdir("/sdcard/tal/");
+	#endif
+
+	// DIR           *d;
+	// struct dirent *dir;
+	// d = opendir(".");
+    //
+	// if (d)
+	// {
+	// 	while ((dir = readdir(d)) != NULL)
+	// 		Log() << dir->d_name;
+    //
+	// 	closedir(d);
+	// }
+
 	try
 	{
 		Window w;
 		global_window = &w;
 		w.init();
 
-		#ifdef __EMSCRIPTEN__
+		#ifdef JS
 			Log() << "Running Emscripten loop";
 			emscripten_set_main_loop(main_loop, 0, true);
 		#else
