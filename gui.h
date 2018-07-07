@@ -16,6 +16,7 @@ class Checkbox : public Widget
 {
 public:
 	Checkbox(bool s);
+	std::string type();
 	void setChecked(bool s);
 	bool isChecked();
 
@@ -32,6 +33,7 @@ class Scroll : public Widget
 {
 public:
 	Scroll();
+	std::string type();
 
 	virtual void addForeignWidget(Widget* w);
 	virtual void addOwnedWidget(std::shared_ptr<Widget> w);
@@ -56,6 +58,7 @@ class MultiLine : public Widget
 {
 public:
 	MultiLine(std::string text);
+	std::string type();
 	virtual void setText(std::string text);
 	virtual void resize();
 	virtual Label* label(int l);
@@ -72,6 +75,8 @@ class Label : public Widget
 {
 public:
 	Label(std::string text);
+	std::string type();
+	void print(int lvl);
 	virtual void setText(std::string text);
 	virtual const std::string& getText();
 	virtual void setTextColor(int r, int g, int b, int a);
@@ -90,6 +95,7 @@ class Edit : public Label
 {
 public:
 	Edit(std::string text);
+	std::string type();
 	virtual void addText(std::string t);
 	virtual void setText(std::string t);
 	virtual const std::string& getText();
@@ -112,6 +118,7 @@ class Box : public Widget
 {
 public:
 	Box(std::string title);
+	std::string type();
 	virtual void setupChildren();
 	virtual void setTitle(std::string title);
 
@@ -137,6 +144,7 @@ class ButtonBox : public Box
 {
 public:
 	ButtonBox(std::string title);
+	std::string type();
 	virtual void setupChildren();
 
 	virtual void addBottomButton(std::shared_ptr<Widget> w);
@@ -152,6 +160,7 @@ class Console : public Widget
 {
 public:
 	Console();
+	std::string type();
 	void log(std::string &log);
 	void execute(std::string &cmd);
 
@@ -168,6 +177,7 @@ class Button : public Widget
 {
 public:
 	Button(std::string label);
+	std::string type();
 	virtual void setText(std::string t);
 	virtual const std::string& getText();
 
@@ -198,6 +208,7 @@ public:
 
 	void message(std::string title, std::string msg);
 	void showFps();
+	void printWidgets();
 
 private:
 	std::shared_ptr<Widget> mRoot;

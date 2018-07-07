@@ -2,6 +2,7 @@
 #include <glm/glm.hpp>
 #include "gl_header.h"
 #include <memory>
+#include <string>
 
 class Shader;
 class Texture;
@@ -10,6 +11,7 @@ class Sprite
 {
 public:
 	virtual ~Sprite();
+	virtual std::string type();
 	virtual void init(std::string path, std::string shaderName);
 	virtual void setPosition(const glm::mat4 &position);
 	virtual void setShader(const std::string &name);
@@ -36,5 +38,6 @@ protected:
 	float mHeight=1;
 	unsigned int mRepeatX=1;
 	unsigned int mRepeatY=1;
+	std::string mPath;
 };
 

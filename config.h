@@ -1,6 +1,9 @@
 #pragma once
 #include <sol.hpp>
 
+#define ANDROID_DATA_PATH "/sdcard/tal/"
+#define CONFIG_FILE_LOCATION "game/config.lua"
+
 class Config
 {
 public:

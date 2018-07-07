@@ -1,5 +1,6 @@
 #include "window.h"
 #include "log.h"
+#include "config.h"
 
 #ifdef JS
 	#include <emscripten.h>
@@ -24,7 +25,7 @@ int main(int argc, char* argv[])
 	Log() << "Starting --------------";
 
 	#ifdef ANDROID
-		chdir("/sdcard/tal/");
+		chdir(ANDROID_DATA_PATH);
 	#endif
 
 	// DIR           *d;

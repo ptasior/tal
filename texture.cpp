@@ -91,7 +91,7 @@ void Texture::init(const char *path, Shader *shader)
 	else // Regular image
 	{
 		#ifdef ANDROID
-			std::string tmpp = "/sdcard/tal/";
+			std::string tmpp = ANDROID_DATA_PATH;
 			res_texture = IMG_Load((tmpp+path).c_str());
 		#else
 			res_texture = IMG_Load(path);

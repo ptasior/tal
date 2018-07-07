@@ -42,6 +42,8 @@ function main_sharedDataUpdate(line)
 	for i=1,#global_sharedDataListeners do
 		global_sharedDataListeners[i](line);
 	end
+
+	global_sharedDataListeners = {};
 end
 
 function main_executeAwaiting()
@@ -59,6 +61,10 @@ function main_executeAwaiting()
 	for i=1,#global_toExecute do
 		global_toExecute[i]();
 	end
+
+	global_toExecuteStrings = {};
+	global_toExecuteLua = {};
+	global_toExecute = {};
 end
 
 main_coroutine = coroutine.create(function()

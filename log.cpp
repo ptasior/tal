@@ -17,18 +17,17 @@ Log::Log(Action a):
 {
 	if(mAction == DIE)
 	{
-		// write("---Fatal-error--------------------------");
-		// write(Log::endl);
+		std::cerr << "---Fatal-error--------------------------" << std::endl;
 	}
 }
 
 Log::~Log()
 {
-	write(Log::endl);
+	flush();
+
 	if(mAction == DIE)
 	{
-		// write("----------------------------------------");
-		write(Log::endl);
+		std::cerr << "----------------------------------------" << std::endl;
 		#ifdef JS
 		emscripten_cancel_main_loop();
 		#endif
@@ -103,24 +102,25 @@ Log& Log::operator << (char val)
 	return *this;
 }
 
-
 void Log::write(const char* str)
 {
-	if(mAction == ERR || mAction == DIE)
-		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", str, NULL);
-
-
-	// 	std::cerr << str;
-	// else
-	// 	std::cout << str;
-
-#ifdef ANDROID
-	__android_log_print(ANDROID_LOG_DEBUG, "tal", "%s", str);
-#endif
+	mMessage += str;
 }
 
 void Log::flush()
 {
-	// std::cout << std::flush;
+#ifdef ANDROID
+	__android_log_print(ANDROID_LOG_DEBUG, "tal", "%s", mMessage.c_str());
+#else
+	if(mAction == ERR || mAction == DIE)
+		std::cerr << mMessage;
+	else
+		std::cout << mMessage;
+
+	std::cout << std::endl;
+#endif
+
+	if(mAction == ERR || mAction == DIE)
+		SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Error", mMessage.c_str(), NULL);
 }
 

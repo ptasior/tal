@@ -25,6 +25,8 @@ Sprite::~Sprite()
 
 void Sprite::init(std::string path, std::string shaderName)
 {
+	mPath = path;
+
 	GLfloat vertices[] = {
 		-mWidth, -mHeight,  0.0,
 		 mWidth, -mHeight,  0.0,
@@ -172,5 +174,10 @@ void Sprite::setTextureRepeat(unsigned int x, unsigned int y)
 	glGenBuffers(1, &vbo_texcoords);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo_texcoords);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords), texcoords, GL_STATIC_DRAW);
+}
+
+std::string Sprite::type()
+{
+	return std::string("Sprite: p:") + mPath + " s:" +mShader->getName();
 }
 

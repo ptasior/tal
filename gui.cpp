@@ -48,6 +48,12 @@ bool Checkbox::isChecked()
 	return mChecked;
 }
 
+
+std::string Checkbox::type()
+{
+	return "Checkbox";
+}
+
 //------------------------------------------------------------------------------
 class ScrollContent : public Widget
 {
@@ -194,7 +200,10 @@ void Scroll::clear()
 	static_cast<ScrollContent*>(mContent.get())->clear();
 }
 
-
+std::string Scroll::type()
+{
+	return "Scroll";
+}
 
 //------------------------------------------------------------------------------
 MultiLine::MultiLine(std::string text)
@@ -263,6 +272,11 @@ int MultiLine::linesCount()
 	return mLabels.size();
 }
 
+std::string MultiLine::type()
+{
+	return "MultiLine";
+}
+
 //------------------------------------------------------------------------------
 Label::Label(std::string text):
 	Widget("")
@@ -311,6 +325,29 @@ void Label::setTextColor(int r, int g, int b, int a)
 	mColor.y = g;
 	mColor.z = b;
 	mColor.w = a;
+}
+
+std::string Label::type()
+{
+	return std::string("Label: ")+mText;
+}
+
+void Label::print(int lvl)
+{
+	std::string idn;
+	for(int i = 0; i < lvl; i++)
+		idn = idn + " ";
+	Log() << idn << type()
+			<< " l:" << mLeft
+			<< " lo:" << mLeftOffset
+			<< " t:" << mTop
+			<< " to:" << mTopOffset
+			<< " w:" << mWidth
+			<< " h:" << mHeight
+			<< " v:" << mVisible
+			<< " l:" << mLuaOwned
+			;
+	// Block further displaying
 }
 
 //------------------------------------------------------------------------------
@@ -363,6 +400,11 @@ void Edit::setText(std::string t)
 void Edit::setOnReturn(std::function<void(void)> fnc)
 {
 	mOnReturn = fnc;
+}
+
+std::string Edit::type()
+{
+	return "Edit";
 }
 
 //------------------------------------------------------------------------------
@@ -487,6 +529,11 @@ void Box::setPadding(unsigned int h, unsigned int v)
 	mContent->setPadding(h, v);
 }
 
+std::string Box::type()
+{
+	return "Box";
+}
+
 //------------------------------------------------------------------------------
 ButtonBox::ButtonBox(std::string title):
 	 Box(title)
@@ -521,6 +568,11 @@ void ButtonBox::addForeignBottomButton(Button* w)
 	mButtonWidget->addForeignWidget(w);
 }
 
+std::string ButtonBox::type()
+{
+	return "ButtonBox";
+}
+
 //------------------------------------------------------------------------------
 Button::Button(std::string label):
 	 Widget("")
@@ -544,6 +596,11 @@ const std::string& Button::getText()
 void Button::setText(std::string t)
 {
 	mLabel->setText(t);
+}
+
+std::string Button::type()
+{
+	return "Button";
 }
 
 //------------------------------------------------------------------------------
@@ -588,6 +645,11 @@ void Console::log(std::string &log)
 
 	for(unsigned int i = 0; i < mLines.size(); i++)
 		mLabels[i]->setText(mLines[i]);
+}
+
+std::string Console::type()
+{
+	return "Console";
 }
 
 //------------------------------------------------------------------------------
@@ -725,3 +787,7 @@ void Gui::showFps()
 	}
 }
 
+void Gui::printWidgets()
+{
+	mRoot->print();
+}

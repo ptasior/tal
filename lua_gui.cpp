@@ -68,7 +68,8 @@ void Lua::initGui(Gui *gui)
 			"getSceneWidth", &Gui::getSceneWidth,
 			"getSceneHeight", &Gui::getSceneHeight,
 			"message", &Gui::message,
-			"showFps", &Gui::showFps
+			"showFps", &Gui::showFps,
+			"printWidgets", &Gui::printWidgets
 		);
 
 	mState.new_usertype<MultiLine>("MultiLine",

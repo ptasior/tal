@@ -289,6 +289,14 @@ bool Widget::isPositionOver(int x, int y)
 {
 	int l, t, w, h;
 	std::tie(l, t, w, h) = getRect();
+	Log() << "isPositionOver " << type()
+		<< " x: " << x
+		<< " y: " << y
+		<< " l: " << l
+		<< " t: " << t
+		<< " w: " << w
+		<< " h: " << h
+		<< " res: " << (l < x && x < w && t < y && y < h);
 
 	return l < x && x < w && t < y && y < h;
 }
@@ -299,6 +307,7 @@ bool Widget::click(int x, int y)
 
 	if(!isPositionOver(x, y)) return false;
 
+	Log() << "Click true ";
 	focus();
 
 	for(auto w : reverse(mWidgets))
@@ -311,11 +320,13 @@ bool Widget::click(int x, int y)
 
 	if(mOnClick)
 	{
+	Log() << "onclick true ";
 		mOnClick();
 		return true;
 	}
 	if(mOnClickLua.size())
 	{
+	Log() << "lua onclick true ";
 		mOnClickLua[0]();
 		return true;
 	}
@@ -447,5 +458,35 @@ void Widget::setTextureRepeat(unsigned int x, unsigned int y)
 {
 	if(mSprite)
 		mSprite->setTextureRepeat(x,y);
+}
+
+void Widget::print(int lvl)
+{
+	std::string idn;
+	for(int i = 0; i < lvl; i++)
+		idn = idn + " ";
+	Log() << idn << type()
+			<< " l:" << mLeft
+			<< " lo:" << mLeftOffset
+			<< " t:" << mTop
+			<< " to:" << mTopOffset
+			<< " w:" << mWidth
+			<< " h:" << mHeight
+			<< " v:" << mVisible
+			<< " l:" << mLuaOwned
+			;
+
+	for(auto w : mWidgets)
+		w->print(lvl+1);
+
+	for(auto w : mForeignWidgets)
+		w->print(lvl+1);
+}
+
+std::string Widget::type()
+{
+	if(!mSprite)
+		return std::string("Widget");
+	return std::string("Widget (")+mSprite->type()+")";
 }
 

@@ -24,6 +24,8 @@ public:
 
 private:
 	void write(const char* str);
+
+	std::string mMessage;
 	Action mAction;
 };
 
