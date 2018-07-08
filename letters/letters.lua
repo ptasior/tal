@@ -134,7 +134,7 @@ function perform(card)
 		return msg..' and is protected';
 
 	elseif(card == 5) then
-		local all_players = playersToPick(false);
+		local all_players = playersToPick(true);
 		if(#all_players == 0) then
 			GuiHelpers:message('All players are protected');
 			return msg..'but all players were protected';
