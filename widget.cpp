@@ -3,6 +3,7 @@
 #include "sprite_gui.h"
 #include "shader.h"
 #include "lua.h"
+#include "reverse_it.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -300,11 +301,11 @@ bool Widget::click(int x, int y)
 
 	focus();
 
-	for(auto w :mWidgets)
+	for(auto w : reverse(mWidgets))
 		if(w->click(x, y))
 			return true;
 
-	for(auto w :mForeignWidgets)
+	for(auto w : reverse(mForeignWidgets))
 		if(w->click(x, y))
 			return true;
 
