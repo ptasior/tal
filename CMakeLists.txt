@@ -60,7 +60,7 @@ add_custom_target(symlinks ALL
 # -----------------------------------------------------------------------------
 if("${JS}")
 	add_custom_target(html_symlinks ALL
-			COMMAND cp ${PROJECT_SOURCE_DIR}/tools/game.html .
+			COMMAND cp ${PROJECT_SOURCE_DIR}/tools/game.html index.html
 			WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 		)
 
