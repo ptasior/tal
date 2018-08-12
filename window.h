@@ -51,6 +51,8 @@ private:
 	std::shared_ptr<Gui> mGui;
 	std::shared_ptr<Config> mConfig;
 	std::shared_ptr<SharedData> mSharedData;
+
+	SDL_Event mEvent;
 };
 
 extern Window *global_window;

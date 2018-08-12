@@ -289,14 +289,6 @@ bool Widget::isPositionOver(int x, int y)
 {
 	int l, t, w, h;
 	std::tie(l, t, w, h) = getRect();
-	Log() << "isPositionOver " << type()
-		<< " x: " << x
-		<< " y: " << y
-		<< " l: " << l
-		<< " t: " << t
-		<< " w: " << w
-		<< " h: " << h
-		<< " res: " << (l < x && x < w && t < y && y < h);
 
 	return l < x && x < w && t < y && y < h;
 }
@@ -307,7 +299,6 @@ bool Widget::click(int x, int y)
 
 	if(!isPositionOver(x, y)) return false;
 
-	Log() << "Click true ";
 	focus();
 
 	for(auto w : reverse(mWidgets))
@@ -320,13 +311,11 @@ bool Widget::click(int x, int y)
 
 	if(mOnClick)
 	{
-	Log() << "onclick true ";
 		mOnClick();
 		return true;
 	}
 	if(mOnClickLua.size())
 	{
-	Log() << "lua onclick true ";
 		mOnClickLua[0]();
 		return true;
 	}

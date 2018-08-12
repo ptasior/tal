@@ -104,6 +104,12 @@ void Window::init()
 	Lua::getInstance()->initScene(mScene.get());
 	Lua::getInstance()->setup();
 
+#ifdef ANDROID
+	// Android at start does not emit window resize event
+	SDL_GetWindowSize(mWindow, &mScreenWidth, &mScreenHeight);
+	onResize(mScreenWidth, mScreenHeight);
+#endif
+
 	Log() << "Window: Initialisation succesed";
 }
 
@@ -164,22 +170,18 @@ bool Window::onEvent(SDL_Event &event)
 		// case SDL_FINGERMOTION:
 		// case SDL_FINGERUP:
 		case SDL_MOUSEBUTTONDOWN:
-			Log() << "Mouse down at: " << event.button.x << ", " << event.button.y;
 			if(onClick(event.button.x, event.button.y))
 				return true;
 			mButtonDown = true;
 			return true;
 		case SDL_MOUSEMOTION:
-			Log() << "Mouse move at: " << event.button.x << ", " << event.button.y;
 			if(mButtonDown)
 			{
 				mDragging = true;
 				return onDrag(event.button.x, event.button.y);
-				Log() << "Finger down at: " << event.tfinger.x << ", " << event.tfinger.y;
 			}
 			return false;
 		case SDL_MOUSEBUTTONUP:
-			Log() << "Mouse up at: " << event.button.x << ", " << event.button.y;
 			mButtonDown = false;
 			if(mDragging)
 			{
@@ -221,14 +223,12 @@ void Window::loop()
 
 void Window::onLoop()
 {
-	static SDL_Event event; // This SHOULD be safe
-
 	Time::registerNextFrame();
 
-	if(SDL_PollEvent(&event))
+	if(SDL_PollEvent(&mEvent))
 	{
-		!onEvent(event) && // If event was handled in Gui, do not pass it to the camera
-			mCamera->onEvent(event);
+		!onEvent(mEvent) && // If event was handled in Gui, do not pass it to the camera
+			mCamera->onEvent(mEvent);
 	}
 
 	if(!mGui->grabsFocus())
@@ -254,7 +254,7 @@ void Window::onPaint()
 	// glEnable(GL_CULL_FACE);
 	mScene->paint();
 
-	// // glDisable(GL_CULL_FACE);
+	// glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	mGui->paint();
 
@@ -266,6 +266,8 @@ void Window::onResize(int width, int height)
 	mScreenWidth = width;
 	mScreenHeight = height;
 	glViewport(0, 0, mScreenWidth, mScreenHeight);
+
+	Log() << "Window: Resize width: " << width << " height: " << height;
 
 	mCamera->setSceneSize(mScreenWidth, mScreenHeight);
 	mGui->setSceneSize(mScreenWidth, mScreenHeight);
