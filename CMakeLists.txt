@@ -44,6 +44,7 @@ set (SOURCE_FILES
 		time.cpp
 		config.cpp
 		shared_data.cpp
+		data_reader.cpp
 	)
 
 
