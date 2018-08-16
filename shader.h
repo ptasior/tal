@@ -35,7 +35,6 @@ private:
 
 	GLuint loadShader(const char * file, GLenum type);
 	void readVariables();
-	std::string readFile(const char* filename);
 	std::string getGlLog(GLuint object);
 	void useProgram();
 

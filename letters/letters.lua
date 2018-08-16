@@ -299,12 +299,12 @@ function updateHand()
 
 	if(c and c ~= '') then
 		myCard:setVisible(true);
-		myCard:setTexture('game/assets/c'..c..'.png');
+		myCard:setTexture('letters/assets/c'..c..'.png');
 	end
 
 	if(drawnCardValue and drawnCardValue ~= '') then
 		drawnCard:setVisible(true);
-		drawnCard:setTexture('game/assets/c'..drawnCardValue..'.png');
+		drawnCard:setTexture('letters/assets/c'..drawnCardValue..'.png');
 	end
 end
 
@@ -362,7 +362,7 @@ function setup()
 	gui:rootWidget():addWidget(drawnCard);
 
 	statusBar = Widget.new('');
-	statusBar:setTexture('game/assets/banner.png');
+	statusBar:setTexture('letters/assets/banner.png');
 	statusBar:setLayout(2);
 	statusBar:setCenter(true);
 	statusBar:setPadding(0, 30);
@@ -370,11 +370,11 @@ function setup()
 	statusBar:addMultiLine(statusLabel);
 	gui:rootWidget():addWidget(statusBar);
 
-	gui:rootWidget():setTexture("game/assets/bg.png");
+	gui:rootWidget():setTexture("letters/assets/bg.png");
 	gui:rootWidget():setTextureRepeat(3,3);
 
 	newGame = Widget.new('');
-	newGame:setTexture('game/assets/new_game.png');
+	newGame:setTexture('letters/assets/new_game.png');
 	newGame:onClickLua(function() game:start() end);
 	gui:rootWidget():addWidget(newGame);
 
@@ -396,7 +396,7 @@ function updatePlayersWidget()
 		if(#playersWidgets < i) then
 			playersWidgets[i] = {};
 			playersWidgets[i]['bg'] = Widget.new('');
-			playersWidgets[i]['bg']:setTexture('game/assets/player.png');
+			playersWidgets[i]['bg']:setTexture('letters/assets/player.png');
 			playersWidgets[i]['bg']:setLayout(2);
 			playersWidgets[i]['bg']:setCenter(true);
 			playersWidgets[i]['bg']:setPadding(15, 20);
@@ -417,7 +417,7 @@ function updatePlayersWidget()
 		end
 
 		if(pl[i] == players.meName and not hasKey(playersWidgets[i], 'me')) then
-			playersWidgets[i]['bg']:setTexture('game/assets/player_me.png');
+			playersWidgets[i]['bg']:setTexture('letters/assets/player_me.png');
 		end
 
 		if(pl[i] == game:whoseTurn()) then

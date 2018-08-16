@@ -53,17 +53,17 @@ if (NOT "${ANDROID}")
 	# 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/talisman game
 	# 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	# 	)
-
-	add_custom_target (game_symlinks ALL
-			COMMAND ln -sf ${PROJECT_SOURCE_DIR}/test game
-			WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-		)
-
-	add_custom_target (symlinks ALL
-			COMMAND ln -sf ${PROJECT_SOURCE_DIR}/shaders .
-			COMMAND ln -sf ${PROJECT_SOURCE_DIR}/lua_lib .
-			WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
-		)
+    #
+	# add_custom_target (game_symlinks ALL
+	# 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/test game
+	# 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	# 	)
+    #
+	# add_custom_target (symlinks ALL
+	# 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/shaders .
+	# 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/lua_lib .
+	# 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	# 	)
 endif ()
 
 # -----------------------------------------------------------------------------

@@ -2,6 +2,7 @@
 #include "shader.h"
 #include "log.h"
 #include "config.h"
+#include "data_reader.h"
 #if defined(JS) || defined(ANDROID)
 	#include <SDL_ttf.h>
 	#include <SDL_image.h>
@@ -44,7 +45,11 @@ void Texture::init(const char *path, Shader *shader)
 	{
 		// TODO mutex
 		auto fontName = global_config->get("font");
-		static TTF_Font* font = TTF_OpenFont(fontName.c_str(), SIZE);
+
+		std::vector<char> data = global_dataReader->read(fontName);
+		auto rw = SDL_RWFromConstMem(data.data(),data.size());
+
+		static TTF_Font* font = TTF_OpenFontRW(rw, 1, SIZE);
 		static TTF_Font* fontOutline = TTF_OpenFont(fontName.c_str(), SIZE);
 
 		if(!font)
@@ -90,12 +95,8 @@ void Texture::init(const char *path, Shader *shader)
 	}
 	else // Regular image
 	{
-		#ifdef ANDROID
-			std::string tmpp = ANDROID_DATA_PATH;
-			res_texture = IMG_Load((tmpp+path).c_str());
-		#else
-			res_texture = IMG_Load(path);
-		#endif
+		std::vector<char> data = global_dataReader->read(path);
+		res_texture = IMG_Load_RW(SDL_RWFromConstMem(data.data(),data.size()), 1);
 
 		if(!res_texture)
 			Log(Log::DIE) << "Texture: IMG_Load: " << SDL_GetError();

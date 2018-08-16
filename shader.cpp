@@ -1,7 +1,7 @@
 #include "shader.h"
 #include "gl_header.h"
 #include "log.h"
-#include <fstream>
+#include "data_reader.h"
 #include <vector>
 #include <cassert>
 
@@ -89,11 +89,11 @@ void Shader::readVariables()
 #endif
 }
 
-GLuint Shader::loadShader(const char * file, GLenum type)
+GLuint Shader::loadShader(const char *file, GLenum type)
 {
 	GLuint shader = glCreateShader(type);
 
-	std::string lines = readFile(file);
+	std::string lines = global_dataReader->readString(file);
 	auto ptr = lines.c_str();
 
 	const char* precision =
@@ -126,17 +126,6 @@ GLuint Shader::loadShader(const char * file, GLenum type)
 					  << ")\n" << getGlLog(shader);
 
 	return shader;
-}
-
-
-std::string Shader::readFile(const char* filename)
-{
-	std::ifstream t(filename);
-	if(t.fail())
-		Log(Log::DIE) << "Shader: Cannot open " << filename;
-
-	return std::string((std::istreambuf_iterator<char>(t)),
-					 std::istreambuf_iterator<char>());
 }
 
 

@@ -56,12 +56,12 @@ DataReader::DataReader(std::string name)
 
 	if((uint32_t)m_file.tellg() != headerStop)
 		Log(Log::DIE) << "DataReader: First file index not immediately after header "
-				<< " headerStop: "<< headerStop << " file pos: " << m_file.tellg();
+				<< " headerStop: "<< headerStop << " file pos: " << (uint32_t)m_file.tellg();
 
 	m_file.seekg(0, std::ios_base::end); // Move to the end of file
 	if((uint32_t)m_file.tellg() != start + stop)
 			Log(Log::DIE) << "DataReader: File size different than declared "
-				<< " fileSize: "<< m_file.tellg() << " last file end: " << start + stop;
+				<< " fileSize: "<< (uint32_t)m_file.tellg() << " last file end: " << start + stop;
 
 	Log() << "DataReader: file read: " << name;
 }
