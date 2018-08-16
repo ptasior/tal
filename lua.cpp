@@ -10,6 +10,7 @@
 #include "time.h"
 #include "config.h"
 #include "shared_data.h"
+#include "data_reader.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -20,6 +21,14 @@ void Lua::logFnc(std::string s)
 	Log() << "-- " << s;
 	// Gui* gui = getInstance()->mGui;
 	// if(gui) gui->getConsole()->log(s);
+}
+
+sol::object Lua::requireScript(std::string s)
+{
+	std::string data = global_dataReader->readString(s+".lua");
+	std::replace(s.begin(), s.end(), '/', '_'); // Convert / to _ as module name must be legit
+
+	return getInstance()->mState.require_script(s, data);
 }
 
 Lua* Lua::getInstance()
@@ -64,6 +73,7 @@ Lua::Lua()
 					);
 
 
+	mState["requireScript"] = &Lua::requireScript;
 	mState["log"] = &Lua::logFnc;
 	mState["wireframe"] = &Lua::wireframe;
 	mState["setLoopResolution"] = &Lua::setLoopResolution;
@@ -96,11 +106,11 @@ void Lua::setup()
 {
 	mState.set_panic(luaPanic);
 
-	auto m = mState.script_file("lua_lib/main.lua");
+	auto m = mState.script(global_dataReader->readString("lua_lib/main.lua"));
 	if(!m.valid())
 		Log(Log::DIE) << "Lua: cannot load main.lua";
 
-	auto g = mState.script_file(global_config->get("gameFile").c_str());
+	auto g = mState.script(global_dataReader->readString(global_config->get("gameFile").c_str()));
 	if(!g.valid())
 		Log(Log::DIE) << "Lua: cannot load " << global_config->get("gameFile");
 

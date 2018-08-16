@@ -10,6 +10,7 @@
 #include "time.h"
 #include "config.h"
 #include "shared_data.h"
+#include "data_reader.h"
 #include <thread>
 #include <chrono>
 
@@ -27,6 +28,15 @@ Window::Window()
 
 void Window::init()
 {
+	// TODO Make it configurable / read from config
+	mDataReader = std::make_shared<DataReader>("../output/letters.game");
+	global_dataReader = mDataReader.get();
+
+	mConfig = std::make_shared<Config>();
+	global_config = mConfig.get();
+
+
+
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	SDL_GL_SetSwapInterval(0);
@@ -42,7 +52,7 @@ void Window::init()
 		Log(Log::DIE) << "Window: SDL could not initialize! SDL_Error: " << SDL_GetError();
 
 	//Create window
-	mWindow = SDL_CreateWindow("SDL Window", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+	mWindow = SDL_CreateWindow(mConfig->get("windowName", "Game").c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 							mScreenWidth, mScreenHeight,
 							SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if(!mWindow)
@@ -75,16 +85,13 @@ void Window::init()
 	Log() << "GL_VERSION: " << (char*)glGetString(GL_VERSION);
 	Log() << "GL_SHADING_LANGUAGE_VERSION: " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-	mConfig = std::make_shared<Config>();
-	global_config = mConfig.get();
-
 	mSharedData = std::make_shared<SharedData>();
 	global_sharedData = mSharedData.get();
 
 	mNet = std::make_shared<Net>();
 
 	// TODO How to make sure we have received self registration before entering Lua?
-	if(mConfig->get("offline") == "false")
+	if(!mConfig->getBool("offline"))
 		mNet->connect();
 
 	mCamera = std::make_shared<RotatingCamera>();

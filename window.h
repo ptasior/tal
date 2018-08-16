@@ -9,6 +9,7 @@ class Net;
 class Gui;
 class Config;
 class SharedData;
+class DataReader;
 
 class Window
 {
@@ -51,6 +52,7 @@ private:
 	std::shared_ptr<Gui> mGui;
 	std::shared_ptr<Config> mConfig;
 	std::shared_ptr<SharedData> mSharedData;
+	std::shared_ptr<DataReader> mDataReader;
 
 	SDL_Event mEvent;
 };

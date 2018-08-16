@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <map>
+#include <vector>
 
 /**
 	DataReader r("../qq.dat");
@@ -14,7 +15,8 @@ public:
 	DataReader(std::string name);
 	~DataReader();
 
-	std::string read(std::string file) const;
+	std::vector<char> read(std::string file) const;
+	std::string readString(std::string file) const;
 
 private:
 	struct Pos
@@ -26,4 +28,6 @@ private:
 	std::map<std::string, Pos> m_positions;
 	mutable std::ifstream m_file;
 };
+
+extern DataReader *global_dataReader;
 

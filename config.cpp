@@ -1,21 +1,37 @@
 #include "config.h"
+#include "data_reader.h"
 #include "log.h"
 
 Config::Config()
 {
-	sol::load_result r = mState.load_file(CONFIG_FILE_LOCATION);
+	std::string data = global_dataReader->readString(CONFIG_FILE_LOCATION);
+	auto r = mState.script(data);
+
 	if(!r.valid())
 		Log(Log::DIE) << "Config: Error while loading " CONFIG_FILE_LOCATION;
 
-	r();
 	Log() << "Config: Initialised";
 }
 
-std::string Config::get(std::string key)
+std::string Config::get(std::string key) const
 {
-	std::string t = mState[key.c_str()];
+	// std::string t = mState[key.c_str()];
 	// Log() << "Config: key: " << key << " = " << t;
-	return mState[key.c_str()];
+	return mState[key.c_str()].get<std::string>();
+}
+
+std::string Config::get(std::string key, std::string defaultVal) const
+{
+	auto t = mState[key.c_str()];
+	// Log() << "Config (default): key: " << key << " = " << t.get<std::string>();
+	return t != sol::nil ? t.get<std::string>() : defaultVal;
+}
+
+bool Config::getBool(std::string key) const
+{
+	// std::string t = mState[key.c_str()];
+	// Log() << "Config (bool): key: " << key << " = " << t;
+	return mState[key.c_str()].get<bool>();
 }
 
 std::string Config::operator[](std::string key)

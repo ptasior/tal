@@ -30,6 +30,7 @@ private:
 
 	Lua();
 
+	static sol::object requireScript(std::string s);
 	static void updateAwaitingExecution();
 	static void logFnc(std::string s);
 	static void wireframe();

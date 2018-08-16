@@ -1,12 +1,13 @@
-class = require('lua_lib/class')
-var_dump = require('lua_lib/var_dump')
-require('lua_lib/functions')
+class = requireScript('lua_lib/class')
 
-GuiHelpers = require('lua_lib/gui_helpers')
-Cards = require('lua_lib/cards')
-Game = require('lua_lib/game')
-Players = require('lua_lib/players')
-Server = require('lua_lib/server')
+var_dump = requireScript('lua_lib/var_dump')
+requireScript('lua_lib/functions')
+
+GuiHelpers = requireScript('lua_lib/gui_helpers')
+Cards = requireScript('lua_lib/cards')
+Game = requireScript('lua_lib/game')
+Players = requireScript('lua_lib/players')
+Server = requireScript('lua_lib/server')
 
 server = nil;
 players = nil;
@@ -165,7 +166,7 @@ function perform(card)
 	elseif(card == 8) then
 		players:lose(players.meName);
 		return msg..' and lost';
-	
+
 	else
 		log('Perform: No such card'..card);
 
