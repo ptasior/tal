@@ -12,6 +12,7 @@
 #include "global.h"
 #include "shared_data.h"
 #include "data_reader.h"
+#include "file_utils.h"
 #include <thread>
 #include <chrono>
 
@@ -19,10 +20,6 @@
 	#include <SDL2/SDL_ttf.h>
 #else
 	#include <SDL_ttf.h>
-#endif
-
-#ifdef ANDROID
-	#include "android_helpers.h"
 #endif
 
 Config* global_config = nullptr;
@@ -34,11 +31,7 @@ Window::Window()
 void Window::init()
 {
 	// TODO Make it configurable / read from config
-#ifdef ANDROID
-	Global::init<DataReader>(new DataReader(androidTempFolder()+"/data.game"));
-#else
-	Global::init<DataReader>(new DataReader("data.game"));
-#endif
+	Global::init<DataReader>(new DataReader(FileUtils::dataFolderLocation()+"/data.game"));
 
 	mConfig = std::make_shared<Config>();
 	global_config = mConfig.get();

@@ -23,22 +23,6 @@ int main(int argc, char* argv[])
 {
 	Log() << "Starting --------------";
 
-	#ifdef ANDROID
-		// chdir(ANDROID_DATA_PATH);
-	#endif
-
-	// DIR           *d;
-	// struct dirent *dir;
-	// d = opendir(".");
-    //
-	// if (d)
-	// {
-	// 	while ((dir = readdir(d)) != NULL)
-	// 		Log() << dir->d_name;
-    //
-	// 	closedir(d);
-	// }
-
 	try
 	{
 		Global::init<Window>(new Window());

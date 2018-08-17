@@ -11,16 +11,16 @@ public:
 	template<class T>
     static T* get()
 	{
-		return instance<T>.get();
+		return getInstance<T>().get();
 	}
 
 	template<class T>
     static void init(T* t)
 	{
-		if(instance<T>)
+		if(getInstance<T>())
 			Log(Log::DIE) << "Global: type already initialised";
 
-		instance<T>.reset(t);
+		getInstance<T>().reset(t);
 	}
 
 	Global(const Global&) = delete;
@@ -30,6 +30,10 @@ protected:
     Global() {};
 
 	template<class T>
-	static std::unique_ptr<T> instance;
+	static std::unique_ptr<T>& getInstance()
+	{
+		static std::unique_ptr<T> instance;
+		return instance;
+	}
 };
 
