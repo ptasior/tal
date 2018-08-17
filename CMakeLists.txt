@@ -138,6 +138,7 @@ elseif ("${ANDROID}")
 
 	add_library (${PROJECT_NAME} SHARED
 			${PROJECT_SOURCE_DIR}/lib/SDL2/SDL2/src/main/android/SDL_android_main.c
+			${PROJECT_SOURCE_DIR}/android_helpers.cpp
 			${SOURCE_FILES}
 		)
 
