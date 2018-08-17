@@ -29,5 +29,3 @@ private:
 	mutable std::ifstream m_file;
 };
 
-extern DataReader *global_dataReader;
-

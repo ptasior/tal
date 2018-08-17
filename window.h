@@ -57,5 +57,3 @@ private:
 	SDL_Event mEvent;
 };
 
-extern Window *global_window;
-

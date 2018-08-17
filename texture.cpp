@@ -2,6 +2,7 @@
 #include "shader.h"
 #include "log.h"
 #include "config.h"
+#include "global.h"
 #include "data_reader.h"
 #if defined(JS) || defined(ANDROID)
 	#include <SDL_ttf.h>
@@ -29,7 +30,6 @@ Texture::~Texture()
 {
 	glDeleteTextures(1, &mTextureId);
 }
-extern int global_int;
 
 void Texture::init(const char *path, Shader *shader)
 {
@@ -46,7 +46,7 @@ void Texture::init(const char *path, Shader *shader)
 		// TODO mutex
 		auto fontName = global_config->get("font");
 
-		std::vector<char> data = global_dataReader->read(fontName);
+		std::vector<char> data = Global::get<DataReader>()->read(fontName);
 		auto rw = SDL_RWFromConstMem(data.data(),data.size());
 
 		static TTF_Font* font = TTF_OpenFontRW(rw, 1, SIZE);
@@ -95,7 +95,7 @@ void Texture::init(const char *path, Shader *shader)
 	}
 	else // Regular image
 	{
-		std::vector<char> data = global_dataReader->read(path);
+		std::vector<char> data = Global::get<DataReader>()->read(path);
 		res_texture = IMG_Load_RW(SDL_RWFromConstMem(data.data(),data.size()), 1);
 
 		if(!res_texture)

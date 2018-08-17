@@ -1,6 +1,7 @@
 #include "window.h"
 #include "log.h"
 #include "config.h"
+#include "global.h"
 
 #ifdef JS
 	#include <emscripten.h>
@@ -11,12 +12,10 @@
 	#include <unistd.h>
 #endif
 
-Window *global_window;
-
 #ifdef JS
 void main_loop()
 {
-	global_window->onLoop();
+	Global::get<Window>()->onLoop();
 }
 #endif
 
@@ -25,7 +24,7 @@ int main(int argc, char* argv[])
 	Log() << "Starting --------------";
 
 	#ifdef ANDROID
-		chdir(ANDROID_DATA_PATH);
+		// chdir(ANDROID_DATA_PATH);
 	#endif
 
 	// DIR           *d;
@@ -42,15 +41,14 @@ int main(int argc, char* argv[])
 
 	try
 	{
-		Window w;
-		global_window = &w;
-		w.init();
+		Global::init<Window>(new Window());
+		Global::get<Window>()->init();
 
 		#ifdef JS
 			Log() << "Running Emscripten loop";
 			emscripten_set_main_loop(main_loop, 0, true);
 		#else
-			global_window->loop();
+			Global::get<Window>()->loop();
 		#endif
 	}
 	catch(const std::exception& e)

@@ -1,10 +1,11 @@
 #include "config.h"
+#include "global.h"
 #include "data_reader.h"
 #include "log.h"
 
 Config::Config()
 {
-	std::string data = global_dataReader->readString(CONFIG_FILE_LOCATION);
+	std::string data = Global::get<DataReader>()->readString(CONFIG_FILE_LOCATION);
 	auto r = mState.script(data);
 
 	if(!r.valid())

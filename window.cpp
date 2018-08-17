@@ -9,6 +9,7 @@
 #include "lua.h"
 #include "time.h"
 #include "config.h"
+#include "global.h"
 #include "shared_data.h"
 #include "data_reader.h"
 #include <thread>
@@ -20,6 +21,10 @@
 	#include <SDL_ttf.h>
 #endif
 
+#ifdef ANDROID
+	#include "android_helpers.h"
+#endif
+
 Config* global_config = nullptr;
 SharedData* global_sharedData = nullptr;
 
@@ -29,12 +34,14 @@ Window::Window()
 void Window::init()
 {
 	// TODO Make it configurable / read from config
-	mDataReader = std::make_shared<DataReader>("../output/letters.game");
-	global_dataReader = mDataReader.get();
+#ifdef ANDROID
+	Global::init<DataReader>(new DataReader(androidTempFolder()+"/data.game"));
+#else
+	Global::init<DataReader>(new DataReader("data.game"));
+#endif
 
 	mConfig = std::make_shared<Config>();
 	global_config = mConfig.get();
-
 
 
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
@@ -212,6 +219,7 @@ bool Window::onEvent(SDL_Event &event)
 
 void Window::loop()
 {
+#if ! defined(ANDROID) // Throttled loop crashes Android
 	if(!global_config->get("loopSleep").empty())
 	{
 		Log() << "Window: Entering throttled loop";
@@ -224,8 +232,12 @@ void Window::loop()
 		}
 	}
 	else
+#endif
+	{
+		Log() << "Window: Entering loop";
 		while (!mQuit)
 			onLoop();
+	}
 }
 
 void Window::onLoop()

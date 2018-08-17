@@ -1,6 +1,7 @@
 #include "shader.h"
 #include "gl_header.h"
 #include "log.h"
+#include "global.h"
 #include "data_reader.h"
 #include <vector>
 #include <cassert>
@@ -93,7 +94,7 @@ GLuint Shader::loadShader(const char *file, GLenum type)
 {
 	GLuint shader = glCreateShader(type);
 
-	std::string lines = global_dataReader->readString(file);
+	std::string lines = Global::get<DataReader>()->readString(file);
 	auto ptr = lines.c_str();
 
 	const char* precision =

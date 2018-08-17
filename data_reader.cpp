@@ -1,8 +1,6 @@
 #include "data_reader.h"
 #include "log.h"
 
-DataReader *global_dataReader = nullptr;
-
 DataReader::DataReader(std::string name)
 {
 	m_file.open(name, std::ios::binary);

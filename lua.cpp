@@ -9,6 +9,7 @@
 #include "matrix.h"
 #include "time.h"
 #include "config.h"
+#include "global.h"
 #include "shared_data.h"
 #include "data_reader.h"
 
@@ -25,7 +26,7 @@ void Lua::logFnc(std::string s)
 
 sol::object Lua::requireScript(std::string s)
 {
-	std::string data = global_dataReader->readString(s+".lua");
+	std::string data = Global::get<DataReader>()->readString(s+".lua");
 	std::replace(s.begin(), s.end(), '/', '_'); // Convert / to _ as module name must be legit
 
 	return getInstance()->mState.require_script(s, data);
@@ -106,11 +107,11 @@ void Lua::setup()
 {
 	mState.set_panic(luaPanic);
 
-	auto m = mState.script(global_dataReader->readString("lua_lib/main.lua"));
+	auto m = mState.script(Global::get<DataReader>()->readString("lua_lib/main.lua"));
 	if(!m.valid())
 		Log(Log::DIE) << "Lua: cannot load main.lua";
 
-	auto g = mState.script(global_dataReader->readString(global_config->get("gameFile").c_str()));
+	auto g = mState.script(Global::get<DataReader>()->readString(global_config->get("gameFile").c_str()));
 	if(!g.valid())
 		Log(Log::DIE) << "Lua: cannot load " << global_config->get("gameFile");
 
