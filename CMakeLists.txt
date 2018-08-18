@@ -46,6 +46,7 @@ set (SOURCE_FILES
 		shared_data.cpp
 		data_reader.cpp
 		file_utils.cpp
+		string_utils.cpp
 	)
 
 

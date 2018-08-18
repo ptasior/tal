@@ -28,9 +28,7 @@ std::vector<std::string> listDir(const std::string& dir, const std::string& suff
 	{
 		std::string name(rddir->d_name);
 
-		if(!suffix.empty() && 
-			name.size() >= suffix.size() &&
-			name.compare(name.size()-suffix.size(), suffix.size(), suffix) != 0)
+		if(!suffix.empty() && StringUtils::endsWith(name, suffix))
 			continue;
 
 		ret.push_back(name);

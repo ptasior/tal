@@ -1,21 +1,36 @@
 #pragma once
-#include <sol.hpp>
 
-#define ANDROID_DATA_PATH "/sdcard/tal/"
-#define CONFIG_FILE_LOCATION "config.lua"
+#include <map>
+#include <string>
+
+/*
+ * Config c;
+ * c.loadFile("Config.cfg");
+ * c.loadString("aa = bb");
+ *
+ * std::string value = c.get("keyName");
+ * int i = c.getInt("keyName");
+ *
+ * c.print();
+*/
 
 class Config
 {
 public:
 	Config();
-	std::string get(std::string key) const;
-	std::string get(std::string key, std::string defaultVal) const;
-	bool getBool(std::string key) const;
-	std::string operator[](std::string key);
+
+	std::string get(const std::string& key) const;
+	int getInt(const std::string& key) const;
+	bool getBool(const std::string& key) const;
+
+	void loadString(const std::string& data);
+	void loadFile(const std::string& name);
+
+	void print() const;
 
 protected:
-	sol::state mState;
-};
+	void load(std::istream *data);
 
-extern Config* global_config;
+	std::map<std::string, std::string> mData;
+};
 

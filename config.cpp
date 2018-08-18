@@ -1,42 +1,79 @@
 #include "config.h"
-#include "global.h"
-#include "data_reader.h"
+#include "config_default.h"
+#include "string_utils.h"
 #include "log.h"
+#include <fstream>
+#include <sstream>
 
 Config::Config()
 {
-	std::string data = Global::get<DataReader>()->readString(CONFIG_FILE_LOCATION);
-	auto r = mState.script(data);
-
-	if(!r.valid())
-		Log(Log::DIE) << "Config: Error while loading " CONFIG_FILE_LOCATION;
-
-	Log() << "Config: Initialised";
+	loadString(EmbeddedData::config_default);
 }
 
-std::string Config::get(std::string key) const
+void Config::loadFile(const std::string& name)
 {
-	// std::string t = mState[key.c_str()];
-	// Log() << "Config: key: " << key << " = " << t;
-	return mState[key.c_str()].get<std::string>();
+	Log() << "Config: Loading: " << name;
+	std::ifstream file(name);
+	load(&file);
 }
 
-std::string Config::get(std::string key, std::string defaultVal) const
+void Config::loadString(const std::string& data)
 {
-	auto t = mState[key.c_str()];
-	// Log() << "Config (default): key: " << key << " = " << t.get<std::string>();
-	return t != sol::nil ? t.get<std::string>() : defaultVal;
+	std::stringstream stream(data);
+	load(stream);
+	Log() << "Config: Loding string";
 }
 
-bool Config::getBool(std::string key) const
+void Config::load(std::istream *data)
 {
-	// std::string t = mState[key.c_str()];
-	// Log() << "Config (bool): key: " << key << " = " << t;
-	return mState[key.c_str()].get<bool>();
+	std::string line;
+
+	int cnt = 0;
+
+	while(data->good())
+	{
+		std::getline(*data, line);
+		StringUtils::trim(line);
+		cnt++;
+
+		if(line.empty() || line[0] == '#') continue;
+		
+		auto kv = StringUtils::split(line, "=");
+		if(kv.size() != 2)
+			Log(Log::DIE) << "Config: Incorrect syntax in line: " << cnt
+							<< Log::endl << "  " << line;
+
+		StringUtils::rtrim(kv[0]);
+		StringUtils::ltrim(kv[1]);
+
+		if(kv[0].empty() || kv[1].empty())
+			Log(Log::DIE) << "Config: Incorrect key or value in line: " << cnt
+							<< Log::endl << "  " << line;
+
+		mData[kv[0]] = kv[1];
+	}
 }
 
-std::string Config::operator[](std::string key)
+std::string Config::get(const std::string& key) const
 {
-	return mState[key.c_str()];
+	if(!mData.count(key))
+		Log(Log::DIE) << "Config: key: " << key << " does not exist";
+	return mData.at(key);
+}
+
+bool Config::getBool(const std::string& key) const
+{
+	return get(key) == "true";
+}
+
+int Config::getInt(const std::string& key) const
+{
+	return std::stoi(get(key));
+}
+
+void Config::print() const
+{
+	for(auto kv : mData)
+		Log() << kv.first << " = " << kv.second;
 }
 

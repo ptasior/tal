@@ -5,6 +5,8 @@
 #pragma once
 #include "log.h"
 
+#include <memory>
+
 class Global
 {
 public:
