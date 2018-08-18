@@ -41,7 +41,7 @@ bool endsWith(const std::string & string, const std::string &suffix)
 	if(string.size() < suffix.size())
 		return false;
 
-	return string.compare(string.size()-suffix.size(), suffix.size(), suffix) != 0;
+	return string.compare(string.size()-suffix.size(), suffix.size(), suffix) == 0;
 }
 
 bool startsWith(const std::string & string, const std::string &prefix)
@@ -49,7 +49,7 @@ bool startsWith(const std::string & string, const std::string &prefix)
 	if(string.size() < prefix.size())
 		return false;
 
-	return string.compare(0, prefix.size(), prefix) != 0;
+	return string.compare(0, prefix.size(), prefix) == 0;
 }
 
 std::vector<std::string> split(const std::string & string, const std::string &separator)

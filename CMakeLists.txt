@@ -21,32 +21,34 @@ add_definitions (
 set (SOURCE_FILES
 		main.cpp
 		log.cpp
-		window.cpp
-		net.cpp
-		shader.cpp
-		sprite.cpp
-		sprite_gui.cpp
-		texture.cpp
-		camera.cpp
-		camera_rotating.cpp
-		camera_fps.cpp
-		scene.cpp
-		gui.cpp
-		widget.cpp
-		lua.cpp
-		lua_scene.cpp
-		lua_gui.cpp
-		model.cpp
-		model_obj.cpp
-		map.cpp
-		skybox.cpp
-		matrix.cpp
-		time.cpp
-		config.cpp
-		shared_data.cpp
-		data_reader.cpp
+		game_file.cpp
 		file_utils.cpp
 		string_utils.cpp
+		stream_reader.cpp
+		config.cpp
+		game.cpp
+		# window.cpp
+		# net.cpp
+		# shader.cpp
+		# sprite.cpp
+		# sprite_gui.cpp
+		# texture.cpp
+		# camera.cpp
+		# camera_rotating.cpp
+		# camera_fps.cpp
+		# scene.cpp
+		# gui.cpp
+		# widget.cpp
+		# lua.cpp
+		# lua_scene.cpp
+		# lua_gui.cpp
+		# model.cpp
+		# model_obj.cpp
+		# map.cpp
+		# skybox.cpp
+		# matrix.cpp
+		# time.cpp
+		# shared_data.cpp
 	)
 
 
@@ -64,6 +66,11 @@ if (NOT "${ANDROID}")
 	# add_custom_target (symlinks ALL
 	# 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/shaders .
 	# 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/lua_lib .
+	# 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+	# 	)
+
+	# add_custom_target (symlinks ALL
+	# 		COMMAND ln -sf ${PROJECT_SOURCE_DIR}/output/letters.game data.game
 	# 		WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
 	# 	)
 endif ()
@@ -97,9 +104,10 @@ if ("${JS}")
 	SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -O2")
 	SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s USE_PTHREADS=1")
 	SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -ldl")
-	SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file game")
-	SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file lua_lib")
-	SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file shaders")
+	# SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file game")
+	# SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file lua_lib")
+	# SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file shaders")
+	SET (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --preload-file data.game")
 
 	include_directories ("lib")
 	include_directories ("lib/lua")

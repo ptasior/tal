@@ -1,6 +1,6 @@
 build*/
-/assets/
 /work/
+/output/
 /tags
 __pycache__
 .*

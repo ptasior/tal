@@ -1,4 +1,6 @@
 #include "file_utils.h"
+#include "string_utils.h"
+#include "log.h"
 #include <sys/stat.h>
 #include <dirent.h>
 
@@ -28,9 +30,10 @@ std::vector<std::string> listDir(const std::string& dir, const std::string& suff
 	{
 		std::string name(rddir->d_name);
 
-		if(!suffix.empty() && StringUtils::endsWith(name, suffix))
+		if(!suffix.empty() && !StringUtils::endsWith(name, suffix))
 			continue;
 
+		// Log() << "FileUtils: listDir found: " << name;
 		ret.push_back(name);
 	}
 

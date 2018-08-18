@@ -1,31 +1,19 @@
 #include "config.h"
-#include "config_default.h"
 #include "string_utils.h"
+#include "stream_reader.h"
 #include "log.h"
 #include <fstream>
 #include <sstream>
 
 Config::Config()
-{
-	loadString(EmbeddedData::config_default);
-}
+{}
 
-void Config::loadFile(const std::string& name)
+void Config::load(std::shared_ptr<StreamReader> reader)
 {
-	Log() << "Config: Loading: " << name;
-	std::ifstream file(name);
-	load(&file);
-}
+	if(!reader)
+		Log(Log::DIE) << "Config: Empty reader";
 
-void Config::loadString(const std::string& data)
-{
-	std::stringstream stream(data);
-	load(stream);
-	Log() << "Config: Loding string";
-}
-
-void Config::load(std::istream *data)
-{
+	std::istream *data = reader->get();
 	std::string line;
 
 	int cnt = 0;
@@ -35,6 +23,8 @@ void Config::load(std::istream *data)
 		std::getline(*data, line);
 		StringUtils::trim(line);
 		cnt++;
+
+		Log() << cnt << ": " << line;
 
 		if(line.empty() || line[0] == '#') continue;
 		

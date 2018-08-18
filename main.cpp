@@ -1,39 +1,40 @@
-#include "window.h"
+#include "game.h"
 #include "log.h"
-#include "config.h"
 #include "global.h"
 
 #ifdef JS
 	#include <emscripten.h>
 #endif
 
-#ifdef ANDROID
-	#include <SDL.h>
-	#include <unistd.h>
-#endif
-
 #ifdef JS
 void main_loop()
 {
-	Global::get<Window>()->onLoop();
+	if(!Global::get<Game>()->loop())
+		emscripten_cancel_main_loop();
 }
 #endif
 
 int main(int argc, char* argv[])
 {
-	Log() << "Starting --------------";
-
 	try
 	{
-		Global::init<Window>(new Window());
-		Global::get<Window>()->init();
+		Log() << "Starting --------------";
+		Global::init<Game>(new Game());
+
+		Global::get<Game>()->init();
 
 		#ifdef JS
 			Log() << "Running Emscripten loop";
 			emscripten_set_main_loop(main_loop, 0, true);
 		#else
-			Global::get<Window>()->loop();
+			Log() << "Running loop";
+
+			Game *g = Global::get<Game>();
+			while(g->loop())
+				;
 		#endif
+
+		Log() << "Loop finished";
 	}
 	catch(const std::exception& e)
 	{

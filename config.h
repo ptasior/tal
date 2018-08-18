@@ -2,6 +2,7 @@
 
 #include <map>
 #include <string>
+#include <memory>
 
 /*
  * Config c;
@@ -14,6 +15,8 @@
  * c.print();
 */
 
+class StreamReader;
+
 class Config
 {
 public:
@@ -23,13 +26,10 @@ public:
 	int getInt(const std::string& key) const;
 	bool getBool(const std::string& key) const;
 
-	void loadString(const std::string& data);
-	void loadFile(const std::string& name);
-
+	void load(std::shared_ptr<StreamReader> reader);
 	void print() const;
 
 protected:
-	void load(std::istream *data);
 
 	std::map<std::string, std::string> mData;
 };
