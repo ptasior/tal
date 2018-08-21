@@ -27,27 +27,27 @@ set (SOURCE_FILES
 		stream_reader.cpp
 		config.cpp
 		game.cpp
-		# window.cpp
+		window.cpp
 		# net.cpp
-		# shader.cpp
-		# sprite.cpp
-		# sprite_gui.cpp
-		# texture.cpp
-		# camera.cpp
-		# camera_rotating.cpp
-		# camera_fps.cpp
-		# scene.cpp
-		# gui.cpp
-		# widget.cpp
+		shader.cpp
+		sprite.cpp
+		sprite_gui.cpp
+		texture.cpp
+		camera.cpp
+		camera_rotating.cpp
+		camera_fps.cpp
+		scene.cpp
+		gui.cpp
+		widget.cpp
 		# lua.cpp
 		# lua_scene.cpp
 		# lua_gui.cpp
-		# model.cpp
-		# model_obj.cpp
-		# map.cpp
-		# skybox.cpp
-		# matrix.cpp
-		# time.cpp
+		model.cpp
+		model_obj.cpp
+		map.cpp
+		skybox.cpp
+		matrix.cpp
+		time.cpp
 		# shared_data.cpp
 	)
 

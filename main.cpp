@@ -27,8 +27,6 @@ int main(int argc, char* argv[])
 			Log() << "Running Emscripten loop";
 			emscripten_set_main_loop(main_loop, 0, true);
 		#else
-			Log() << "Running loop";
-
 			Game *g = Global::get<Game>();
 			while(g->loop())
 				;

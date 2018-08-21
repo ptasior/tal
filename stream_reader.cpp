@@ -55,6 +55,8 @@ void StreamReader::openString(const char* data, uint32_t begin, uint32_t end)
 		Log(Log::DIE) << "StreamReader: Stream already opened";
 
 	mType = Type::Memory;
+	mBegin = data + begin;
+	mSize = end - begin;
 
 	mBuf = Membuf(const_cast<char*>(data + begin), const_cast<char*>(data + end));
 }
@@ -76,6 +78,8 @@ std::istream* StreamReader::get() const
 
 std::shared_ptr<StreamReader> StreamReader::getChunk(uint32_t position, uint32_t size) const
 {
+	Log() << "StreamReader: getChunk - THIS IS EXPENSIVE";
+
 	std::shared_ptr<StreamReader> ret = std::make_shared<StreamReader>();
 
 	ret->mData.resize(size);
@@ -89,13 +93,30 @@ std::shared_ptr<StreamReader> StreamReader::getChunk(uint32_t position, uint32_t
 	return ret;
 }
 
-char* StreamReader::data() const
+const char* StreamReader::data() const
 {
-	return nullptr;
+	if(mType == Type::Empty || mType == Type::File)
+		Log(Log::DIE) << "StreamReader: Empty and File types do not support data()";
+
+	if(mType == Type::Memory)
+		return mBegin;
+	else
+		return mData.data();
 }
 
 uint32_t StreamReader::size() const
 {
-	return 0;
+	if(mType == Type::Empty || mType == Type::File)
+		Log(Log::DIE) << "StreamReader: Empty and File types do not support size()";
+
+	if(mType == Type::Memory)
+		return mSize;
+	else
+		return mData.size();
+}
+
+std::string StreamReader::readToString() const
+{
+	return std::string(std::istreambuf_iterator<char>(mStream), {});
 }
 

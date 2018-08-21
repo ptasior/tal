@@ -18,9 +18,10 @@ public:
 	~Window();
 
 	void init();
+	void initObjects();
 	void processEvents();
 	bool onEvent(SDL_Event &event);
-	void onLoop();
+	bool onLoop();
 	void onPaint();
 	bool onClick(int x, int y);
 	bool onDrag(int x, int y);
@@ -30,9 +31,6 @@ public:
 	Camera* getCamera();
 	Scene* getScene();
 	Gui* getGui();
-	Config* getConfig();
-
-	void loop();
 
 private:
 	int mScreenWidth = 640;
@@ -46,14 +44,8 @@ private:
 	SDL_GLContext mGLContext = nullptr;
 	GLuint vao;
 
-	std::shared_ptr<Net> mNet;
 	std::shared_ptr<Camera> mCamera;
 	std::shared_ptr<Scene> mScene;
 	std::shared_ptr<Gui> mGui;
-	std::shared_ptr<Config> mConfig;
-	std::shared_ptr<SharedData> mSharedData;
-	std::shared_ptr<DataReader> mDataReader;
-
-	SDL_Event mEvent;
 };
 

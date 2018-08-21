@@ -1,6 +1,7 @@
 #pragma once
 // SDL and  string included in net.h
 // #include "gl_header.h"
+#include "window.h"
 #include "game_file.h"
 #include <vector>
 
@@ -10,6 +11,7 @@ class Net;
 class Gui;
 class Config;
 class SharedData;
+class Window;
 
 class Game
 {
@@ -20,11 +22,13 @@ public:
 	void init();
 	bool loop();
 
-	std::shared_ptr<StreamReader> findGameFile(const std::string &name) const;
+	std::shared_ptr<StreamReader> openResource(const std::string &name) const;
 
 private:
-	void populateData();
+	void loadGameFiles();
+	void loadConfig();
 
 	std::vector<GameFile> mGameFiles;
+	std::shared_ptr<Window> mWindow;
 };
 

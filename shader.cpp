@@ -1,8 +1,9 @@
 #include "shader.h"
+#include "game.h"
 #include "gl_header.h"
 #include "log.h"
 #include "global.h"
-#include "data_reader.h"
+#include "stream_reader.h"
 #include <vector>
 #include <cassert>
 
@@ -94,8 +95,7 @@ GLuint Shader::loadShader(const char *file, GLenum type)
 {
 	GLuint shader = glCreateShader(type);
 
-	std::string lines = Global::get<DataReader>()->readString(file);
-	auto ptr = lines.c_str();
+	auto ptr = Global::get<Game>()->openResource(file)->data();
 
 	const char* precision =
 	#ifdef DESKTOP

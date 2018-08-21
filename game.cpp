@@ -29,15 +29,13 @@ Game::Game()
 
 void Game::init()
 {
-	populateData();
+	loadGameFiles();
 
-	Config c;
-	auto r = findGameFile("defaults/config.cfg");
-	c.load(r);
-	c.print();
+	loadConfig();
 
-
-
+	mWindow = std::make_shared<Window>();
+	mWindow->init();
+	mWindow->initObjects();
 
 	// TODO Make it configurable / read from config
 	// Global::init<DataReader>(new DataReader(FileUtils::dataFolderLocation()+"/data.game"));
@@ -57,27 +55,17 @@ void Game::init()
 	// if(!mConfig->getBool("offline"))
 	// 	mNet->connect();
     //
-	// mCamera = std::make_shared<RotatingCamera>();
-	// // mCamera = std::make_shared<FpsCamera>();
-	// mCamera->init();
-	// mCamera->setSceneSize(mScreenWidth, mScreenHeight);
-    //
-	// mScene = std::make_shared<Scene>();
-	// mScene->init();
-	// mScene->setCamera(mCamera);
-    //
-	// mGui = std::make_shared<Gui>();
-	// mGui->init();
-	// mGui->setSceneSize(mScreenWidth, mScreenHeight);
-    //
 	// Lua::getInstance()->initGui(mGui.get());
 	// Lua::getInstance()->initScene(mScene.get());
 	// Lua::getInstance()->setup();
     //
-	Log() << "Window: Initialisation succesed";
+	Log() << "Game: Initialisation succesed";
+
+	if(Global::get<Config>()->getInt("loopSleep"))
+		Log() << "Game: Entering throttled loop sleep: " << Global::get<Config>()->get("loopSleep");
 }
 
-void Game::populateData()
+void Game::loadGameFiles()
 {
 	mGameFiles.clear();
 
@@ -90,13 +78,13 @@ void Game::populateData()
 		mGameFiles.emplace_back(GameFile(file));
 	}
 
-	Log() << "Game: Loading defaults";
+	Log() << "Game: Loading embedded defaults";
 	std::shared_ptr<StreamReader> embedded = std::make_shared<StreamReader>();
-	embedded->openString(EmbeddedData::defaultFiles, 0, EmbeddedData::defaultFiles_size);
+	embedded->openString((const char*)EmbeddedData::defaultFiles, 0, EmbeddedData::defaultFiles_size);
 	mGameFiles.emplace_back(GameFile(embedded));
 }
 
-std::shared_ptr<StreamReader> Game::findGameFile(const std::string &name) const
+std::shared_ptr<StreamReader> Game::openResource(const std::string &name) const
 {
 	for(auto f : mGameFiles)
 		if(f.hasFile(name))
@@ -106,11 +94,32 @@ std::shared_ptr<StreamReader> Game::findGameFile(const std::string &name) const
 	return std::shared_ptr<StreamReader>();
 }
 
+void Game::loadConfig()
+{
+	Global::init<Config>(new Config());
+	auto r = openResource("defaults/config.cfg");
+	Global::get<Config>()->load(r);
+
+	for(auto f : mGameFiles)
+		if(f.hasFile("config.cfg"))
+		{
+			auto streamreader = f.readStream("config.cfg");
+			Global::get<Config>()->load(streamreader);
+		}
+	// Global::get<Config>->print();
+}
+
 bool Game::loop()
 {
-	return false;
-	// Global::get<Window>()->onLoop();
-	return true;
+#if ! defined(ANDROID) // Throttled loop crashes Android
+	if(Global::get<Config>()->has("loopSleep")) // TODO Move it ou tof loop
+	{
+		int sleep = Global::get<Config>()->getInt("loopSleep");
+		std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
+	}
+#endif
+
+	return mWindow->onLoop();
 }
 
 Game::~Game()

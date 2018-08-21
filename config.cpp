@@ -24,7 +24,7 @@ void Config::load(std::shared_ptr<StreamReader> reader)
 		StringUtils::trim(line);
 		cnt++;
 
-		Log() << cnt << ": " << line;
+		// Log() << cnt << ": " << line;
 
 		if(line.empty() || line[0] == '#') continue;
 		
@@ -67,3 +67,7 @@ void Config::print() const
 		Log() << kv.first << " = " << kv.second;
 }
 
+bool Config::has(const std::string& key) const
+{
+	return mData.count(key);
+}

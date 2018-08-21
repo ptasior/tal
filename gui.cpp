@@ -2,9 +2,10 @@
 #include "log.h"
 #include "sprite_gui.h"
 #include "shader.h"
-#include "lua.h"
+// #include "lua.h"
 #include "time.h"
 #include "config.h"
+#include "global.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -662,12 +663,12 @@ void Gui::init()
 	mRoot->setOverflow(Widget::opNone);
 	mRoot->mSprite.reset(); // Do not display anything
 
-	Label::WIDTH = std::atoi(global_config->get("labelWidth").c_str());
-	Label::HEIGHT = std::atoi(global_config->get("labelHeight").c_str());
+	Label::WIDTH = Global::get<Config>()->getInt("labelWidth");
+	Label::HEIGHT = Global::get<Config>()->getInt("labelHeight");
 
 	mConsole = std::make_shared<Console>();
 	mRoot->addOwnedWidget(mConsole);
-	if(global_config->get("showFps") == "true")
+	if(Global::get<Config>()->getBool("showFps"))
 		showFps();
 }
 

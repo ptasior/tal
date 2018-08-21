@@ -9,13 +9,13 @@ templateStart = Template('''// File auto generated
 
 namespace EmbeddedData
 {
-const char $varName[] =
+const unsigned char $varName[] =
 {
 ''')
 
 templateStop = Template('''
 };
-const char ${varName}_size = sizeof($varName)/sizeof(char);
+const uint32_t ${varName}_size = sizeof($varName)/sizeof(char);
 }
 
 ''')

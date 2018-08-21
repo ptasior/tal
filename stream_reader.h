@@ -19,8 +19,10 @@ public:
 	std::istream* get() const;
 	std::shared_ptr<StreamReader> getChunk(uint32_t position, uint32_t size) const;
 
-	char* data() const;
+	const char* data() const;
 	uint32_t size() const;
+
+	std::string readToString() const;
 
 private:
 	struct Membuf : std::streambuf
@@ -39,11 +41,16 @@ private:
 
 	Type mType = Type::Empty;
 
+	// File
 	mutable std::ifstream mFile;
 
+	// Memory
 	Membuf mBuf;
 	mutable std::istream mStream;
+	const char *mBegin = nullptr;
+	uint32_t mSize = 0;
 
+	// Chunk
 	std::vector<char> mData; // Owned data if created as a chunk
 };
 

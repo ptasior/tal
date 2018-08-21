@@ -28,8 +28,11 @@ void Scene::paint()
 {
 	mCamera->apply();
 
-	mSkybox->paint();
-	mMap->paint();
+	if(mSkybox)
+		mSkybox->paint();
+
+	if(mMap)
+		mMap->paint();
 
 	for(auto m : mModels)
 		m->paint();

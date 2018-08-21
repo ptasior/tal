@@ -25,12 +25,12 @@ public:
 	std::string get(const std::string& key) const;
 	int getInt(const std::string& key) const;
 	bool getBool(const std::string& key) const;
+	bool has(const std::string& key) const;
 
 	void load(std::shared_ptr<StreamReader> reader);
 	void print() const;
 
 protected:
-
 	std::map<std::string, std::string> mData;
 };
 

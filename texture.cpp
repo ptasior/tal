@@ -1,9 +1,9 @@
 #include "texture.h"
 #include "shader.h"
 #include "log.h"
+#include "game.h"
 #include "config.h"
 #include "global.h"
-#include "data_reader.h"
 #if defined(JS) || defined(ANDROID)
 	#include <SDL_ttf.h>
 	#include <SDL_image.h>
@@ -12,6 +12,7 @@
 	#include <SDL2/SDL_ttf.h>
 #endif
 #include <assert.h>
+#include <vector>
 
 
 std::mutex Texture::mMutex;
@@ -44,10 +45,10 @@ void Texture::init(const char *path, Shader *shader)
 	else if(mName.substr(0, 5) == "text-") // A letter
 	{
 		// TODO mutex
-		auto fontName = global_config->get("font");
+		auto fontName = Global::get<Config>()->get("font");
 
-		std::vector<char> data = Global::get<DataReader>()->read(fontName);
-		auto rw = SDL_RWFromConstMem(data.data(),data.size());
+		auto data = Global::get<Game>()->openResource(fontName);
+		auto rw = SDL_RWFromConstMem(data->data(), data->size());
 
 		static TTF_Font* font = TTF_OpenFontRW(rw, 1, SIZE);
 		static TTF_Font* fontOutline = TTF_OpenFont(fontName.c_str(), SIZE);
@@ -95,8 +96,8 @@ void Texture::init(const char *path, Shader *shader)
 	}
 	else // Regular image
 	{
-		std::vector<char> data = Global::get<DataReader>()->read(path);
-		res_texture = IMG_Load_RW(SDL_RWFromConstMem(data.data(),data.size()), 1);
+		auto data = Global::get<Game>()->openResource(path);
+		res_texture = IMG_Load_RW(SDL_RWFromConstMem(data->data(), data->size()), 1);
 
 		if(!res_texture)
 			Log(Log::DIE) << "Texture: IMG_Load: " << SDL_GetError();

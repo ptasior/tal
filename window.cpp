@@ -1,18 +1,13 @@
 #include "window.h"
 #include "log.h"
-#include "net.h"
 #include "shader.h"
 #include "camera_rotating.h"
 #include "camera_fps.h"
 #include "scene.h"
 #include "gui.h"
-#include "lua.h"
 #include "time.h"
 #include "config.h"
 #include "global.h"
-#include "shared_data.h"
-#include "data_reader.h"
-#include "file_utils.h"
 #include <thread>
 #include <chrono>
 
@@ -22,21 +17,12 @@
 	#include <SDL_ttf.h>
 #endif
 
-Config* global_config = nullptr;
-SharedData* global_sharedData = nullptr;
-
 Window::Window()
 {}
 
 void Window::init()
 {
-	// TODO Make it configurable / read from config
-	Global::init<DataReader>(new DataReader(FileUtils::dataFolderLocation()+"/data.game"));
-
-	mConfig = std::make_shared<Config>();
-	global_config = mConfig.get();
-
-
+	Log() << "Window: Initialising";
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 	SDL_GL_SetSwapInterval(0);
@@ -52,7 +38,7 @@ void Window::init()
 		Log(Log::DIE) << "Window: SDL could not initialize! SDL_Error: " << SDL_GetError();
 
 	//Create window
-	mWindow = SDL_CreateWindow(mConfig->get("windowName", "Game").c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+	mWindow = SDL_CreateWindow(Global::get<Config>()->get("windowName").c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
 							mScreenWidth, mScreenHeight,
 							SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN);
 	if(!mWindow)
@@ -85,31 +71,6 @@ void Window::init()
 	Log() << "GL_VERSION: " << (char*)glGetString(GL_VERSION);
 	Log() << "GL_SHADING_LANGUAGE_VERSION: " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-	mSharedData = std::make_shared<SharedData>();
-	global_sharedData = mSharedData.get();
-
-	mNet = std::make_shared<Net>();
-
-	// TODO How to make sure we have received self registration before entering Lua?
-	if(!mConfig->getBool("offline"))
-		mNet->connect();
-
-	mCamera = std::make_shared<RotatingCamera>();
-	// mCamera = std::make_shared<FpsCamera>();
-	mCamera->init();
-	mCamera->setSceneSize(mScreenWidth, mScreenHeight);
-
-	mScene = std::make_shared<Scene>();
-	mScene->init();
-	mScene->setCamera(mCamera);
-
-	mGui = std::make_shared<Gui>();
-	mGui->init();
-	mGui->setSceneSize(mScreenWidth, mScreenHeight);
-
-	Lua::getInstance()->initGui(mGui.get());
-	Lua::getInstance()->initScene(mScene.get());
-	Lua::getInstance()->setup();
 
 #ifdef ANDROID
 	// Android at start does not emit window resize event
@@ -128,6 +89,22 @@ Window::~Window()
 	SDL_Quit();
 
 	Log() << "Window: Quit";
+}
+
+void Window::initObjects()
+{
+	mCamera = std::make_shared<RotatingCamera>();
+	// mCamera = std::make_shared<FpsCamera>();
+	mCamera->init();
+	mCamera->setSceneSize(mScreenWidth, mScreenHeight);
+
+	mScene = std::make_shared<Scene>();
+	// mScene->init();
+	mScene->setCamera(mCamera);
+
+	mGui = std::make_shared<Gui>();
+	mGui->init();
+	mGui->setSceneSize(mScreenWidth, mScreenHeight);
 }
 
 void Window::processEvents()
@@ -210,31 +187,10 @@ bool Window::onEvent(SDL_Event &event)
 	return false;
 }
 
-void Window::loop()
+bool Window::onLoop()
 {
-#if ! defined(ANDROID) // Throttled loop crashes Android
-	if(!global_config->get("loopSleep").empty())
-	{
-		Log() << "Window: Entering throttled loop";
-		int sleep = std::stoi(global_config->get("loopSleep"));
+	SDL_Event mEvent;
 
-		while (!mQuit)
-		{
-			onLoop();
-			std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
-		}
-	}
-	else
-#endif
-	{
-		Log() << "Window: Entering loop";
-		while (!mQuit)
-			onLoop();
-	}
-}
-
-void Window::onLoop()
-{
 	Time::registerNextFrame();
 
 	if(SDL_PollEvent(&mEvent))
@@ -246,12 +202,14 @@ void Window::onLoop()
 	if(!mGui->grabsFocus())
 		processEvents();
 
-	mNet->loop();
+	// mNet->loop();
 
 	// Internally executes every n-th frame
-	Lua::getInstance()->loop();
+	// Lua::getInstance()->loop();
 
 	onPaint();
+
+	return mQuit;
 }
 
 void Window::onPaint()
@@ -315,10 +273,5 @@ Scene* Window::getScene()
 Gui* Window::getGui()
 {
 	return mGui.get();
-}
-
-Config* Window::getConfig()
-{
-	return mConfig.get();
 }
 

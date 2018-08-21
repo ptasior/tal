@@ -35,14 +35,14 @@ GameFile::GameFile(std::shared_ptr<StreamReader> reader)
 			// Log() << "size == 0";
 			break; // End of file descriptor
 		}
-		Log() << "size: " << size;
+		// Log() << "size: " << size;
 
 		stream->read(buf, size);
 		stream->read(reinterpret_cast<char*>(&start), 4);
 		stream->read(reinterpret_cast<char*>(&stop), 4);
 		file = std::string(buf, size);
 
-		Log() << file << " start: " << start << " stop: " << stop;
+		// Log() << file << " start: " << start << " stop: " << stop;
 		m_positions[file] = {start, stop};
 
 		if(!headerStop)
