@@ -674,7 +674,7 @@ void Gui::init()
 
 void Gui::paint()
 {
-	if(mFps) mFps->setText("FPS: "+std::to_string((int)Time::fps()));
+	if(mFps) mFps->setText("FPS: "+std::to_string((int)Global::get<Time>()->fps()));
 	Shader::getShader("gui")->use();
 
 	mRoot->paint();

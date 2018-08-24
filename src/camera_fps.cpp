@@ -1,6 +1,7 @@
 #include "camera_fps.h"
 #include "log.h"
 #include "time.h"
+#include "global.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -26,38 +27,38 @@ bool FpsCamera::processEvents(const Uint8 *state)
 
 	if(state[SDL_SCANCODE_W])
 	{
-		mCameraPos.z += speed*sin(mRotX)*Time::elapsed();
-		mCameraPos.y += speed*sin(mRotY)*Time::elapsed();
-		mCameraPos.x += speed*cos(mRotX)*Time::elapsed();
+		mCameraPos.z += speed*sin(mRotX)*Global::get<Time>()->elapsed();
+		mCameraPos.y += speed*sin(mRotY)*Global::get<Time>()->elapsed();
+		mCameraPos.x += speed*cos(mRotX)*Global::get<Time>()->elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_S])
 	{
-		mCameraPos.z -= speed*sin(mRotX)*Time::elapsed();
-		mCameraPos.y -= speed*sin(mRotY)*Time::elapsed();
-		mCameraPos.x -= speed*cos(mRotX)*Time::elapsed();
+		mCameraPos.z -= speed*sin(mRotX)*Global::get<Time>()->elapsed();
+		mCameraPos.y -= speed*sin(mRotY)*Global::get<Time>()->elapsed();
+		mCameraPos.x -= speed*cos(mRotX)*Global::get<Time>()->elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_A])
 	{
-		mCameraPos.z += speed*sin(mRotX-M_PI_2)*Time::elapsed();
-		mCameraPos.x += speed*cos(mRotX-M_PI_2)*Time::elapsed();
+		mCameraPos.z += speed*sin(mRotX-M_PI_2)*Global::get<Time>()->elapsed();
+		mCameraPos.x += speed*cos(mRotX-M_PI_2)*Global::get<Time>()->elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_D])
 	{
-		mCameraPos.z += speed*sin(mRotX+M_PI_2)*Time::elapsed();
-		mCameraPos.x += speed*cos(mRotX+M_PI_2)*Time::elapsed();
+		mCameraPos.z += speed*sin(mRotX+M_PI_2)*Global::get<Time>()->elapsed();
+		mCameraPos.x += speed*cos(mRotX+M_PI_2)*Global::get<Time>()->elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_Z])
 	{
-		mCameraPos.y += speed*Time::elapsed();
+		mCameraPos.y += speed*Global::get<Time>()->elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_X])
 	{
-		mCameraPos.y -= speed*Time::elapsed();
+		mCameraPos.y -= speed*Global::get<Time>()->elapsed();
 		ret = true;
 	}
 

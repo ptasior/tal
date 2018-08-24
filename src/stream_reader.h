@@ -12,6 +12,7 @@ class StreamReader
 {
 public:
 	StreamReader();
+	~StreamReader();
 
 	void openFile(const std::string& name);
 	void openString(const char* data, uint32_t begin, uint32_t end);
@@ -39,6 +40,8 @@ private:
 
 	enum class Type {Empty, File, Memory, Chunk};
 
+	void closeDataSource();
+
 	Type mType = Type::Empty;
 
 	// File
@@ -49,6 +52,7 @@ private:
 	mutable std::istream mStream;
 	const char *mBegin = nullptr;
 	uint32_t mSize = 0;
+	std::vector<StreamReader*> mChildren;
 
 	// Chunk
 	std::vector<char> mData; // Owned data if created as a chunk

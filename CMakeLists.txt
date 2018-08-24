@@ -164,6 +164,7 @@ elseif ("${ANDROID}")
 	include_directories (lib/lua)
 	include_directories (lib)
 	include_directories (lib/SDL2)
+	include_directories ("android/ndk")
 
 	target_link_libraries (${PROJECT_NAME}
 			SDL2

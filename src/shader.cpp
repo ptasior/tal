@@ -28,9 +28,9 @@ void Shader::init(const char *name)
 {
 	Log() << "Shader: loading " << name;
 	mName = name;
-	std::string file = std::string("shaders/") + name;
-	GLuint vertexShader = loadShader((file + ".v.glsl").c_str(), GL_VERTEX_SHADER);
-	GLuint fragmentShader = loadShader((file + ".f.glsl").c_str(), GL_FRAGMENT_SHADER);
+	std::string file = std::string("defaults/shaders/") + name;
+	GLuint vertexShader = loadShader(file + ".v.glsl", GL_VERTEX_SHADER);
+	GLuint fragmentShader = loadShader(file + ".f.glsl", GL_FRAGMENT_SHADER);
 
 	mProgram = glCreateProgram();
 
@@ -91,11 +91,11 @@ void Shader::readVariables()
 #endif
 }
 
-GLuint Shader::loadShader(const char *file, GLenum type)
+GLuint Shader::loadShader(const std::string &file, GLenum type)
 {
 	GLuint shader = glCreateShader(type);
 
-	auto ptr = Global::get<Game>()->openResource(file)->data();
+	auto ptr = Global::get<Game>()->openResource(file)->readToString();
 
 	const char* precision =
 	#ifdef DESKTOP
@@ -111,7 +111,7 @@ GLuint Shader::loadShader(const char *file, GLenum type)
 
 	const GLchar* sources[] = {
 		precision,
-		ptr
+		ptr.c_str()
 	}; // When adding update sizeof below
 
 	glShaderSource(shader, 2, sources, NULL);

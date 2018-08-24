@@ -1,7 +1,9 @@
 build*/
+
 /work/
 /assets/output/*
 */tags
+tags
 __pycache__
 .*
 android/distribution

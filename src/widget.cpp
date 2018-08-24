@@ -1,7 +1,6 @@
 #include "gui.h"
 #include "log.h"
 #include "sprite_gui.h"
-#include "shader.h"
 #include "lua.h"
 #include "reverse_it.h"
 

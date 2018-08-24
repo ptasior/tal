@@ -39,6 +39,22 @@ StreamReader::StreamReader():
 	mStream(&mBuf)
 {}
 
+StreamReader::~StreamReader()
+{
+	closeDataSource();
+}
+
+void StreamReader::closeDataSource()
+{
+	if(mChildren.size()) // TODO Copy data when closing
+		Log(Log::DIE) << "StreamReader: Closing still used data source. Implement copying data";
+
+	for(auto c : mChildren)
+		c->closeDataSource();
+	
+	mType = Type::Empty;
+}
+
 void StreamReader::openFile(const std::string& name)
 {
 	if(mType != Type::Empty)
@@ -78,9 +94,19 @@ std::istream* StreamReader::get() const
 
 std::shared_ptr<StreamReader> StreamReader::getChunk(uint32_t position, uint32_t size) const
 {
-	Log() << "StreamReader: getChunk - THIS IS EXPENSIVE";
-
 	std::shared_ptr<StreamReader> ret = std::make_shared<StreamReader>();
+
+	// if(mType == Type::Memory)
+	// {
+	// 	Log() << "StreamReader: getChunk share data";
+	// 	ret->openString(mData.data(), position, size);
+	// 	ret->mType = Type::Memory;
+	// 	ret->mChildren.push_back(ret.get());
+	// 	return ret;
+	// }
+
+	// Copy data from stream
+	Log() << "StreamReader: getChunk - THIS IS EXPENSIVE";
 
 	ret->mData.resize(size);
 	get()->seekg(position);

@@ -5,9 +5,9 @@
 // #include "camera_rotating.h"
 // #include "camera_fps.h"
 // #include "scene.h"
-// #include "gui.h"
+#include "gui.h"
 // #include "lua.h"
-// #include "time.h"
+#include "time.h"
 #include "config.h"
 #include "global.h"
 // #include "shared_data.h"
@@ -33,19 +33,13 @@ void Game::init()
 
 	loadConfig();
 
+
+	Global::init<Time>(new Time());
+
 	mWindow = std::make_shared<Window>();
 	mWindow->init();
 	mWindow->initObjects();
 
-	// TODO Make it configurable / read from config
-	// Global::init<DataReader>(new DataReader(FileUtils::dataFolderLocation()+"/data.game"));
-    //
-	// mConfig = std::make_shared<Config>();
-	// global_config = mConfig.get();
-    //
-	// Global::init<Window>(new Window());
-	// Global::get<Window>()->init();
-    //
 	// mSharedData = std::make_shared<SharedData>();
 	// global_sharedData = mSharedData.get();
     //
@@ -58,8 +52,10 @@ void Game::init()
 	// Lua::getInstance()->initGui(mGui.get());
 	// Lua::getInstance()->initScene(mScene.get());
 	// Lua::getInstance()->setup();
-    //
+
 	Log() << "Game: Initialisation succesed";
+
+	mainMenu();
 
 	if(Global::get<Config>()->getInt("loopSleep"))
 		Log() << "Game: Entering throttled loop sleep: " << Global::get<Config>()->get("loopSleep");
@@ -107,6 +103,12 @@ void Game::loadConfig()
 			Global::get<Config>()->load(streamreader);
 		}
 	// Global::get<Config>->print();
+}
+
+void Game::mainMenu()
+{
+	mWindow->getGui()->message("test", "This is a test");
+	// mWindow->getGui()->rootWidget()->addWidget(m);
 }
 
 bool Game::loop()

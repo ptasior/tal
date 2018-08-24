@@ -5,7 +5,7 @@
 #include <dirent.h>
 
 #ifdef ANDROID
-	#include "android/ndk/android_native_app_glue.h"
+	#include "android_native_app_glue.h"
 	#include "SDL.h"
 	#include <jni.h>
 #endif
@@ -56,7 +56,7 @@ std::string dataFolderLocation()
 #else
     static std::string temp_folder;
 
-	if(temp_folder) return temp_folder; // Cache variable
+	if(!temp_folder.empty()) return temp_folder; // Cache variable
 
 	// Obtain cache folder location
     JNIEnv *env = static_cast<JNIEnv*>(SDL_AndroidGetJNIEnv());

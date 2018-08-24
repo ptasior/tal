@@ -5,13 +5,7 @@
 #include "game_file.h"
 #include <vector>
 
-class Scene;
-class Camera;
-class Net;
-class Gui;
-class Config;
-class SharedData;
-class Window;
+class StreamReader;
 
 class Game
 {
@@ -27,6 +21,7 @@ public:
 private:
 	void loadGameFiles();
 	void loadConfig();
+	void mainMenu();
 
 	std::vector<GameFile> mGameFiles;
 	std::shared_ptr<Window> mWindow;

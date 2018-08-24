@@ -1,6 +1,5 @@
 #include "window.h"
 #include "log.h"
-#include "shader.h"
 #include "camera_rotating.h"
 #include "camera_fps.h"
 #include "scene.h"
@@ -191,7 +190,7 @@ bool Window::onLoop()
 {
 	SDL_Event mEvent;
 
-	Time::registerNextFrame();
+	Global::get<Time>()->registerNextFrame();
 
 	if(SDL_PollEvent(&mEvent))
 	{
@@ -209,7 +208,7 @@ bool Window::onLoop()
 
 	onPaint();
 
-	return mQuit;
+	return !mQuit;
 }
 
 void Window::onPaint()
@@ -233,6 +232,9 @@ void Window::onPaint()
 
 void Window::onResize(int width, int height)
 {
+	// if(mScreenWidth == width && mScreenHeight == height)
+	// 	return;
+
 	mScreenWidth = width;
 	mScreenHeight = height;
 	glViewport(0, 0, mScreenWidth, mScreenHeight);

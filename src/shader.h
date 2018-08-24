@@ -33,7 +33,7 @@ public:
 private:
 	Shader();
 
-	GLuint loadShader(const char * file, GLenum type);
+	GLuint loadShader(const std::string &file, GLenum type);
 	void readVariables();
 	std::string getGlLog(GLuint object);
 	void useProgram();

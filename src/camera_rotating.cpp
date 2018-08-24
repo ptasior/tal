@@ -1,6 +1,7 @@
 #include "camera_rotating.h"
 #include "log.h"
 #include "time.h"
+#include "global.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -48,9 +49,9 @@ bool RotatingCamera::onEvent(SDL_Event &event)
 	{
 		case SDL_MOUSEWHEEL:
 			if(event.wheel.y == 1) // scroll up
-				mDistance -= speed*Time::elapsed();
+				mDistance -= speed*Global::get<Time>()->elapsed();
 			else if(event.wheel.y == -1) // scroll down
-				mDistance += speed*Time::elapsed();
+				mDistance += speed*Global::get<Time>()->elapsed();
 			update();
 			return true;
 	}
@@ -64,39 +65,39 @@ bool RotatingCamera::processEvents(const Uint8 *state)
 
 	if(state[SDL_SCANCODE_W])
 	{
-		// mCenter.x += speed*Time::elapsed();
-		mCenter.z += speed*sin(mRotX)*Time::elapsed();
-		mCenter.y += speed*sin(mRotY)*Time::elapsed();
-		mCenter.x += speed*cos(mRotX)*Time::elapsed();
+		// mCenter.x += speed*Global::get<Time>()->elapsed();
+		mCenter.z += speed*sin(mRotX)*Global::get<Time>()->elapsed();
+		mCenter.y += speed*sin(mRotY)*Global::get<Time>()->elapsed();
+		mCenter.x += speed*cos(mRotX)*Global::get<Time>()->elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_S])
 	{
-		mCenter.z -= speed*sin(mRotX)*Time::elapsed();
-		mCenter.y -= speed*sin(mRotY)*Time::elapsed();
-		mCenter.x -= speed*cos(mRotX)*Time::elapsed();
+		mCenter.z -= speed*sin(mRotX)*Global::get<Time>()->elapsed();
+		mCenter.y -= speed*sin(mRotY)*Global::get<Time>()->elapsed();
+		mCenter.x -= speed*cos(mRotX)*Global::get<Time>()->elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_A])
 	{
-		mCenter.z += speed*sin(mRotX-M_PI_2)*Time::elapsed();
-		mCenter.x += speed*cos(mRotX-M_PI_2)*Time::elapsed();
+		mCenter.z += speed*sin(mRotX-M_PI_2)*Global::get<Time>()->elapsed();
+		mCenter.x += speed*cos(mRotX-M_PI_2)*Global::get<Time>()->elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_D])
 	{
-		mCenter.z += speed*sin(mRotX+M_PI_2)*Time::elapsed();
-		mCenter.x += speed*cos(mRotX+M_PI_2)*Time::elapsed();
+		mCenter.z += speed*sin(mRotX+M_PI_2)*Global::get<Time>()->elapsed();
+		mCenter.x += speed*cos(mRotX+M_PI_2)*Global::get<Time>()->elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_Z])
 	{
-		mCenter.y += speed*Time::elapsed();
+		mCenter.y += speed*Global::get<Time>()->elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_X])
 	{
-		mCenter.y -= speed*Time::elapsed();
+		mCenter.y -= speed*Global::get<Time>()->elapsed();
 		ret = true;
 	}
 	if(state[SDL_SCANCODE_E])
