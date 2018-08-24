@@ -19,36 +19,41 @@ add_definitions (
 	)
 
 set (SOURCE_FILES
-		main.cpp
-		log.cpp
-		game_file.cpp
-		file_utils.cpp
-		string_utils.cpp
-		stream_reader.cpp
-		config.cpp
-		game.cpp
-		window.cpp
-		# net.cpp
-		shader.cpp
-		sprite.cpp
-		sprite_gui.cpp
-		texture.cpp
-		camera.cpp
-		camera_rotating.cpp
-		camera_fps.cpp
-		scene.cpp
-		gui.cpp
-		widget.cpp
-		# lua.cpp
-		# lua_scene.cpp
-		# lua_gui.cpp
-		model.cpp
-		model_obj.cpp
-		map.cpp
-		skybox.cpp
-		matrix.cpp
-		time.cpp
-		# shared_data.cpp
+		${PROJECT_SOURCE_DIR}/src/main.cpp
+		${PROJECT_SOURCE_DIR}/src/game.cpp
+		${PROJECT_SOURCE_DIR}/src/window.cpp
+		# ${PROJECT_SOURCE_DIR}/src/lua.cpp
+		# ${PROJECT_SOURCE_DIR}/src/lua_scene.cpp
+		# ${PROJECT_SOURCE_DIR}/src/lua_gui.cpp
+		${PROJECT_SOURCE_DIR}/src/game_file.cpp
+		${PROJECT_SOURCE_DIR}/src/file_utils.cpp
+		${PROJECT_SOURCE_DIR}/src/stream_reader.cpp
+		${PROJECT_SOURCE_DIR}/src/shader.cpp
+		${PROJECT_SOURCE_DIR}/src/sprite.cpp
+		${PROJECT_SOURCE_DIR}/src/sprite_gui.cpp
+		${PROJECT_SOURCE_DIR}/src/texture.cpp
+		${PROJECT_SOURCE_DIR}/src/camera.cpp
+		${PROJECT_SOURCE_DIR}/src/camera_rotating.cpp
+		${PROJECT_SOURCE_DIR}/src/camera_fps.cpp
+		${PROJECT_SOURCE_DIR}/src/scene.cpp
+		${PROJECT_SOURCE_DIR}/src/gui.cpp
+		${PROJECT_SOURCE_DIR}/src/widget.cpp
+		${PROJECT_SOURCE_DIR}/src/model.cpp
+		${PROJECT_SOURCE_DIR}/src/model_obj.cpp
+		${PROJECT_SOURCE_DIR}/src/map.cpp
+		${PROJECT_SOURCE_DIR}/src/skybox.cpp
+		${PROJECT_SOURCE_DIR}/src/log.cpp
+		${PROJECT_SOURCE_DIR}/src/config.cpp
+		${PROJECT_SOURCE_DIR}/src/string_utils.cpp
+		${PROJECT_SOURCE_DIR}/src/matrix.cpp
+		${PROJECT_SOURCE_DIR}/src/time.cpp
+		# ${PROJECT_SOURCE_DIR}/src/net.cpp
+		# ${PROJECT_SOURCE_DIR}/src/shared_data.cpp
+		${PROJECT_SOURCE_DIR}/assets/output/embedded_defaults.cpp
+	)
+
+include_directories (
+		${PROJECT_SOURCE_DIR}/assets/output/
 	)
 
 
@@ -169,6 +174,8 @@ elseif ("${ANDROID}")
 			GLESv2
 			log
 		)
+
+# -----------------------------------------------------------------------------
 else ()
 	add_definitions (
 		-DDESKTOP=1

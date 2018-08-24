@@ -4,8 +4,19 @@ import binascii
 import sys, os
 from string import Template
 
-templateStart = Template('''// File auto generated
+templateHederStart = Template('''// File auto generated
 #pragma once
+
+namespace EmbeddedData
+{
+extern const unsigned char $varName[];
+extern const uint32_t ${varName}_size;
+}
+''')
+
+templateStart = Template('''// File auto generated
+#include <cstdint>
+#include "$outFileName.h"
 
 namespace EmbeddedData
 {
@@ -17,7 +28,6 @@ templateStop = Template('''
 };
 const uint32_t ${varName}_size = sizeof($varName)/sizeof(char);
 }
-
 ''')
 
 inFileName = None
@@ -31,15 +41,16 @@ except:
     pass
 
 if not inFileName or not outFileName or not varName:
-    print("Usage: "+sys.argv[0]+"[binary file to convert] [output file] [variable name]")
+    print("Usage: "+sys.argv[0]+"[binary file to convert] [output file name] [variable name]")
     sys.exit(-1)
 
 
 ifile = open(inFileName, 'rb')
-ofile = open(outFileName, 'wb')
+ofile = open(outFileName+'.cpp', 'wb')
 
 
-ofile.write(templateStart.substitute(varName=varName).encode('ascii'))
+outFileBaseName = os.path.basename(outFileName)
+ofile.write(templateStart.substitute(varName=varName, outFileName=outFileBaseName).encode('ascii'))
 
 idx = 0
 for c in ifile.read():
@@ -53,4 +64,9 @@ ofile.write(templateStop.substitute(varName=varName).encode('ascii'))
 
 ifile.close()
 ofile.close()
+
+
+ohdrfile = open(outFileName+'.h', 'wb')
+ohdrfile.write(templateHederStart.substitute(varName=varName).encode('ascii'))
+ohdrfile.close()
 

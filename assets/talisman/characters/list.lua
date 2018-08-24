@@ -1,0 +1,5 @@
+return {
+'barbarian',
+'elf',
+'thief',
+}
