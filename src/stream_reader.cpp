@@ -100,15 +100,34 @@ std::shared_ptr<StreamReader> StreamReader::getChunk(uint32_t position, uint32_t
 {
 	std::shared_ptr<StreamReader> ret = std::make_shared<StreamReader>();
 
-	// if(mType == Type::Memory)
-	// {
-	// 	Log() << "StreamReader: getChunk share data name: " << name();
-	// 	ret->openString(mData.data(), position, position+size);
-	// 	ret->mType = Type::Memory;
-	// 	ret->mName = mName+"-chunk";
-	// 	mChildren.push_back(ret.get());
-	// 	return ret;
-	// }
+	if(mType == Type::Memory)
+	{
+		if(mData.size())
+		{
+			if(mData.size() < position + size)
+				Log(Log::DIE) << "StreamReader: Chunk exceeds underlaying data (vector)";
+
+			ret->mBegin = mData.data() + position;
+		}
+		else
+		{
+			if(!mBegin || position + size > mSize)
+				Log(Log::DIE) << "StreamReader: Chunk exceeds underlaying data (pointer)";
+
+			ret->mBegin = mBegin+position;
+		}
+
+		ret->mSize = size;
+		ret->mBuf = Membuf(const_cast<char*>(ret->mBegin), const_cast<char*>(ret->mBegin + size));
+		ret->mType = Type::Memory;
+		ret->mName = mName+"-chunk";
+
+		Log() << "StreamReader: getChunk share data name: " << name()
+			<< "begin: " << (uint64_t)ret->mBegin
+			<< " size: " << ret->mSize;
+		mChildren.emplace_back(ret.get());
+		return ret;
+	}
 
 	// Copy data from stream
 	Log() << "StreamReader: getChunk - THIS IS EXPENSIVE - from: " << mName;
