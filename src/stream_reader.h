@@ -18,10 +18,11 @@ public:
 	void openString(const char* data, uint32_t begin, uint32_t end);
 
 	std::istream* get() const;
-	std::shared_ptr<StreamReader> getChunk(uint32_t position, uint32_t size) const;
+	std::shared_ptr<StreamReader> getChunk(uint32_t position, uint32_t size);
 
 	const char* data() const;
 	uint32_t size() const;
+	std::string name() const;
 
 	std::string readToString() const;
 
@@ -43,6 +44,7 @@ private:
 	void closeDataSource();
 
 	Type mType = Type::Empty;
+	std::string mName;
 
 	// File
 	mutable std::ifstream mFile;

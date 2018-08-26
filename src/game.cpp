@@ -7,6 +7,7 @@
 // #include "scene.h"
 #include "gui.h"
 // #include "lua.h"
+#include "renderer.h"
 #include "time.h"
 #include "config.h"
 #include "global.h"
@@ -29,16 +30,18 @@ Game::Game()
 
 void Game::init()
 {
-	loadGameFiles();
-
-	loadConfig();
-
-
+	Global::init<Config>(new Config());
 	Global::init<Time>(new Time());
+	Global::init<Renderer>(new Renderer());
+
+	loadGameFiles();
+	loadConfig();
 
 	mWindow = std::make_shared<Window>();
 	mWindow->init();
-	mWindow->initObjects();
+
+	Global::get<Renderer>()->init();
+	mWindow->updateSize();
 
 	// mSharedData = std::make_shared<SharedData>();
 	// global_sharedData = mSharedData.get();
@@ -60,6 +63,9 @@ void Game::init()
 	if(Global::get<Config>()->getInt("loopSleep"))
 		Log() << "Game: Entering throttled loop sleep: " << Global::get<Config>()->get("loopSleep");
 }
+
+Game::~Game()
+{}
 
 void Game::loadGameFiles()
 {
@@ -90,9 +96,18 @@ std::shared_ptr<StreamReader> Game::openResource(const std::string &name) const
 	return std::shared_ptr<StreamReader>();
 }
 
+bool Game::hasResource(const std::string &name) const
+{
+	for(auto f : mGameFiles)
+		if(f.hasFile(name))
+			return true;
+
+	return false;
+}
+
+
 void Game::loadConfig()
 {
-	Global::init<Config>(new Config());
 	auto r = openResource("defaults/config.cfg");
 	Global::get<Config>()->load(r);
 
@@ -107,7 +122,9 @@ void Game::loadConfig()
 
 void Game::mainMenu()
 {
-	mWindow->getGui()->message("test", "This is a test");
+	auto renderer = Global::get<Renderer>();
+
+	renderer->getGui()->message("test", "This is a test");
 	// mWindow->getGui()->rootWidget()->addWidget(m);
 }
 
@@ -121,10 +138,6 @@ bool Game::loop()
 	}
 #endif
 
-	return mWindow->onLoop();
-}
-
-Game::~Game()
-{
+	return mWindow->loop();
 }
 

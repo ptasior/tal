@@ -7,6 +7,7 @@
 #include "time.h"
 #include "config.h"
 #include "global.h"
+#include "renderer.h"
 #include <thread>
 #include <chrono>
 
@@ -16,7 +17,7 @@
 	#include <SDL_ttf.h>
 #endif
 
-#ifdef DESKTOP
+#if defined(DESKTOP) && ! defined(NDEBUG)
 void GLAPIENTRY MessageCallback(
 		GLenum source,
 		GLenum type,
@@ -24,20 +25,20 @@ void GLAPIENTRY MessageCallback(
 		GLenum severity,
 		GLsizei length,
 		const GLchar* message,
-		const void* userParam )
+		const void* userParam
+	)
 {
 	// if(severity >= DEBUG_SEVERITY_MEDIUM)
 	if(type == GL_DEBUG_TYPE_ERROR)
-		Log(Log::DIE) << "GL error " << type
-					<< " severity: " << severity
-					<< Log::endl << "message: " << message;
+		Log(Log::DIE) << "Window: GL error: "
+				<< "type: " << type << " severity: " << severity
+				<< Log::endl << "  " << message;
 	else
-		Log() << "GL info " << type
-					<< " severity: " << severity
-					<< Log::endl << "message: " << message;
+		Log() << "Window: GL mesage: "
+				<< "type: " << type << " severity: " << severity
+				<< Log::endl << "  " << message;
 }
 #endif
-
 
 
 Window::Window()
@@ -71,8 +72,8 @@ void Window::init()
 	if(!mGLContext)
 		Log(Log::DIE) << "Window: GL context could not be created! SDL_Error: " << SDL_GetError();
 
-	mRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
-	if(!mRenderer)
+	mSDLRenderer = SDL_CreateRenderer(mWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
+	if(!mSDLRenderer)
 		Log(Log::DIE) << "Window: Renderer could not be created! SDL_Error: " << SDL_GetError();
 
 	int fontsOK = TTF_Init();
@@ -92,8 +93,7 @@ void Window::init()
 #endif
 
 
-#ifdef DESKTOP
-	// TODO Enble in config
+#if defined(DESKTOP) && ! defined(NDEBUG)
 	glEnable              ( GL_DEBUG_OUTPUT );
 	glDebugMessageCallback( MessageCallback, 0 );
 #endif
@@ -102,12 +102,14 @@ void Window::init()
 	Log() << "GL_RENDERER:" << (char*)glGetString(GL_RENDERER);
 	Log() << "GL_SHADING_LANGUAGE_VERSION: " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
+	mRenderer = Global::get<Renderer>();
+
 	Log() << "Window: Initialisation succesed";
 }
 
 Window::~Window()
 {
-	SDL_DestroyRenderer(mRenderer);
+	SDL_DestroyRenderer(mSDLRenderer);
 	SDL_DestroyWindow(mWindow);
 	TTF_Quit();
 	SDL_Quit();
@@ -115,26 +117,10 @@ Window::~Window()
 	Log() << "Window: Quit";
 }
 
-void Window::initObjects()
+void Window::updateSize()
 {
-	mCamera = std::make_shared<RotatingCamera>();
-	// mCamera = std::make_shared<FpsCamera>();
-	mCamera->init();
-	mCamera->setSceneSize(mScreenWidth, mScreenHeight);
-
-	mScene = std::make_shared<Scene>();
-	// mScene->init();
-	mScene->setCamera(mCamera);
-
-	mGui = std::make_shared<Gui>();
-	mGui->init();
-	mGui->setSceneSize(mScreenWidth, mScreenHeight);
-
-#ifdef ANDROID
-	// Android at start does not emit window resize event
 	SDL_GetWindowSize(mWindow, &mScreenWidth, &mScreenHeight);
 	onResize(mScreenWidth, mScreenHeight);
-#endif
 }
 
 void Window::processEvents()
@@ -142,7 +128,8 @@ void Window::processEvents()
 	// SDL_PumpEvents();
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-	if(mCamera->processEvents(state)) return;
+	if(mRenderer->getCamera())
+		mRenderer->getCamera()->processEvents(state);
 }
 
 bool Window::onEvent(SDL_Event &event)
@@ -171,11 +158,13 @@ bool Window::onEvent(SDL_Event &event)
 				// 	}
 					break;
 				case SDLK_BACKSPACE:
-					if(mGui->textInput("backspace"))
+					if(mRenderer->getGui() &&
+							mRenderer->getGui()->textInput("backspace"))
 						return true;
 					break;
 				case SDLK_RETURN:
-					if(mGui->textInput("return"))
+					if(mRenderer->getGui() &&
+							mRenderer->getGui()->textInput("return"))
 						return true;
 					break;
 			}
@@ -205,7 +194,8 @@ bool Window::onEvent(SDL_Event &event)
 			}
 			return false;
 		case SDL_TEXTINPUT:
-			if(mGui->textInput(event.text.text))
+			if(mRenderer->getGui() &&
+					mRenderer->getGui()->textInput(event.text.text))
 				return true;
 			break;
 		case SDL_WINDOWEVENT:
@@ -217,7 +207,7 @@ bool Window::onEvent(SDL_Event &event)
 	return false;
 }
 
-bool Window::onLoop()
+bool Window::loop()
 {
 	SDL_Event mEvent;
 
@@ -225,11 +215,18 @@ bool Window::onLoop()
 
 	if(SDL_PollEvent(&mEvent))
 	{
-		!onEvent(mEvent) && // If event was handled in Gui, do not pass it to the camera
-			mCamera->onEvent(mEvent);
+		bool processed = false;
+
+		processed = onEvent(mEvent);
+		
+		if(!processed) // If event was handled in Gui, do not pass it to the camera
+			if(mRenderer->getCamera())
+				mRenderer->getCamera()->onEvent(mEvent);
+		
 	}
 
-	if(!mGui->grabsFocus())
+	if(mRenderer->getGui() &&
+		!mRenderer->getGui()->grabsFocus())
 		processEvents();
 
 	// mNet->loop();
@@ -251,60 +248,39 @@ void Window::onPaint()
 	glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	// glEnable(GL_CULL_FACE);
-	mScene->paint();
-
-	// glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	mGui->paint();
+	mRenderer->paint();
 
 	SDL_GL_SwapWindow(mWindow);
 }
 
 void Window::onResize(int width, int height)
 {
-	// if(mScreenWidth == width && mScreenHeight == height)
-	// 	return;
-
 	mScreenWidth = width;
 	mScreenHeight = height;
 	glViewport(0, 0, mScreenWidth, mScreenHeight);
 
 	Log() << "Window: Resize width: " << width << " height: " << height;
 
-	mCamera->setSceneSize(mScreenWidth, mScreenHeight);
-	mGui->setSceneSize(mScreenWidth, mScreenHeight);
+	mRenderer->windowResized(mScreenWidth, mScreenHeight);
 
 	// Lua::getInstance()->resizeWindow();
 }
 
 bool Window::onClick(int x, int y)
 {
-	return mGui->click(x, y);
+	if(!mRenderer->getGui()) return false;
+	return mRenderer->getGui()->click(x, y);
 }
 
 bool Window::onDrag(int x, int y)
 {
-	return mGui->drag(x, y);
+	if(!mRenderer->getGui()) return false;
+	return mRenderer->getGui()->drag(x, y);
 }
 
 bool Window::onDrop(int x, int y)
 {
-	return mGui->drop(x, y);
-}
-
-Camera* Window::getCamera()
-{
-	return mCamera.get();
-}
-
-Scene* Window::getScene()
-{
-	return mScene.get();
-}
-
-Gui* Window::getGui()
-{
-	return mGui.get();
+	if(!mRenderer->getGui()) return false;
+	return mRenderer->getGui()->drop(x, y);
 }
 

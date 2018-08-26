@@ -8,7 +8,7 @@ GameFile::GameFile(std::shared_ptr<StreamReader> reader)
 	std::istream *stream = reader->get();
 
 	if(!stream->good())
-		Log(Log::DIE) << "GameFile: Cannot open file";
+		Log(Log::DIE) << "GameFile: Cannot open file: " << reader->name();
 
 	uint8_t type;
 	uint8_t version;
@@ -18,7 +18,10 @@ GameFile::GameFile(std::shared_ptr<StreamReader> reader)
 	// Log() << "Reading file, type: " << type << " ver: " << version;
 
 	if(type != 0x12 || version < 1)
-		Log(Log::DIE) << "GameFile: Format not supported type: " << type << " version: " << version;
+		Log(Log::DIE) << "GameFile: Format not supported:"
+					<< " type: " << type
+					<< " version: " << version
+					<< " file: " << reader->name();
 
 	std::string file;
 	char buf[512];
@@ -31,10 +34,8 @@ GameFile::GameFile(std::shared_ptr<StreamReader> reader)
 	{
 		stream->read(reinterpret_cast<char*>(&size), 2);
 		if(!size)
-		{
-			// Log() << "size == 0";
 			break; // End of file descriptor
-		}
+
 		// Log() << "size: " << size;
 
 		stream->read(buf, size);
@@ -48,8 +49,10 @@ GameFile::GameFile(std::shared_ptr<StreamReader> reader)
 		if(!headerStop)
 			headerStop = start;
 		else if(start != lastEnd)
-			Log(Log::DIE) << "GameFile: Embedded file does not start immediately after previous one: "
-				<< file << " lastEnd: " << lastEnd << " start: " << start;
+			Log(Log::DIE) << "GameFile: Embedded file does not start immediately after previous one"
+					<< " file: " << file
+					<< " lastEnd: " << lastEnd
+					<< " start: " << start;
 
 		lastEnd = start+stop;
 	}
@@ -57,14 +60,16 @@ GameFile::GameFile(std::shared_ptr<StreamReader> reader)
 	if(stream->tellg() != -1 && // More than 1 file
 			(uint32_t)stream->tellg() != headerStop)
 		Log(Log::DIE) << "GameFile: First file index not immediately after header "
-				<< " headerStop: "<< headerStop << " file pos: " << (uint32_t)stream->tellg();
+					<< " headerStop: "<< headerStop
+					<< " file pos: " << (uint32_t)stream->tellg();
 
 	stream->seekg(0, std::ios_base::end); // Move to the end of file
 	if((uint32_t)stream->tellg() != start + stop)
 			Log(Log::DIE) << "GameFile: File size different than declared "
-				<< " fileSize: "<< (uint32_t)stream->tellg() << " last file end: " << start + stop;
+					<< " fileSize: "<< (uint32_t)stream->tellg()
+					<< " last file end: " << start + stop;
 
-	Log() << "GameFile: file read";
+	Log() << "GameFile: file read succesfully";
 }
 
 GameFile::~GameFile()
@@ -107,17 +112,17 @@ std::string GameFile::readString(std::string file) const
 	return buf;
 }
 
-std::shared_ptr<StreamReader> GameFile::readStream(std::string file) const
+std::shared_ptr<StreamReader> GameFile::readStream(std::string fileName) const
 {
-	if(!m_positions.count(file))
+	if(!m_positions.count(fileName))
 	{
-		Log() << "GameFile: File does not exist: " << file;
+		Log() << "GameFile: File does not exist: " << fileName;
 		return std::shared_ptr<StreamReader>();
 	}
 
-	Pos p = m_positions.at(file);
+	Pos p = m_positions.at(fileName);
 
-	return mStreamReader->getChunk(p.position, p.size);
+	return std::move(mStreamReader->getChunk(p.position, p.size));
 }
 
 bool GameFile::hasFile(const std::string& name) const

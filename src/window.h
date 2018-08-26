@@ -3,13 +3,7 @@
 #include "gl_header.h"
 #include <memory>
 
-class Scene;
-class Camera;
-class Net;
-class Gui;
-class Config;
-class SharedData;
-class DataReader;
+class Renderer;
 
 class Window
 {
@@ -19,18 +13,18 @@ public:
 
 	void init();
 	void initObjects();
+	bool loop();
+	void updateSize();
+
+private:
 	void processEvents();
 	bool onEvent(SDL_Event &event);
-	bool onLoop();
-	void onPaint();
 	bool onClick(int x, int y);
 	bool onDrag(int x, int y);
 	bool onDrop(int x, int y);
 	void onResize(int width, int height);
 
-	Camera* getCamera();
-	Scene* getScene();
-	Gui* getGui();
+	void onPaint();
 
 private:
 	int mScreenWidth = 640;
@@ -39,17 +33,11 @@ private:
 	bool mDragging = false;
 	bool mButtonDown = false;
 
+	Renderer *mRenderer = nullptr;
+
 	SDL_Window* mWindow = nullptr;
-	SDL_Renderer *mRenderer = nullptr;
+	SDL_Renderer *mSDLRenderer = nullptr;
 	SDL_GLContext mGLContext = nullptr;
 	GLuint vao;
-
-	// std::shared_ptr<Net> mNet;
-	std::shared_ptr<Camera> mCamera;
-	std::shared_ptr<Scene> mScene;
-	std::shared_ptr<Gui> mGui;
-	// std::shared_ptr<Config> mConfig;
-	// std::shared_ptr<SharedData> mSharedData;
-	// std::shared_ptr<DataReader> mDataReader;
 };
 

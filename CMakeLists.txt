@@ -47,6 +47,7 @@ set (SOURCE_FILES
 		${PROJECT_SOURCE_DIR}/src/string_utils.cpp
 		${PROJECT_SOURCE_DIR}/src/matrix.cpp
 		${PROJECT_SOURCE_DIR}/src/time.cpp
+		${PROJECT_SOURCE_DIR}/src/renderer.cpp
 		# ${PROJECT_SOURCE_DIR}/src/net.cpp
 		# ${PROJECT_SOURCE_DIR}/src/shared_data.cpp
 		${PROJECT_SOURCE_DIR}/assets/output/embedded_defaults.cpp

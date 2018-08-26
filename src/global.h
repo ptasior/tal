@@ -13,6 +13,9 @@ public:
 	template<class T>
     static T* get()
 	{
+		if(!getInstance<T>())
+			Log(Log::DIE) << "Global: Requested type not initialised";
+
 		return getInstance<T>().get();
 	}
 
@@ -20,7 +23,7 @@ public:
     static void init(T* t)
 	{
 		if(getInstance<T>())
-			Log(Log::DIE) << "Global: type already initialised";
+			Log(Log::DIE) << "Global: Type already initialised";
 
 		getInstance<T>().reset(t);
 	}

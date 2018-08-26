@@ -9,7 +9,6 @@
 
 std::map<std::string, std::shared_ptr<Shader>> Shader::mList;
 std::string Shader::mCurrent;
-std::mutex Shader::mMutex;
 
 const std::map<GLenum, std::function<void(GLint, Shader::Value)>> uniformFunctions =
 {
@@ -28,7 +27,14 @@ void Shader::init(const char *name)
 {
 	Log() << "Shader: loading " << name;
 	mName = name;
-	std::string file = std::string("defaults/shaders/") + name;
+	std::string file = std::string("shaders/") + name;
+	if(!Global::get<Game>()->hasResource(file + ".v.glsl"))
+	{
+		file = std::string("defaults/")+file;
+		if(!Global::get<Game>()->hasResource(file + ".v.glsl"))
+			Log(Log::DIE) << "Shader: Shader does not exist: " << name;
+	}
+
 	GLuint vertexShader = loadShader(file + ".v.glsl", GL_VERTEX_SHADER);
 	GLuint fragmentShader = loadShader(file + ".f.glsl", GL_FRAGMENT_SHADER);
 
@@ -160,13 +166,9 @@ void Shader::useProgram()
 
 void Shader::use()
 {
-	{
-		std::lock_guard<std::mutex> lock(mMutex);
+	if(mCurrent == mName) return; // Currently used
 
-		if(mCurrent == mName) return; // Currently used
-
-		mCurrent = mName;
-	}
+	mCurrent = mName;
 
 	useProgram();
 	// Log() << "Shader: Using " << mName;
@@ -190,8 +192,6 @@ void Shader::use()
 
 std::shared_ptr<Shader> Shader::getShader(const char *name)
 {
-	std::lock_guard<std::mutex> lock(mMutex);
-
 	if(!mList.count(name)) // Not yet initialised
 	{
 		mList[name].reset(new Shader);

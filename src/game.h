@@ -17,6 +17,7 @@ public:
 	bool loop();
 
 	std::shared_ptr<StreamReader> openResource(const std::string &name) const;
+	bool hasResource(const std::string &name) const;
 
 private:
 	void loadGameFiles();

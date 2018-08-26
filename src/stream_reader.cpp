@@ -53,6 +53,7 @@ void StreamReader::closeDataSource()
 		c->closeDataSource();
 	
 	mType = Type::Empty;
+	mName = "";
 }
 
 void StreamReader::openFile(const std::string& name)
@@ -61,6 +62,7 @@ void StreamReader::openFile(const std::string& name)
 		Log(Log::DIE) << "StreamReader: Stream already opened";
 
 	mType = Type::File;
+	mName = name;
 
 	mFile.open(name, std::ios::binary|std::ios::in);
 }
@@ -71,6 +73,8 @@ void StreamReader::openString(const char* data, uint32_t begin, uint32_t end)
 		Log(Log::DIE) << "StreamReader: Stream already opened";
 
 	mType = Type::Memory;
+	mName = "data";
+
 	mBegin = data + begin;
 	mSize = end - begin;
 
@@ -92,21 +96,22 @@ std::istream* StreamReader::get() const
 	return nullptr;
 }
 
-std::shared_ptr<StreamReader> StreamReader::getChunk(uint32_t position, uint32_t size) const
+std::shared_ptr<StreamReader> StreamReader::getChunk(uint32_t position, uint32_t size)
 {
 	std::shared_ptr<StreamReader> ret = std::make_shared<StreamReader>();
 
 	// if(mType == Type::Memory)
 	// {
-	// 	Log() << "StreamReader: getChunk share data";
-	// 	ret->openString(mData.data(), position, size);
+	// 	Log() << "StreamReader: getChunk share data name: " << name();
+	// 	ret->openString(mData.data(), position, position+size);
 	// 	ret->mType = Type::Memory;
-	// 	ret->mChildren.push_back(ret.get());
+	// 	ret->mName = mName+"-chunk";
+	// 	mChildren.push_back(ret.get());
 	// 	return ret;
 	// }
 
 	// Copy data from stream
-	Log() << "StreamReader: getChunk - THIS IS EXPENSIVE";
+	Log() << "StreamReader: getChunk - THIS IS EXPENSIVE - from: " << mName;
 
 	ret->mData.resize(size);
 	get()->seekg(position);
@@ -115,6 +120,7 @@ std::shared_ptr<StreamReader> StreamReader::getChunk(uint32_t position, uint32_t
 	ret->openString(ret->mData.data(), 0, size);
 
 	ret->mType = Type::Chunk;
+	ret->mName = mName+"-chunk";
 
 	return ret;
 }
@@ -139,6 +145,11 @@ uint32_t StreamReader::size() const
 		return mSize;
 	else
 		return mData.size();
+}
+
+std::string StreamReader::name() const
+{
+	return mName;
 }
 
 std::string StreamReader::readToString() const

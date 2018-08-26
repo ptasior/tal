@@ -47,7 +47,6 @@ private:
 
 	std::function<void(void)> mOnChange;
 
-	static std::mutex mMutex;
 	static std::map<std::string, std::shared_ptr<Shader>> mList;
 	static std::string mCurrent;
 };
