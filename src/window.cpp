@@ -16,6 +16,30 @@
 	#include <SDL_ttf.h>
 #endif
 
+#ifdef DESKTOP
+void GLAPIENTRY MessageCallback(
+		GLenum source,
+		GLenum type,
+		GLuint id,
+		GLenum severity,
+		GLsizei length,
+		const GLchar* message,
+		const void* userParam )
+{
+	// if(severity >= DEBUG_SEVERITY_MEDIUM)
+	if(type == GL_DEBUG_TYPE_ERROR)
+		Log(Log::DIE) << "GL error " << type
+					<< " severity: " << severity
+					<< Log::endl << "message: " << message;
+	else
+		Log() << "GL info " << type
+					<< " severity: " << severity
+					<< Log::endl << "message: " << message;
+}
+#endif
+
+
+
 Window::Window()
 {}
 
@@ -67,15 +91,16 @@ void Window::init()
 	glBindVertexArray(vao);
 #endif
 
-	Log() << "GL_VERSION: " << (char*)glGetString(GL_VERSION);
-	Log() << "GL_SHADING_LANGUAGE_VERSION: " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
-
-#ifdef ANDROID
-	// Android at start does not emit window resize event
-	SDL_GetWindowSize(mWindow, &mScreenWidth, &mScreenHeight);
-	onResize(mScreenWidth, mScreenHeight);
+#ifdef DESKTOP
+	// TODO Enble in config
+	glEnable              ( GL_DEBUG_OUTPUT );
+	glDebugMessageCallback( MessageCallback, 0 );
 #endif
+
+	Log() << "GL_VERSION: " << (char*)glGetString(GL_VERSION);
+	Log() << "GL_RENDERER:" << (char*)glGetString(GL_RENDERER);
+	Log() << "GL_SHADING_LANGUAGE_VERSION: " << (char*)glGetString(GL_SHADING_LANGUAGE_VERSION);
 
 	Log() << "Window: Initialisation succesed";
 }
@@ -104,6 +129,12 @@ void Window::initObjects()
 	mGui = std::make_shared<Gui>();
 	mGui->init();
 	mGui->setSceneSize(mScreenWidth, mScreenHeight);
+
+#ifdef ANDROID
+	// Android at start does not emit window resize event
+	SDL_GetWindowSize(mWindow, &mScreenWidth, &mScreenHeight);
+	onResize(mScreenWidth, mScreenHeight);
+#endif
 }
 
 void Window::processEvents()
