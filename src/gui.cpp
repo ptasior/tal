@@ -1,5 +1,6 @@
 #include "gui.h"
 #include "log.h"
+#include "renderer.h"
 #include "sprite_gui.h"
 #include "shader.h"
 // #include "lua.h"
@@ -675,7 +676,7 @@ void Gui::init()
 void Gui::paint()
 {
 	if(mFps) mFps->setText("FPS: "+std::to_string((int)Global::get<Time>()->fps()));
-	Shader::getShader("gui")->use();
+	Global::get<Renderer>()->shader("gui")->use();
 
 	mRoot->paint();
 }
@@ -690,7 +691,7 @@ void Gui::setSceneSize(int w, int h)
 	mConsole->setWidth(w);
 
 	mMvp = glm::ortho(0.f, 1.0f*mSceneWidth, 1.0f*mSceneHeight, 0.0f, -1.f, 1.f);
-	Shader::getShader("gui")->setUniform("mvp", {glm::value_ptr(mMvp)});
+	Global::get<Renderer>()->shader("gui")->setUniform("gui_mvp", {glm::value_ptr(mMvp)});
 }
 
 bool Gui::click(int x, int y)

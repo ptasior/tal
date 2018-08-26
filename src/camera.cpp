@@ -115,3 +115,9 @@ bool Camera::onEvent(SDL_Event &event)
 {
 	return false;
 }
+
+void Camera::setupShaderMVP(Shader *shader)
+{
+	shader->setUniform("mvp", Shader::Value{glm::value_ptr(mMvp)});
+}
+

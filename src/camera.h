@@ -2,6 +2,8 @@
 #include "gl_header.h"
 #include <glm/glm.hpp>
 
+class Shader;
+
 class Camera
 {
 public:
@@ -15,6 +17,8 @@ public:
 	void setPreRot(const glm::mat4& v);
 	void setPostRot(const glm::mat4& v);
 	void setCameraPos(const glm::vec3& v);
+
+	void setupShaderMVP(Shader *shader); // const
 
 	glm::mat4 getModel();
 	glm::mat4 getView();

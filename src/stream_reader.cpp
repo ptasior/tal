@@ -47,7 +47,7 @@ StreamReader::~StreamReader()
 void StreamReader::closeDataSource()
 {
 	if(mChildren.size()) // TODO Copy data when closing
-		Log(Log::DIE) << "StreamReader: Closing still used data source. Implement copying data";
+		Log() << "!!! StreamReader: Closing still used data source. Implement copying data";
 
 	for(auto c : mChildren)
 		c->closeDataSource();

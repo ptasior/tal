@@ -1,5 +1,7 @@
 #include "model.h"
 #include "shader.h"
+#include "global.h"
+#include "renderer.h"
 #include "texture.h"
 
 #include <glm/glm.hpp>
@@ -9,7 +11,7 @@
 
 void Model::init(const std::string path)
 {
-	mShader = Shader::getShader("model");
+	mShader = Global::get<Renderer>()->shader("model");
 
 	mAttrVert = mShader->attrib("coord3d");
 	mAttrTex = mShader->attrib("texcoord");

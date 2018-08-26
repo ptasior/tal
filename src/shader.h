@@ -10,6 +10,8 @@
 class Shader
 {
 public:
+	Shader();
+
 	union Value
 	{
 		GLfloat* float_ptr;
@@ -23,15 +25,13 @@ public:
 
 	void setUniform(const char* name, Value v);
 	GLuint attrib(const char* name);
+	bool hasUniform(const char* name) const;
 	const std::string &getName() const;
 
 	void use();
 	void setOnChange(std::function<void(void)> fnc);
 
-	static std::shared_ptr<Shader> getShader(const char *name);
-
 private:
-	Shader();
 
 	GLuint loadShader(const std::string &file, GLenum type);
 	void readVariables();
@@ -47,7 +47,6 @@ private:
 
 	std::function<void(void)> mOnChange;
 
-	static std::map<std::string, std::shared_ptr<Shader>> mList;
 	static std::string mCurrent;
 };
 

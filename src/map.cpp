@@ -1,5 +1,7 @@
 #include "map.h"
 #include "log.h"
+#include "global.h"
+#include "renderer.h"
 #include "shader.h"
 #include "texture.h"
 // #include <SDL2/SDL_image.h>
@@ -39,7 +41,7 @@ void Map::init(const std::string path)
 	float stepH;
 	float stepU;
 
-	mShader = Shader::getShader("map");
+	mShader = Global::get<Renderer>()->shader("map");
 
 	mAttrVert = mShader->attrib("coord3d");
 	mAttrTex = mShader->attrib("texcoord");

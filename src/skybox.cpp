@@ -1,4 +1,6 @@
 #include "skybox.h"
+#include "global.h"
+#include "renderer.h"
 #include "shader.h"
 #include "texture.h"
 #include "log.h"
@@ -19,7 +21,7 @@ Skybox::~Skybox()
 
 void Skybox::init(const std::string path)
 {
-	mShader = Shader::getShader("triangle");
+	mShader = Global::get<Renderer>()->shader("triangle");
 
 	mAttrVert = mShader->attrib("coord3d");
 	mAttrTex = mShader->attrib("texcoord");

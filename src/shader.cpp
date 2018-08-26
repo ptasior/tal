@@ -1,5 +1,6 @@
 #include "shader.h"
 #include "game.h"
+#include "renderer.h"
 #include "gl_header.h"
 #include "log.h"
 #include "global.h"
@@ -7,7 +8,6 @@
 #include <vector>
 #include <cassert>
 
-std::map<std::string, std::shared_ptr<Shader>> Shader::mList;
 std::string Shader::mCurrent;
 
 const std::map<GLenum, std::function<void(GLint, Shader::Value)>> uniformFunctions =
@@ -190,17 +190,6 @@ void Shader::use()
 	}
 }
 
-std::shared_ptr<Shader> Shader::getShader(const char *name)
-{
-	if(!mList.count(name)) // Not yet initialised
-	{
-		mList[name].reset(new Shader);
-		mList[name]->init(name);
-	}
-
-	return mList[name];
-}
-
 
 void Shader::setOnChange(std::function<void(void)> fnc)
 {
@@ -238,7 +227,7 @@ void Shader::setUniform(const char* name, Value v)
 
 	// Restore previous shader
 	if(mCurrent != mName && !mCurrent.empty())
-		getShader(mCurrent.c_str())->useProgram();
+		Global::get<Renderer>()->shader(mCurrent.c_str())->useProgram();
 }
 
 GLuint Shader::attrib(const char* name)
@@ -256,3 +245,8 @@ const std::string& Shader::getName() const
 	return mName;
 }
 
+
+bool Shader::hasUniform(const char* name) const
+{
+	return mUniforms.count(name);
+}

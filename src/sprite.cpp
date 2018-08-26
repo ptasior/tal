@@ -1,6 +1,7 @@
 #include "sprite.h"
 #include "log.h"
 #include "shader.h"
+#include "renderer.h"
 #include "texture.h"
 #include "global.h"
 #include "config.h"
@@ -77,7 +78,7 @@ void Sprite::init(std::string path, std::string shaderName)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo_elements);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
-	mShader = Shader::getShader(shaderName.c_str());
+	mShader = Global::get<Renderer>()->shader(shaderName.c_str());
 
 	attribute_coord3d = mShader->attrib("coord3d");
 	attribute_texcoord = mShader->attrib("texcoord");
@@ -146,7 +147,7 @@ void Sprite::paint()
 
 void Sprite::setShader(const std::string &name)
 {
-	mShader = Shader::getShader(name.c_str());
+	mShader = Global::get<Renderer>()->shader(name.c_str());
 }
 
 void Sprite::setTexture(const std::string &path)
