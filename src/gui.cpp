@@ -3,7 +3,7 @@
 #include "renderer.h"
 #include "sprite_gui.h"
 #include "shader.h"
-// #include "lua.h"
+#include "lua.h"
 #include "time.h"
 #include "config.h"
 #include "global.h"
@@ -633,7 +633,7 @@ Console::Console():
 			mEdit->setText("");
 			log(cmd);
 
-			// Lua::getInstance()->execute(cmd.c_str());
+			// Lua::Global::get<Lua>()->execute(cmd.c_str());
 		});
 	addOwnedWidget(mEdit);
 }
@@ -762,7 +762,7 @@ void Gui::message(std::string title, std::string msg)
 
 	auto btn = std::make_shared<Button>("OK");
 	btn->onClick([box, this](){
-			// Lua::setWait(0);
+			Lua::setWait(0);
 			mRoot->removeOwnedWidget(box.get());
 		});
 	box->addBottomButton(btn);

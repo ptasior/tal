@@ -2,6 +2,8 @@
 #include "log.h"
 #include "shader.h"
 #include "texture.h"
+#include "renderer.h"
+#include "global.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -177,7 +179,7 @@ void ModelObj::init(const std::string path)
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, faces[i].size()*sizeof(GLushort), faces[i].data(), GL_STATIC_DRAW);
 
-		mObjects[ibo] = Texture::getTexture((mDirectory+"/"+mTextures[materials[i]]).c_str(), mShader.get());
+		mObjects[ibo] = Global::get<Renderer>()->texture((mDirectory+"/"+mTextures[materials[i]]).c_str(), mShader.get());
 	}
 
 	mFile.close();

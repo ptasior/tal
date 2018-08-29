@@ -130,3 +130,13 @@ bool GameFile::hasFile(const std::string& name) const
 	return m_positions.count(name);
 }
 
+std::string GameFile::name() const
+{
+	return mStreamReader->name();
+}
+
+void GameFile::print() const
+{
+	for(auto p : m_positions)
+		Log() << " " << p.first;
+}

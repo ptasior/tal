@@ -3,6 +3,7 @@
 #include "renderer.h"
 #include "shader.h"
 #include "texture.h"
+#include "renderer.h"
 #include "log.h"
 
 #include <glm/glm.hpp>
@@ -131,13 +132,13 @@ void Skybox::init(const std::string path)
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mIboElem);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_elements), cube_elements, GL_STATIC_DRAW);
 
-	mTexture = Texture::getTexture(path.c_str(), mShader.get());
+	mTexture = Global::get<Renderer>()->texture(path.c_str(), mShader.get());
 	mTexture->setClamp();
 }
 
 void Skybox::setTexture(const std::string path)
 {
-	mTexture = Texture::getTexture(path.c_str(), mShader.get());
+	mTexture = Global::get<Renderer>()->texture(path.c_str(), mShader.get());
 	mTexture->setClamp();
 }
 

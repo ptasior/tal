@@ -10,6 +10,7 @@
 #include "renderer.h"
 #include <thread>
 #include <chrono>
+#include "lua.h"
 
 #ifdef DESKTOP
 	#include <SDL2/SDL_ttf.h>
@@ -128,8 +129,8 @@ void Window::processEvents()
 	// SDL_PumpEvents();
 	const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-	if(mRenderer->getCamera())
-		mRenderer->getCamera()->processEvents(state);
+	if(mRenderer->camera())
+		mRenderer->camera()->processEvents(state);
 }
 
 bool Window::onEvent(SDL_Event &event)
@@ -158,13 +159,13 @@ bool Window::onEvent(SDL_Event &event)
 				// 	}
 					break;
 				case SDLK_BACKSPACE:
-					if(mRenderer->getGui() &&
-							mRenderer->getGui()->textInput("backspace"))
+					if(mRenderer->gui() &&
+							mRenderer->gui()->textInput("backspace"))
 						return true;
 					break;
 				case SDLK_RETURN:
-					if(mRenderer->getGui() &&
-							mRenderer->getGui()->textInput("return"))
+					if(mRenderer->gui() &&
+							mRenderer->gui()->textInput("return"))
 						return true;
 					break;
 			}
@@ -194,8 +195,8 @@ bool Window::onEvent(SDL_Event &event)
 			}
 			return false;
 		case SDL_TEXTINPUT:
-			if(mRenderer->getGui() &&
-					mRenderer->getGui()->textInput(event.text.text))
+			if(mRenderer->gui() &&
+					mRenderer->gui()->textInput(event.text.text))
 				return true;
 			break;
 		case SDL_WINDOWEVENT:
@@ -220,19 +221,19 @@ bool Window::loop()
 		processed = onEvent(mEvent);
 		
 		if(!processed) // If event was handled in Gui, do not pass it to the camera
-			if(mRenderer->getCamera())
-				mRenderer->getCamera()->onEvent(mEvent);
+			if(mRenderer->camera())
+				mRenderer->camera()->onEvent(mEvent);
 		
 	}
 
-	if(mRenderer->getGui() &&
-		!mRenderer->getGui()->grabsFocus())
+	if(mRenderer->gui() &&
+		!mRenderer->gui()->grabsFocus())
 		processEvents();
 
 	// mNet->loop();
 
 	// Internally executes every n-th frame
-	// Lua::getInstance()->loop();
+	// Global::get<Lua>()->loop();
 
 	onPaint();
 
@@ -263,24 +264,24 @@ void Window::onResize(int width, int height)
 
 	mRenderer->windowResized(mScreenWidth, mScreenHeight);
 
-	// Lua::getInstance()->resizeWindow();
+	Global::get<Lua>()->resizeWindow();
 }
 
 bool Window::onClick(int x, int y)
 {
-	if(!mRenderer->getGui()) return false;
-	return mRenderer->getGui()->click(x, y);
+	if(!mRenderer->gui()) return false;
+	return mRenderer->gui()->click(x, y);
 }
 
 bool Window::onDrag(int x, int y)
 {
-	if(!mRenderer->getGui()) return false;
-	return mRenderer->getGui()->drag(x, y);
+	if(!mRenderer->gui()) return false;
+	return mRenderer->gui()->drag(x, y);
 }
 
 bool Window::onDrop(int x, int y)
 {
-	if(!mRenderer->getGui()) return false;
-	return mRenderer->getGui()->drop(x, y);
+	if(!mRenderer->gui()) return false;
+	return mRenderer->gui()->drop(x, y);
 }
 

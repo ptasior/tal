@@ -6,6 +6,7 @@ class Camera;
 class Scene;
 class Gui;
 class Shader;
+class Texture;
 
 class Renderer
 {
@@ -16,10 +17,11 @@ public:
 	void windowResized(int width, int height);
 	void paint(); //const
 
-	Camera* getCamera();
-	Scene* getScene();
-	Gui* getGui();
+	Camera* camera();
+	Scene* scene();
+	Gui* gui();
 	std::shared_ptr<Shader> shader(const char *name);
+	std::shared_ptr<Texture> texture(const char* path, Shader *s, const char* name=nullptr, int id=0);
 
 private:
 	std::shared_ptr<Camera> mCamera;
@@ -27,5 +29,6 @@ private:
 	std::shared_ptr<Gui> mGui;
 
 	std::map<std::string, std::shared_ptr<Shader>> mShaders;
+	std::map<std::string, std::shared_ptr<Texture>> mTextures;
 };
 

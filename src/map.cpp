@@ -186,7 +186,7 @@ void Map::addTexture(const std::string path)
 {
 	int cnt = mTextures.size();
 	std::string name = "texture"+std::to_string(cnt);
-	auto tex = Texture::getTexture(path.c_str(), mShader.get(), name.c_str(), cnt);
+	auto tex = Global::get<Renderer>()->texture(path.c_str(), mShader.get(), name.c_str(), cnt);
 	mTextures.push_back(tex);
 }
 

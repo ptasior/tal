@@ -10,8 +10,8 @@
 #include "time.h"
 #include "config.h"
 #include "global.h"
+#include "game.h"
 #include "shared_data.h"
-#include "data_reader.h"
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -26,16 +26,10 @@ void Lua::logFnc(std::string s)
 
 sol::object Lua::requireScript(std::string s)
 {
-	std::string data = Global::get<DataReader>()->readString(s+".lua");
-	std::replace(s.begin(), s.end(), '/', '_'); // Convert / to _ as module name must be legit
+	auto stream = Global::get<Game>()->openResource(s+".lua");
+	std::replace(s.begin(), s.end(), '/', '_'); // Convert / to _  in name as it must be legit
 
-	return getInstance()->mState.require_script(s, data);
-}
-
-Lua* Lua::getInstance()
-{
-	static Lua l;
-	return &l;
+	return Global::get<Lua>()->mState.require_script(s, stream->readToString());
 }
 
 int luaPanic(lua_State* L)
@@ -89,7 +83,7 @@ Lua::Lua()
 			"print", &SharedData::print
 		);
 
-	mState["sharedData"] = global_sharedData;
+	mState["sharedData"] = Global::get<SharedData>();
 
 	mState.new_usertype<DataNode>("DataNode",
 			"at", &DataNode::at,
@@ -107,13 +101,15 @@ void Lua::setup()
 {
 	mState.set_panic(luaPanic);
 
-	auto m = mState.script(Global::get<DataReader>()->readString("lua_lib/main.lua"));
+	auto stream = Global::get<Game>()->openResource("lua_lib/main.lua");
+	auto m = mState.script(stream->readToString());
 	if(!m.valid())
 		Log(Log::DIE) << "Lua: cannot load main.lua";
 
-	auto g = mState.script(Global::get<DataReader>()->readString(global_config->get("gameFile").c_str()));
+	stream = Global::get<Game>()->openResource(Global::get<Config>()->get("gameFile").c_str());
+	auto g = mState.script(stream->readToString());
 	if(!g.valid())
-		Log(Log::DIE) << "Lua: cannot load " << global_config->get("gameFile");
+		Log(Log::DIE) << "Lua: cannot load " << Global::get<Config>()->get("gameFile");
 
 	try
 	{
@@ -150,18 +146,19 @@ void Lua::setup()
 
 void Lua::loop()
 {
-	static unsigned int time = Time::current();
+	static unsigned int time = Global::get<Time>()->current();
 
-	if(time + mLoopResolution > Time::current())
+	auto currentTime = Global::get<Time>()->current();
+	if(time + mLoopResolution > currentTime)
 		return; // Don't call every frame
 
 	if(mWait == wsRefresh) // Run one frame
 		mWait = wsRun;
 
-	if(mWait == wsSleep && Time::current() > mTimeout)
+	if(mWait == wsSleep && currentTime > mTimeout)
 		mWait = wsRun;
 
-	time = Time::current();
+	time = currentTime;
 
 	if(mWait != wsRun)
 		return;
@@ -200,34 +197,34 @@ void Lua::loop()
 
 void Lua::execute(const char *cmd)
 {
-	Lua::getInstance()->mExecuteStrings.push_back(cmd);
+	Global::get<Lua>()->mExecuteStrings.push_back(cmd);
 }
 
 void Lua::executeLua(sol::function f)
 {
-	Lua::getInstance()->mExecuteLuaFunctions.push_back(f);
+	Global::get<Lua>()->mExecuteLuaFunctions.push_back(f);
 }
 
 void Lua::execute(sol::function f)
 {
-	Lua::getInstance()->mExecuteLuaFunctions.push_back(f);
+	Global::get<Lua>()->mExecuteLuaFunctions.push_back(f);
 }
 
 void Lua::execute(std::function<void(void)> f)
 {
-	Lua::getInstance()->mExecuteFunctions.push_back(f);
+	Global::get<Lua>()->mExecuteFunctions.push_back(f);
 }
 
 void Lua::updateAwaitingExecution()
 {
-	Lua::getInstance()->mState["global_toExecute"] = Lua::getInstance()->mExecuteFunctions;
-	Lua::getInstance()->mState["global_toExecuteLua"] = Lua::getInstance()->mExecuteLuaFunctions;
-	Lua::getInstance()->mState["global_toExecuteStrings"] = Lua::getInstance()->mExecuteStrings;
+	Global::get<Lua>()->mState["global_toExecute"] = Global::get<Lua>()->mExecuteFunctions;
+	Global::get<Lua>()->mState["global_toExecuteLua"] = Global::get<Lua>()->mExecuteLuaFunctions;
+	Global::get<Lua>()->mState["global_toExecuteStrings"] = Global::get<Lua>()->mExecuteStrings;
 
 	// TODO Check if it is OK or does it remove memory bbefore use...
-	Lua::getInstance()->mExecuteFunctions.clear();
-	Lua::getInstance()->mExecuteLuaFunctions.clear();
-	Lua::getInstance()->mExecuteStrings.clear();
+	Global::get<Lua>()->mExecuteFunctions.clear();
+	Global::get<Lua>()->mExecuteLuaFunctions.clear();
+	Global::get<Lua>()->mExecuteStrings.clear();
 }
 
 void Lua::wireframe()
@@ -241,22 +238,23 @@ void Lua::wireframe()
 
 void Lua::setWait(int v)
 {
-	getInstance()->mWait = (WaitState)v;
+	Global::get<Lua>()->mWait = (WaitState)v;
 }
 
 void Lua::setTimeout(int v)
 {
-	getInstance()->mTimeout = Time::current() + v;
+	Global::get<Lua>()->mTimeout = Global::get<Time>()->current() + v;
 }
 
 void Lua::setLoopResolution(unsigned int res)
 {
-	getInstance()->mLoopResolution = res;
+	Global::get<Lua>()->mLoopResolution = res;
 }
 
 void Lua::resizeWindow()
 {
-	mState["resizeWindow"]();
+	if(mState["resizeWindow"].valid())
+		mState["resizeWindow"]();
 }
 
 void Lua::sharedDataUpdated(const std::string &line)

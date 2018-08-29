@@ -1,7 +1,6 @@
 #pragma once
 #include "gl_header.h"
 #include <memory>
-#include <mutex>
 #include <string>
 #include <map>
 
@@ -11,6 +10,7 @@ class Shader;
 class Texture
 {
 public:
+	Texture();
 	// TODO Add destructor
 	virtual ~Texture();
 
@@ -25,22 +25,18 @@ public:
 	void setName(std::string name, int id);
 	std::string getName();
 
-	static std::shared_ptr<Texture> getTexture(const char* path, Shader *s, const char* name="mytexture", int id=0);
 	static void unbind();
 
 	// Input surface is deleted
 	static SDL_Surface* flip(SDL_Surface *surface, int flags);
 
 private:
-	Texture();
 	GLuint mTextureId;
 	GLint mUniformTexture;
 	std::string mGlslName;
 	int mGlslId;
 
 	std::string mName;
-	static std::mutex mMutex;
-	static std::map<std::string, std::shared_ptr<Texture>> mList;
 	Shader *mShader;
 };
 

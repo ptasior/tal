@@ -74,5 +74,3 @@ private:
 	friend class DataNode;
 };
 
-extern SharedData *global_sharedData;
-

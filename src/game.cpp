@@ -1,17 +1,17 @@
 #include "game.h"
 #include "log.h"
-// #include "net.h"
+#include "net.h"
 // #include "shader.h"
 // #include "camera_rotating.h"
 // #include "camera_fps.h"
 // #include "scene.h"
 #include "gui.h"
-// #include "lua.h"
+#include "lua.h"
 #include "renderer.h"
 #include "time.h"
 #include "config.h"
 #include "global.h"
-// #include "shared_data.h"
+#include "shared_data.h"
 #include "game_file.h"
 #include "file_utils.h"
 #include <thread>
@@ -33,6 +33,8 @@ void Game::init()
 	Global::init<Config>(new Config());
 	Global::init<Time>(new Time());
 	Global::init<Renderer>(new Renderer());
+	Global::init<SharedData>(new SharedData());
+	Global::init<Lua>(new Lua());
 
 	loadGameFiles();
 	loadConfig();
@@ -43,18 +45,15 @@ void Game::init()
 	Global::get<Renderer>()->init();
 	mWindow->updateSize();
 
-	// mSharedData = std::make_shared<SharedData>();
-	// global_sharedData = mSharedData.get();
-    //
-	// mNet = std::make_shared<Net>();
-    //
-	// // TODO How to make sure we have received self registration before entering Lua?
-	// if(!mConfig->getBool("offline"))
-	// 	mNet->connect();
-    //
-	// Lua::getInstance()->initGui(mGui.get());
-	// Lua::getInstance()->initScene(mScene.get());
-	// Lua::getInstance()->setup();
+	mNet = std::make_shared<Net>();
+
+	// TODO How to make sure we have received self registration before entering Lua?
+	if(!Global::get<Config>()->getBool("offline"))
+		mNet->connect();
+
+	Global::get<Lua>()->initGui(Global::get<Renderer>()->gui());
+	Global::get<Lua>()->initScene(Global::get<Renderer>()->scene());
+	Global::get<Lua>()->setup();
 
 	Log() << "Game: Initialisation succesed";
 
@@ -105,26 +104,36 @@ bool Game::hasResource(const std::string &name) const
 	return false;
 }
 
-
 void Game::loadConfig()
 {
 	auto r = openResource("defaults/config.cfg");
 	Global::get<Config>()->load(r);
+	Log() << "Game: Loaded default config";
 
 	for(auto f : mGameFiles)
 		if(f.hasFile("config.cfg"))
 		{
 			auto streamreader = f.readStream("config.cfg");
 			Global::get<Config>()->load(streamreader);
+			Log() << "Game: Config loaded from: " << f.name();
 		}
-	// Global::get<Config>->print();
+
+	if(FileUtils::fileExists("config.cfg"))
+	{
+		std::shared_ptr<StreamReader> file = std::make_shared<StreamReader>();
+		file->openFile("config.cfg");
+		Global::get<Config>()->load(file);
+		Log() << "Game: Config loaded from disk file";
+	}
+
+	Global::get<Config>()->print();
 }
 
 void Game::mainMenu()
 {
 	auto renderer = Global::get<Renderer>();
 
-	renderer->getGui()->message("test", "This is a test");
+	renderer->gui()->message("test", "This is a test");
 	// mWindow->getGui()->rootWidget()->addWidget(m);
 }
 
@@ -137,6 +146,10 @@ bool Game::loop()
 		std::this_thread::sleep_for(std::chrono::milliseconds(sleep));
 	}
 #endif
+
+	mNet->loop();
+	// Internally executes every n-th frame
+	Global::get<Lua>()->loop();
 
 	return mWindow->loop();
 }

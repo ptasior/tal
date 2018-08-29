@@ -1,6 +1,7 @@
 #include "shared_data.h"
 #include "lua.h"
 #include "log.h"
+#include "global.h"
 #include <assert.h>
 
 void SharedData::applyChange(std::string line)
@@ -23,7 +24,7 @@ void SharedData::applyChange(std::string line)
 
 	p->mValue = line;
 
-	Lua::getInstance()->sharedDataUpdated(origLine);
+	Global::get<Lua>()->sharedDataUpdated(origLine);
 }
 
 std::queue<std::string>& SharedData::getChanges()
@@ -95,7 +96,7 @@ void DataNode::set_i(std::string v)
 
 void DataNode::set(std::string v)
 {
-	if(!global_sharedData->mOnline)
+	if(!Global::get<SharedData>()->mOnline)
 		mValue = v; // If offline, wait till comes back from server to keep the order
 	else
 	{
@@ -107,7 +108,7 @@ void DataNode::set(std::string v)
 			p = p->mParent;
 		}
 
-		global_sharedData->addChange(line);
+		Global::get<SharedData>()->addChange(line);
 	}
 }
 

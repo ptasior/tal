@@ -36,8 +36,8 @@ for d in dirs:
         size = int(os.stat(f).st_size)
 
         name = f.encode('ascii')
-        if f.endswith('/config.lua'): # Promote config to main directory
-            name = 'config.lua'.encode('ascii')
+        if f.endswith('/config.cfg'): # Promote config to main directory
+            name = 'config.cfg'.encode('ascii')
 
         allItems.append((f, name, start, size))
         start = start + size
@@ -52,7 +52,7 @@ for i in allItems:
     ofile.write(struct.pack('I', allSize+i[2]))
     ofile.write(struct.pack('I', i[3]))
 
-    print(len(i[1]), i[0], '( from:', i[0], ')', allSize+i[2], i[3])
+    print(len(i[1]), i[1], '( from:', i[0], ')', allSize+i[2], i[3])
 
 # End header
 ofile.write(struct.pack('H', 0))

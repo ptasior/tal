@@ -25,6 +25,9 @@ public:
 
 	bool hasFile(const std::string& name) const;
 
+	std::string name() const;
+	void print() const;
+
 private:
 	struct Pos
 	{

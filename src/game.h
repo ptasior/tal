@@ -6,6 +6,8 @@
 #include <vector>
 
 class StreamReader;
+class Net;
+class SharedData;
 
 class Game
 {
@@ -26,5 +28,7 @@ private:
 
 	std::vector<GameFile> mGameFiles;
 	std::shared_ptr<Window> mWindow;
+	std::shared_ptr<Net> mNet;
+	std::shared_ptr<SharedData> mSharedData;
 };
 

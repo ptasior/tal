@@ -7,6 +7,8 @@ class Scene;
 class Lua
 {
 public:
+	Lua();
+
 	void initGui(Gui *gui);
 	void initScene(Scene *scene);
 	static void execute(const char *cmd);
@@ -23,12 +25,9 @@ public:
 	void loop();
 	void resizeWindow();
 	void sharedDataUpdated(const std::string &line);
-	static Lua* getInstance();
 
 private:
 	enum WaitState {wsRun, wsWait, wsRefresh, wsSleep};
-
-	Lua();
 
 	static sol::object requireScript(std::string s);
 	static void updateAwaitingExecution();

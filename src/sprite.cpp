@@ -87,9 +87,9 @@ void Sprite::init(std::string path, std::string shaderName)
 	if(path.empty()) return;
 
 	if(path.substr(0, 7) == "letter-") // A letter
-		mTexture = Texture::getTexture(Global::get<Config>()->get("fontTexture").c_str(), mShader.get());
+		mTexture = Global::get<Renderer>()->texture(Global::get<Config>()->get("fontTexture").c_str(), mShader.get());
 	else
-		mTexture = Texture::getTexture(path.c_str(), mShader.get());
+		mTexture = Global::get<Renderer>()->texture(path.c_str(), mShader.get());
 }
 
 void Sprite::setPosition(const glm::mat4 &position)
@@ -154,7 +154,7 @@ void Sprite::setTexture(const std::string &path)
 {
 	if(!mShader) return;
 
-	mTexture = Texture::getTexture(path.c_str(), mShader.get());
+	mTexture = Global::get<Renderer>()->texture(path.c_str(), mShader.get());
 }
 
 void Sprite::setTextureRepeat(unsigned int x, unsigned int y)

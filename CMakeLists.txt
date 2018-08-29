@@ -22,9 +22,9 @@ set (SOURCE_FILES
 		${PROJECT_SOURCE_DIR}/src/main.cpp
 		${PROJECT_SOURCE_DIR}/src/game.cpp
 		${PROJECT_SOURCE_DIR}/src/window.cpp
-		# ${PROJECT_SOURCE_DIR}/src/lua.cpp
-		# ${PROJECT_SOURCE_DIR}/src/lua_scene.cpp
-		# ${PROJECT_SOURCE_DIR}/src/lua_gui.cpp
+		${PROJECT_SOURCE_DIR}/src/lua.cpp
+		${PROJECT_SOURCE_DIR}/src/lua_scene.cpp
+		${PROJECT_SOURCE_DIR}/src/lua_gui.cpp
 		${PROJECT_SOURCE_DIR}/src/game_file.cpp
 		${PROJECT_SOURCE_DIR}/src/file_utils.cpp
 		${PROJECT_SOURCE_DIR}/src/stream_reader.cpp
@@ -48,8 +48,8 @@ set (SOURCE_FILES
 		${PROJECT_SOURCE_DIR}/src/matrix.cpp
 		${PROJECT_SOURCE_DIR}/src/time.cpp
 		${PROJECT_SOURCE_DIR}/src/renderer.cpp
-		# ${PROJECT_SOURCE_DIR}/src/net.cpp
-		# ${PROJECT_SOURCE_DIR}/src/shared_data.cpp
+		${PROJECT_SOURCE_DIR}/src/net.cpp
+		${PROJECT_SOURCE_DIR}/src/shared_data.cpp
 		${PROJECT_SOURCE_DIR}/assets/output/embedded_defaults.cpp
 	)
 

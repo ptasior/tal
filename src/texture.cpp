@@ -15,9 +15,6 @@
 #include <vector>
 
 
-std::mutex Texture::mMutex;
-std::map<std::string, std::shared_ptr<Texture>> Texture::mList;
-
 Uint32 get_pixel32(SDL_Surface *surface, int x, int y);
 void put_pixel32(SDL_Surface *surface, int x, int y, Uint32 pixel);
 
@@ -44,7 +41,6 @@ void Texture::init(const char *path, Shader *shader)
 	}
 	else if(mName.substr(0, 5) == "text-") // A letter
 	{
-		// TODO mutex
 		auto fontName = Global::get<Config>()->get("font");
 
 		auto data = Global::get<Game>()->openResource(fontName);
@@ -156,20 +152,6 @@ void Texture::apply()
 void Texture::unbind()
 {
 	glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-std::shared_ptr<Texture> Texture::getTexture(const char* path, Shader *s, const char* name, int id)
-{
-	// TODO Is it ok that texture may be reused with another shader???
-	std::lock_guard<std::mutex> lock(mMutex);
-	if(!mList.count(path))
-	{
-		mList[path].reset(new Texture);
-		mList[path]->setName(name, id);
-		mList[path]->init(path, s);
-	}
-
-	return mList[path];
 }
 
 Uint32 get_pixel32(SDL_Surface *surface, int x, int y)

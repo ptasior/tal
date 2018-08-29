@@ -2,6 +2,7 @@
 #include "log.h"
 #include "shared_data.h"
 #include "config.h"
+#include "global.h"
 #include <SDL_net.h>
 #include <assert.h>
 #include <errno.h>
@@ -22,12 +23,12 @@ void Net::connect()
 {
 	if(mSock) return;
 
-	std::string addr = global_config->get("serverAddr");
+	std::string addr = Global::get<Config>()->get("serverAddr");
 	int port;
 	#ifdef JS
-		port = std::stoi(global_config->get("serverWSPort"));
+		port = std::stoi(Global::get<Config>()->get("serverWSPort"));
 	#else
-		port = std::stoi(global_config->get("serverPort"));
+		port = std::stoi(Global::get<Config>()->get("serverPort"));
 	#endif
 	if(SDLNet_ResolveHost(&mIp, addr.c_str(), port) < 0)
 		Log(Log::DIE) << "Net: resolve host ("
@@ -46,7 +47,7 @@ void Net::connect()
 
 	SDLNet_TCP_AddSocket(mSocketSet, mSock);
 
-	global_sharedData->setOnline(true);
+	Global::get<SharedData>()->setOnline(true);
 	Log() << "Net: connected";
 }
 
@@ -78,11 +79,11 @@ void Net::loop()
 					if(!mRemainingBuff.empty())
 					{
 						Log() << "Net: applying with reminder: " << mRemainingBuff+(recvbuf+b);
-						global_sharedData->applyChange(mRemainingBuff+(recvbuf+b));
+						Global::get<SharedData>()->applyChange(mRemainingBuff+(recvbuf+b));
 						mRemainingBuff.clear();
 					}
 					else
-						global_sharedData->applyChange(recvbuf+b);
+						Global::get<SharedData>()->applyChange(recvbuf+b);
 					b = e+1;
 				}
 
@@ -97,10 +98,10 @@ void Net::loop()
 	}
 
 	// If nothing to send, return
-	if(global_sharedData->getChanges().empty())
+	if(Global::get<SharedData>()->getChanges().empty())
 		return;
-	std::string line = global_sharedData->getChanges().front()+'\2';
-	global_sharedData->getChanges().pop();
+	std::string line = Global::get<SharedData>()->getChanges().front()+'\2';
+	Global::get<SharedData>()->getChanges().pop();
 
 	int actual = 0;
 	int len = line.size();

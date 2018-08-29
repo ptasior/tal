@@ -2,6 +2,7 @@
 #include "camera.h"
 #include "camera_rotating.h"
 #include "shader.h"
+#include "texture.h"
 #include "gui.h"
 #include "scene.h"
 
@@ -45,17 +46,17 @@ void Renderer::init()
 	mGui->init();
 }
 
-Camera* Renderer::getCamera()
+Camera* Renderer::camera()
 {
 	return mCamera.get();
 }
 
-Scene* Renderer::getScene()
+Scene* Renderer::scene()
 {
 	return mScene.get();
 }
 
-Gui* Renderer::getGui()
+Gui* Renderer::gui()
 {
 	return mGui.get();
 }
@@ -71,6 +72,19 @@ std::shared_ptr<Shader> Renderer::shader(const char *name)
 	}
 
 	return mShaders[name];
+}
+
+std::shared_ptr<Texture> Renderer::texture(const char* path, Shader *s, const char* name, int id)
+{
+	// TODO Is it ok that texture may be reused with another shader???
+	if(!mTextures.count(path))
+	{
+		mTextures[path].reset(new Texture);
+		mTextures[path]->setName(name?name:"mytexture", id);
+		mTextures[path]->init(path, s);
+	}
+
+	return mTextures[path];
 }
 
 void Renderer::initCamera()
